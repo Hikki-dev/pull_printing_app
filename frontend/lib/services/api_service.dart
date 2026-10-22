@@ -34,6 +34,22 @@ class ApiService {
     return data.map((json) => PrintJob.fromJson(json)).toList();
   }
 
+  Future<void> setQuota({
+    required String token,
+    required String userId,
+    required int quota,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/admin/set-quota'),
+      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+      body: jsonEncode({'userId': userId, 'quota': quota}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to set quota: ${response.statusCode}');
+    }
+  }
+
   Future<void> releaseJob({required String token, required String jobId}) async {
     final response = await http.post(
       Uri.parse('$baseUrl/jobs/release'),
