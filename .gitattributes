@@ -1,0 +1,7 @@
+# Keep GitHub's language bar about the app's own code.
+android/** linguist-vendored
+ios/** linguist-vendored
+macos/** linguist-vendored
+windows/** linguist-vendored
+linux/** linguist-vendored
+web/** linguist-vendored
