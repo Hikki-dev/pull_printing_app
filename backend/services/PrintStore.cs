@@ -294,7 +294,7 @@ namespace PullPrintingBackend.Services
                     return new ReleaseResult(ReleaseOutcome.NothingToPrint, Array.Empty<PrintJob>(), 0, 0, user.Quota);
 
                 var available = _printers.TryGetValue(user.SandboxId, out var list)
-                    ? list.Where(p => p.Enabled).ToList()
+                    ? list.Where(p => p.Enabled).OrderBy(p => p.Name).ToList()
                     : new List<Printer>();
                 var printer = printerId is null
                     ? available.FirstOrDefault()

@@ -18,6 +18,9 @@ class PrintedScreen extends StatefulWidget {
   final Session session;
   final List<PrintJob> printed;
 
+  /// Where the documents are printing, such as "Level 3 East".
+  final String printerName;
+
   /// Documents that were chosen but did not print, and are still waiting.
   final int notPrinted;
 
@@ -29,6 +32,7 @@ class PrintedScreen extends StatefulWidget {
     super.key,
     required this.session,
     required this.printed,
+    required this.printerName,
     this.notPrinted = 0,
     required this.pagesLeft,
     required this.totalPages,
@@ -137,10 +141,10 @@ class _PrintedScreenState extends State<PrintedScreen> {
                               children: [
                                 _tick(64),
                                 const SizedBox(height: 20),
-                                const Text(
-                                  'Printing at ${Constants.printerName}',
+                                Text(
+                                  'Printing at ${widget.printerName}',
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 28,
                                     height: 1.15,
@@ -149,12 +153,12 @@ class _PrintedScreenState extends State<PrintedScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 10),
-                                const Text(
-                                  Constants.demoMode
+                                Text(
+                                  widget.session.demo
                                       ? 'This is a demo, so nothing was really printed.'
                                       : 'Collect your pages from the tray.',
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontSize: 15,
                                       color: AppColors.onNavyMuted),
                                 ),
@@ -288,7 +292,7 @@ class _PrintedScreenState extends State<PrintedScreen> {
                     ),
                     const SizedBox(height: 18),
                     Text(
-                      '${Constants.demoMode ? 'This is a demo, so nothing was really printed.' : 'Collect your documents from the tray.'}'
+                      '${widget.session.demo ? 'This is a demo, so nothing was really printed.' : 'Collect your documents from the tray.'}'
                       '${widget.notPrinted > 0 ? '\n$_notPrintedText' : ''}'
                       '${widget.pagesLeft == null ? '' : '\nYou have ${widget.pagesLeft} pages left this month.'}',
                       style: const TextStyle(

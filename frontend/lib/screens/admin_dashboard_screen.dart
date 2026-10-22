@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../models/print_job.dart';
+import '../models/printer.dart';
 import '../models/session.dart';
 import '../services/print_repository.dart';
 import '../utils/constants.dart';
@@ -26,6 +28,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Object? _error;
   List<PrintJob> _jobs = const [];
   List<UserQuota> _users = const [];
+  List<Printer> _printers = const [];
+  SetupInfo? _setup;
+  final _defaultQuotaField = TextEditingController();
+  final _everyoneQuotaField = TextEditingController();
   String _search = '';
   String _status = 'All';
   final Map<String, TextEditingController> _quotaFields = {};
@@ -46,6 +52,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   @override
   void dispose() {
+    _defaultQuotaField.dispose();
+    _everyoneQuotaField.dispose();
     for (final c in _quotaFields.values) {
       c.dispose();
     }
@@ -62,9 +70,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       final results = await Future.wait([
         repo.allJobs(widget.session),
         repo.users(widget.session),
+        repo.printers(widget.session),
+        repo.setup(widget.session),
       ]);
       if (!mounted) return;
       final users = results[1] as List<UserQuota>;
+      final setup = results[3] as SetupInfo;
+      _defaultQuotaField.text = '${setup.defaultQuota}';
       for (final u in users) {
         final text = '${u.quota.total}';
         final existing = _quotaFields[u.userId];
@@ -77,6 +89,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       setState(() {
         _jobs = results[0] as List<PrintJob>;
         _users = users;
+        _printers = results[2] as List<Printer>;
+        _setup = setup;
         _loading = false;
       });
     } on SessionExpiredException catch (e) {
@@ -111,6 +125,413 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       if (!mounted) return;
       messenger.showSnackBar(SnackBar(content: Text('Could not save: $e')));
     }
+  }
+
+  // ---- setup, printers, quotas --------------------------------------------
+
+  void _say(String text) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(text)));
+  }
+
+  /// Runs a change on the server, then reloads. Says why when it did not work.
+  Future<void> _change(Future<String?> Function() action) async {
+    try {
+      final done = await action();
+      if (done != null) _say(done);
+      if (mounted) _load();
+    } on SessionExpiredException catch (e) {
+      _signOut(message: e.message);
+    } catch (e) {
+      _say('Could not save: $e');
+    }
+  }
+
+  Future<void> _copy(String text, String what) async {
+    await Clipboard.setData(ClipboardData(text: text));
+    _say('$what copied.');
+  }
+
+  int? _pages(String text) {
+    final value = int.tryParse(text.trim());
+    if (value == null || value < 0 || value > 100000) {
+      _say('Enter a whole number of pages, from 0 to 100000.');
+      return null;
+    }
+    return value;
+  }
+
+  Future<void> _saveDefaultQuota() async {
+    final value = _pages(_defaultQuotaField.text);
+    if (value == null) return;
+    final repo = context.read<PrintRepository>();
+    await _change(() async {
+      await repo.setDefaultQuota(widget.session, value);
+      return 'New people will start with $value pages a month.';
+    });
+  }
+
+  Future<void> _applyToEveryone() async {
+    final value = _pages(_everyoneQuotaField.text);
+    if (value == null) return;
+    final repo = context.read<PrintRepository>();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Give everyone $value pages a month?'),
+        content: const Text(
+            'This replaces the limit of every person, including anyone you set by hand.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel')),
+          FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Apply to everyone')),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    await _change(() async {
+      final n = await repo.setQuotaForAll(widget.session, value);
+      _everyoneQuotaField.clear();
+      return n == 1
+          ? '1 person now has $value pages.'
+          : '$n people now have $value pages.';
+    });
+  }
+
+  /// Asks for a printer's name and place. Returns null when cancelled.
+  Future<(String, String)?> _askPrinter({Printer? existing}) {
+    final name = TextEditingController(text: existing?.name ?? '');
+    final place = TextEditingController(text: existing?.location ?? '');
+    return showDialog<(String, String)>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(existing == null ? 'Add a printer' : 'Edit printer'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: name,
+              autofocus: true,
+              maxLength: 60,
+              decoration: const InputDecoration(
+                  labelText: 'Name', hintText: 'Level 3 East'),
+            ),
+            TextField(
+              controller: place,
+              maxLength: 80,
+              decoration: const InputDecoration(
+                  labelText: 'Where is it? (optional)',
+                  hintText: 'Level 3, by the lifts'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
+          FilledButton(
+            onPressed: () {
+              if (name.text.trim().isEmpty) return;
+              Navigator.pop(context, (name.text.trim(), place.text.trim()));
+            },
+            child: Text(existing == null ? 'Add printer' : 'Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _addPrinter() async {
+    final repo = context.read<PrintRepository>();
+    final answer = await _askPrinter();
+    if (answer == null) return;
+    await _change(() async {
+      await repo.addPrinter(widget.session, answer.$1, answer.$2);
+      return '${answer.$1} added.';
+    });
+  }
+
+  Future<void> _editPrinter(Printer p) async {
+    final repo = context.read<PrintRepository>();
+    final answer = await _askPrinter(existing: p);
+    if (answer == null) return;
+    await _change(() async {
+      await repo.updatePrinter(
+          widget.session,
+          Printer(
+              id: p.id,
+              name: answer.$1,
+              location: answer.$2,
+              enabled: p.enabled));
+      return 'Saved.';
+    });
+  }
+
+  Future<void> _togglePrinter(Printer p, bool on) {
+    final repo = context.read<PrintRepository>();
+    return _change(() async {
+      await repo.updatePrinter(widget.session,
+          Printer(id: p.id, name: p.name, location: p.location, enabled: on));
+      return on
+          ? '${p.name} is on.'
+          : '${p.name} is off. Nobody can print there.';
+    });
+  }
+
+  Future<void> _deletePrinter(Printer p) async {
+    final repo = context.read<PrintRepository>();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Remove ${p.name}?'),
+        content: const Text(
+            'Nobody will be able to print there. Waiting documents are kept.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel')),
+          FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Remove')),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    await _change(() async {
+      await repo.deletePrinter(widget.session, p.id);
+      return '${p.name} removed.';
+    });
+  }
+
+  String _origin(SetupInfo setup) =>
+      setup.redirectUri.replaceFirst('/api/auth/callback', '');
+
+  Widget _setupSection(SetupInfo setup) {
+    final ready = setup.warnings.isEmpty;
+    final signIn = setup.hasWorkspace
+        ? '${setup.provider} work accounts'
+            '${setup.domain == null || setup.domain!.isEmpty ? '' : ' (@${setup.domain})'}'
+        : 'Sample accounts only (demo)';
+    return _card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  ready ? Icons.check_circle_outline : Icons.info_outline,
+                  color: ready ? AppColors.printedText : AppColors.waitingText,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    ready ? 'Setup is complete' : 'Finish setting up',
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text('People sign in with: $signIn.',
+                style: const TextStyle(color: AppColors.muted)),
+            for (final w in setup.warnings)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(top: 2, right: 8),
+                      child: Icon(Icons.arrow_right,
+                          size: 18, color: AppColors.waitingText),
+                    ),
+                    Expanded(child: Text(w)),
+                  ],
+                ),
+              ),
+            if (setup.hasWorkspace) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  const Text('Sign-in address to register:',
+                      style: TextStyle(color: AppColors.muted)),
+                  SelectableText(setup.redirectUri,
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                  TextButton.icon(
+                    onPressed: () => _copy(setup.redirectUri, 'Address'),
+                    icon: const Icon(Icons.copy, size: 16),
+                    label: const Text('Copy'),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _printersSection() {
+    final setup = _setup;
+    return _card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Wrap(
+              spacing: 12,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              alignment: WrapAlignment.spaceBetween,
+              children: [
+                const Text('Printers',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                AppButton(
+                  label: 'Add a printer',
+                  icon: Icons.add,
+                  height: 44,
+                  fontSize: 15,
+                  radius: 10,
+                  expand: false,
+                  onPressed: _addPrinter,
+                ),
+              ],
+            ),
+          ),
+          if (_printers.isEmpty)
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
+              child: Text(
+                  'No printers yet. Add the printers people collect their documents from.',
+                  style: TextStyle(color: AppColors.muted)),
+            ),
+          for (final p in _printers)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: const BoxDecoration(
+                border: Border(top: BorderSide(color: AppColors.lineSoft)),
+              ),
+              child: Wrap(
+                spacing: 16,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 240,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(p.name,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w600)),
+                        if (p.location.isNotEmpty)
+                          Text(p.location,
+                              style: const TextStyle(
+                                  fontSize: 13, color: AppColors.muted)),
+                      ],
+                    ),
+                  ),
+                  Row(mainAxisSize: MainAxisSize.min, children: [
+                    Switch(
+                      value: p.enabled,
+                      onChanged: (on) => _togglePrinter(p, on),
+                    ),
+                    Text(p.enabled ? 'On' : 'Off'),
+                  ]),
+                  if (setup != null)
+                    TextButton.icon(
+                      onPressed: () => _copy(
+                          '${_origin(setup)}/?printer=${Uri.encodeQueryComponent(p.id)}',
+                          'Panel link'),
+                      icon: const Icon(Icons.link, size: 18),
+                      label: const Text('Copy panel link'),
+                    ),
+                  IconButton(
+                    tooltip: 'Edit ${p.name}',
+                    onPressed: () => _editPrinter(p),
+                    icon: const Icon(Icons.edit_outlined),
+                  ),
+                  IconButton(
+                    tooltip: 'Remove ${p.name}',
+                    onPressed: () => _deletePrinter(p),
+                    icon: const Icon(Icons.delete_outline),
+                  ),
+                ],
+              ),
+            ),
+          if (_printers.isNotEmpty)
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 4, 16, 16),
+              child: Text(
+                  'Open a panel link on the printer\'s screen so it prints there without asking which printer.',
+                  style: TextStyle(fontSize: 13, color: AppColors.muted)),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _quotaRule(
+      {required String title,
+      required String hint,
+      required TextEditingController controller,
+      required String button,
+      required VoidCallback onPressed}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: const BoxDecoration(
+        border: Border(top: BorderSide(color: AppColors.lineSoft)),
+      ),
+      child: Wrap(
+        spacing: 16,
+        runSpacing: 8,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          SizedBox(
+            width: 240,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title,
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(hint,
+                    style:
+                        const TextStyle(fontSize: 13, color: AppColors.muted)),
+              ],
+            ),
+          ),
+          SizedBox(
+            width: 150,
+            child: TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                  labelText: 'Pages per month', semanticCounterText: title),
+            ),
+          ),
+          AppButton(
+            label: button,
+            height: 44,
+            fontSize: 15,
+            radius: 10,
+            expand: false,
+            onPressed: onPressed,
+          ),
+        ],
+      ),
+    );
   }
 
   void _signOut({String? message}) {
@@ -169,11 +590,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                   crossAxisAlignment:
                                       CrossAxisAlignment.stretch,
                                   children: [
+                                    if (_setup != null) ...[
+                                      _setupSection(_setup!),
+                                      const SizedBox(height: 24),
+                                    ],
                                     _stats(),
                                     const SizedBox(height: 24),
-                                    _jobsSection(),
+                                    _printersSection(),
                                     const SizedBox(height: 24),
                                     _quotaSection(),
+                                    const SizedBox(height: 24),
+                                    _jobsSection(),
                                   ],
                                 ),
                               ),
@@ -301,7 +728,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             AppColors.printedBackground, AppColors.printedText),
         stat('Failed', failed, Icons.warning_amber_rounded,
             AppColors.failedBackground, AppColors.failedText),
-        stat('Users out of quota', out, Icons.person_outline,
+        stat('People out of quota', out, Icons.person_outline,
             const Color(0xFFE6EEF7), const Color(0xFF0B4A8A)),
       ];
       return Wrap(
@@ -471,13 +898,28 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         children: [
           const Padding(
             padding: EdgeInsets.all(16),
-            child: Text('Users and quotas',
+            child: Text('People and quotas',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+          ),
+          _quotaRule(
+            title: 'New people start with',
+            hint: 'Used the first time someone signs in.',
+            controller: _defaultQuotaField,
+            button: 'Save',
+            onPressed: _saveDefaultQuota,
+          ),
+          _quotaRule(
+            title: 'Give everyone',
+            hint: 'Replaces every limit, including ones set by hand.',
+            controller: _everyoneQuotaField,
+            button: 'Apply to everyone',
+            onPressed: _applyToEveryone,
           ),
           if (_users.isEmpty)
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
-              child: Text('The server does not list users yet.',
+              child: Text(
+                  'Nobody has signed in yet. People appear here the first time they sign in.',
                   style: TextStyle(color: AppColors.muted)),
             ),
           for (final u in _users)

@@ -1,4 +1,5 @@
 import '../models/print_job.dart';
+import '../models/printer.dart';
 import '../models/session.dart';
 import 'print_repository.dart';
 
@@ -17,6 +18,8 @@ class MockPrintRepository implements PrintRepository {
   late List<PrintJob> _jobs;
   late Map<String, int> _used;
   late Map<String, int> _total;
+  late List<Printer> _printers;
+  late int _defaultQuota;
 
   final Map<String, String> _names = {
     'u1': 'Alice Tan',
@@ -60,6 +63,97 @@ class MockPrintRepository implements PrintRepository {
     ];
     _used = {'u1': 12, 'u2': 50, 'u3': 8, 'u4': 20};
     _total = {'u1': 50, 'u2': 50, 'u3': 200, 'u4': 50};
+    _printers = const [
+      Printer(id: 'p1', name: 'Level 3 East', location: 'Level 3, east wing'),
+      Printer(id: 'p2', name: 'Reception', location: 'Ground floor'),
+      Printer(id: 'p3', name: 'Print room', location: 'Level 1'),
+    ];
+    _defaultQuota = 50;
+  }
+
+  void _requireAdmin(Session session) {
+    if (!session.isAdmin) throw const PrintException('Administrators only.');
+  }
+
+  @override
+  Future<AuthConfig> authConfig() async => AuthConfig.demoOnly;
+
+  @override
+  void startWorkspaceSignIn() {}
+
+  @override
+  Future<Session?> resumeSignIn() async => null;
+
+  @override
+  String? get panelPrinterId => null;
+
+  @override
+  Future<List<Printer>> printers(Session session) async {
+    await _wait();
+    return session.isAdmin
+        ? [..._printers]
+        : _printers.where((p) => p.enabled).toList();
+  }
+
+  @override
+  Future<SetupInfo> setup(Session session) async {
+    await _wait();
+    _requireAdmin(session);
+    return SetupInfo(
+      provider: 'Demo only',
+      demoEnabled: true,
+      defaultQuota: _defaultQuota,
+      people: _names.length,
+      printers: _printers.length,
+      redirectUri: 'https://example.com/api/auth/callback',
+      warnings: const [],
+    );
+  }
+
+  @override
+  Future<void> setDefaultQuota(Session session, int quota) async {
+    await _wait();
+    _requireAdmin(session);
+    if (quota < 0) throw const PrintException('Quota cannot be negative.');
+    _defaultQuota = quota;
+  }
+
+  @override
+  Future<int> setQuotaForAll(Session session, int quota) async {
+    await _wait();
+    _requireAdmin(session);
+    if (quota < 0) throw const PrintException('Quota cannot be negative.');
+    for (final id in _names.keys) {
+      _total[id] = quota;
+    }
+    return _names.length;
+  }
+
+  @override
+  Future<Printer> addPrinter(
+      Session session, String name, String location) async {
+    await _wait();
+    _requireAdmin(session);
+    final printer = Printer(
+        id: 'p${_printers.length + 10}', name: name, location: location);
+    _printers = [..._printers, printer];
+    return printer;
+  }
+
+  @override
+  Future<void> updatePrinter(Session session, Printer printer) async {
+    await _wait();
+    _requireAdmin(session);
+    _printers = [
+      for (final p in _printers) p.id == printer.id ? printer : p,
+    ];
+  }
+
+  @override
+  Future<void> deletePrinter(Session session, String printerId) async {
+    await _wait();
+    _requireAdmin(session);
+    _printers = _printers.where((p) => p.id != printerId).toList();
   }
 
   Future<void> _wait() => latency == Duration.zero
@@ -98,8 +192,13 @@ class MockPrintRepository implements PrintRepository {
   }
 
   @override
-  Future<List<String>> release(Session session, List<String> jobIds) async {
+  Future<List<String>> release(Session session, List<String> jobIds,
+      {String? printerId}) async {
     await _wait();
+    if (!_printers
+        .any((p) => p.enabled && (printerId == null || p.id == printerId))) {
+      throw const PrintException('That printer is not available.');
+    }
     final chosen = _jobs
         .where((j) =>
             jobIds.contains(j.id) && j.userId == session.userId && j.isHeld)

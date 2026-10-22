@@ -7,6 +7,7 @@ import '../utils/theme.dart';
 import '../widgets/app_button.dart';
 import '../widgets/brand_mark.dart';
 import '../widgets/demo_banner.dart';
+import '../widgets/google_logo.dart';
 import '../widgets/microsoft_logo.dart';
 import '../widgets/printer_illustration.dart';
 import 'admin_dashboard_screen.dart';
@@ -24,24 +25,81 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool _loading = false;
 
+  /// How people sign in here. Null until the server has answered.
+  AuthConfig? _config;
+  bool _configFailed = false;
+
   @override
   void initState() {
     super.initState();
     final message = widget.message;
-    if (message != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(message)));
-        }
+    if (message != null) _notify(message);
+    _start();
+  }
+
+  void _notify(String message) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(message)));
+      }
+    });
+  }
+
+  /// Finishes a work-account sign-in if the browser has just come back from one,
+  /// then finds out which sign-in options this server offers.
+  Future<void> _start() async {
+    final repo = context.read<PrintRepository>();
+    setState(() {
+      _configFailed = false;
+      _loading = true;
+    });
+    try {
+      final session = await repo.resumeSignIn();
+      if (!mounted) return;
+      if (session != null) {
+        _enter(session);
+        return;
+      }
+    } on PrintException catch (e) {
+      _notify(e.message);
+    } catch (_) {
+      _notify('Sign-in did not work. Please try again.');
+    }
+    try {
+      final config = await repo.authConfig();
+      if (!mounted) return;
+      Constants.demoMode = config.demo;
+      setState(() {
+        _config = config;
+        _loading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _configFailed = true;
+        _loading = false;
       });
     }
+  }
+
+  void _enter(Session session) {
+    Constants.demoMode = session.demo;
+    Navigator.of(context).pushReplacement(MaterialPageRoute(
+      builder: (_) => session.isAdmin
+          ? AdminDashboardScreen(session: session)
+          : ReleaseJobsScreen(session: session),
+    ));
+  }
+
+  void _workspaceLogin() {
+    setState(() => _loading = true);
+    context.read<PrintRepository>().startWorkspaceSignIn();
   }
 
   Future<void> _login({bool asAdmin = false}) async {
     final repo = context.read<PrintRepository>();
     final messenger = ScaffoldMessenger.of(context);
-    final navigator = Navigator.of(context);
     setState(() => _loading = true);
     Session? session;
     String? failure;
@@ -60,11 +118,92 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       return;
     }
-    navigator.pushReplacement(MaterialPageRoute(
-      builder: (_) => session!.isAdmin
-          ? AdminDashboardScreen(session: session)
-          : ReleaseJobsScreen(session: session),
-    ));
+    _enter(session);
+  }
+
+  /// The sign-in button and what goes with it, for the phone and the printer panel.
+  List<Widget> _signInActions({required bool panel}) {
+    final config = _config;
+    final height = panel ? 64.0 : 56.0;
+    if (_configFailed) {
+      return [
+        const Text('Cannot reach the print server.',
+            style: TextStyle(fontSize: 15, color: AppColors.failedText)),
+        const SizedBox(height: 12),
+        AppButton(label: 'Try again', onPressed: _start),
+      ];
+    }
+    if (config == null) {
+      // Still asking the server; show a button that cannot be pressed yet.
+      return [
+        MicrosoftSignInButton(onPressed: null, busy: true, height: height)
+      ];
+    }
+
+    final demoLinks = <Widget>[
+      if (config.demo && config.hasWorkspace)
+        panel
+            ? AppButton(
+                label: 'Try the demo',
+                style: AppButtonStyle.outline,
+                height: 48,
+                fontSize: 15,
+                onPressed: _loading ? null : _login,
+              )
+            : Center(
+                child: TextButton(
+                  onPressed: _loading ? null : _login,
+                  child: const Text('Try the demo instead'),
+                ),
+              ),
+      if (config.demo)
+        panel
+            ? Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: AppButton(
+                  label: 'Demo: sign in as administrator',
+                  style: AppButtonStyle.outline,
+                  height: 48,
+                  fontSize: 15,
+                  onPressed: _loading ? null : () => _login(asAdmin: true),
+                ),
+              )
+            : Center(
+                child: TextButton(
+                  onPressed: _loading ? null : () => _login(asAdmin: true),
+                  child: const Text('Demo: sign in as administrator'),
+                ),
+              ),
+    ];
+
+    final Widget button;
+    if (!config.hasWorkspace) {
+      button = MicrosoftSignInButton(
+          onPressed: _login, busy: _loading, height: height);
+    } else if (config.provider == 'google') {
+      button = GoogleSignInButton(
+          onPressed: _workspaceLogin, busy: _loading, height: height);
+    } else {
+      button = MicrosoftSignInButton(
+          onPressed: _workspaceLogin, busy: _loading, height: height);
+    }
+
+    final domain = config.domain;
+    final hint = !config.hasWorkspace
+        ? 'No account needed. You get your own sample documents, and nothing is really printed.'
+        : (domain == null || domain.isEmpty
+            ? 'Use your work account. No new password.'
+            : 'Use your @$domain account. No new password.');
+    return [
+      button,
+      const SizedBox(height: 12),
+      Center(
+        child: Text(hint,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 13, color: AppColors.muted)),
+      ),
+      ...demoLinks,
+    ];
   }
 
   @override
@@ -186,28 +325,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ],
                           const Spacer(),
                           const SizedBox(height: 20),
-                          MicrosoftSignInButton(
-                              onPressed: _login, busy: _loading),
-                          const SizedBox(height: 12),
-                          const Center(
-                            child: Text(
-                              Constants.demoMode
-                                  ? 'No account needed. You get your own sample documents, and nothing is really printed.'
-                                  : 'Use your work account. No new password.',
-                              style: TextStyle(
-                                  fontSize: 13, color: AppColors.muted),
-                            ),
-                          ),
-                          if (Constants.demoMode)
-                            Center(
-                              child: TextButton(
-                                onPressed: _loading
-                                    ? null
-                                    : () => _login(asAdmin: true),
-                                child: const Text(
-                                    'Demo: sign in as administrator'),
-                              ),
-                            ),
+                          ..._signInActions(panel: false),
                         ],
                       ),
                     ),
@@ -290,13 +408,7 @@ class _LoginScreenState extends State<LoginScreen> {
             padding: const EdgeInsets.fromLTRB(48, 28, 48, 32),
             child: Column(
               children: [
-                const Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    Constants.printerName,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                  ),
-                ),
+                const SizedBox(height: 24),
                 Expanded(
                   child: Center(
                     child: ConstrainedBox(
@@ -323,23 +435,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       fontWeight: FontWeight.w700),
                                 ),
                                 const SizedBox(height: 20),
-                                MicrosoftSignInButton(
-                                  onPressed: _login,
-                                  busy: _loading,
-                                  height: 64,
-                                ),
-                                if (Constants.demoMode) ...[
-                                  const SizedBox(height: 12),
-                                  AppButton(
-                                    label: 'Demo: sign in as administrator',
-                                    style: AppButtonStyle.outline,
-                                    height: 48,
-                                    fontSize: 15,
-                                    onPressed: _loading
-                                        ? null
-                                        : () => _login(asAdmin: true),
-                                  ),
-                                ],
+                                ..._signInActions(panel: true),
                               ],
                             ),
                           ),

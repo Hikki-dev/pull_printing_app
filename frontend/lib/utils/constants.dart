@@ -8,20 +8,10 @@ class Constants {
   static const bool useMockData =
       bool.fromEnvironment('USE_MOCK', defaultValue: true);
 
-  /// How to sign in when talking to the server: `demo` (a private sandbox for
-  /// each visitor) or `microsoft` (Microsoft Entra ID).
-  static const String authMode =
-      String.fromEnvironment('AUTH_MODE', defaultValue: 'demo');
-
-  /// Scope requested at Microsoft sign-in. For the server to accept the token this
-  /// must be a scope exposed by the app registration, such as
-  /// `api://<client-id>/access_as_user`.
-  static const String microsoftScope =
-      String.fromEnvironment('MS_SCOPE', defaultValue: 'User.Read');
-
-  /// True when visitors are using sample data, so screens explain that nothing is
-  /// really printed.
-  static const bool demoMode = useMockData || authMode == 'demo';
+  /// True while the person is using sample data, so screens explain that nothing is
+  /// really printed. Set from the server's answer on the sign-in screen and from the
+  /// kind of session after signing in.
+  static bool demoMode = useMockData;
 
   /// Where the API lives. Set with `--dart-define=API_BASE_URL=...`. A web build
   /// served by the backend uses its own address, which is what the hosted demo does.
@@ -31,16 +21,10 @@ class Constants {
     return kIsWeb ? '${Uri.base.origin}/api' : 'http://localhost:5000/api';
   }
 
-  /// Shown on the release and confirmation screens.
-  static const String printerName = 'Level 3 East';
-
   /// Seconds before the printer panel signs the user out after printing.
   static const int autoSignOutSeconds = 20;
 
   /// Seconds without a touch before the printer panel signs the user out, so a
   /// person who walks away does not leave their documents on screen.
   static const int idleSignOutSeconds = 60;
-
-  // If you later need a default printer for quick release, set it here.
-  static const String? defaultPrinterId = null;
 }

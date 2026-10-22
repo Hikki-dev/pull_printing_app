@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/print_job.dart';
+import '../models/printer.dart';
 import '../models/session.dart';
 import '../utils/constants.dart';
 import 'print_repository.dart';
@@ -75,11 +76,14 @@ class ApiService {
     }
   }
 
-  static Session _session(Map<String, dynamic> json, String token) => Session(
+  static Session _session(Map<String, dynamic> json, String token,
+          {required bool demo}) =>
+      Session(
         token: token,
         userId: json['userId'] as String,
         name: json['name'] as String,
         isAdmin: json['isAdmin'] as bool? ?? false,
+        demo: demo,
       );
 
   static QuotaInfo _quota(Map<String, dynamic> json) => QuotaInfo(
@@ -91,13 +95,30 @@ class ApiService {
   Future<Session> demoLogin({bool admin = false}) async {
     final json =
         await _send('POST', '/auth/demo-login', body: {'admin': admin});
-    return _session(json as Map<String, dynamic>, json['token'] as String);
+    return _session(json as Map<String, dynamic>, json['token'] as String,
+        demo: true);
   }
 
-  /// Who the token belongs to, used after Microsoft sign-in.
+  /// Who the token belongs to, used after a work-account sign-in.
   Future<Session> me(String token) async {
     final json = await _send('GET', '/auth/me', token: token);
-    return _session(json as Map<String, dynamic>, token);
+    return _session(json as Map<String, dynamic>, token, demo: false);
+  }
+
+  Future<AuthConfig> authConfig() async {
+    final json = await _send('GET', '/auth/config') as Map<String, dynamic>;
+    return AuthConfig(
+      provider: (json['provider'] as String? ?? 'none').toLowerCase(),
+      domain: json['domain'] as String?,
+      demo: json['demo'] as bool? ?? false,
+    );
+  }
+
+  Future<List<Printer>> printers(String token) async {
+    final json = await _send('GET', '/printers', token: token) as List<dynamic>;
+    return json
+        .map((p) => Printer.fromJson(p as Map<String, dynamic>))
+        .toList();
   }
 
   Future<List<PrintJob>> heldJobs(String token) async {
@@ -112,9 +133,12 @@ class ApiService {
       await _send('GET', '/jobs/quota', token: token) as Map<String, dynamic>);
 
   /// Ids of the jobs that really printed.
-  Future<List<String>> release(String token, List<String> jobIds) async {
-    final json = await _send('POST', '/jobs/release',
-        token: token, body: {'jobIds': jobIds}) as Map<String, dynamic>;
+  Future<List<String>> release(String token, List<String> jobIds,
+      {String? printerId}) async {
+    final json = await _send('POST', '/jobs/release', token: token, body: {
+      'jobIds': jobIds,
+      if (printerId != null) 'printerId': printerId,
+    }) as Map<String, dynamic>;
     return (json['printed'] as List<dynamic>).cast<String>();
   }
 
@@ -136,6 +160,7 @@ class ApiService {
       return UserQuota(
         userId: m['userId'] as String,
         name: m['name'] as String,
+        email: m['email'] as String?,
         quota: _quota(m['quota'] as Map<String, dynamic>),
       );
     }).toList();
@@ -147,4 +172,44 @@ class ApiService {
         token: token,
         body: {'userId': userId, 'quota': quota},
       );
+
+  Future<SetupInfo> setup(String token) async {
+    final m = await _send('GET', '/admin/setup', token: token)
+        as Map<String, dynamic>;
+    return SetupInfo(
+      provider: m['provider'] as String? ?? 'None',
+      domain: m['domain'] as String?,
+      demoEnabled: m['demoEnabled'] as bool? ?? false,
+      defaultQuota: (m['defaultQuota'] as num).toInt(),
+      people: (m['people'] as num).toInt(),
+      printers: (m['printers'] as num).toInt(),
+      redirectUri: m['redirectUri'] as String? ?? '',
+      warnings: (m['warnings'] as List<dynamic>? ?? const []).cast<String>(),
+    );
+  }
+
+  Future<void> setDefaultQuota(String token, int quota) =>
+      _send('POST', '/admin/default-quota',
+          token: token, body: {'quota': quota});
+
+  Future<int> setQuotaForAll(String token, int quota) async {
+    final m = await _send('POST', '/admin/set-quota-all',
+        token: token, body: {'quota': quota}) as Map<String, dynamic>;
+    return (m['changed'] as num?)?.toInt() ?? 0;
+  }
+
+  Future<Printer> addPrinter(
+          String token, String name, String location) async =>
+      Printer.fromJson(await _send('POST', '/admin/printers',
+          token: token,
+          body: {'name': name, 'location': location}) as Map<String, dynamic>);
+
+  Future<void> updatePrinter(String token, Printer p) =>
+      _send('PUT', '/admin/printers/${Uri.encodeComponent(p.id)}',
+          token: token,
+          body: {'name': p.name, 'location': p.location, 'enabled': p.enabled});
+
+  Future<void> deletePrinter(String token, String id) =>
+      _send('DELETE', '/admin/printers/${Uri.encodeComponent(id)}',
+          token: token);
 }

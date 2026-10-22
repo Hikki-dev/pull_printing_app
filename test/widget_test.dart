@@ -48,8 +48,9 @@ class _PartialRepo extends MockPrintRepository {
   _PartialRepo() : super(latency: Duration.zero);
 
   @override
-  Future<List<String>> release(Session session, List<String> jobIds) =>
-      super.release(session, [jobIds.first]);
+  Future<List<String>> release(Session session, List<String> jobIds,
+          {String? printerId}) =>
+      super.release(session, [jobIds.first], printerId: printerId);
 }
 
 /// The printer rejects everything.
@@ -57,7 +58,8 @@ class _NothingPrintsRepo extends MockPrintRepository {
   _NothingPrintsRepo() : super(latency: Duration.zero);
 
   @override
-  Future<List<String>> release(Session session, List<String> jobIds) async =>
+  Future<List<String>> release(Session session, List<String> jobIds,
+          {String? printerId}) async =>
       [];
 }
 
@@ -66,7 +68,8 @@ class _StaleListRepo extends MockPrintRepository {
   _StaleListRepo() : super(latency: Duration.zero);
 
   @override
-  Future<List<String>> release(Session session, List<String> jobIds) async =>
+  Future<List<String>> release(Session session, List<String> jobIds,
+          {String? printerId}) async =>
       throw const PrintException('Those documents are not waiting to print.');
 }
 
@@ -495,6 +498,8 @@ void main() {
       expect(find.text('Failed: printer offline'), findsOneWidget);
       expect(find.text('Waiting to print'), findsOneWidget);
 
+      await tester
+          .ensureVisible(find.widgetWithText(TextField, 'Search user or file'));
       await tester.enterText(
           find.widgetWithText(TextField, 'Search user or file'), 'priya');
       await tester.pump();
@@ -505,15 +510,16 @@ void main() {
           find.widgetWithText(TextField, 'Search user or file'), 'zzz');
       await tester.pump();
       expect(find.text('No jobs match.'), findsOneWidget);
+      await tester.ensureVisible(find.text('Clear filters'));
       await tester.tap(find.text('Clear filters'));
       await tester.pump();
       expect(find.text('Q3 budget review.pdf'), findsOneWidget);
 
       // Bob is out of quota; give him 80 pages.
-      final bobField = find.widgetWithText(TextField, 'Pages per month').at(1);
+      final bobField = find.widgetWithText(TextField, 'Pages per month').at(3);
       await tester.ensureVisible(bobField);
       await tester.enterText(bobField, '80');
-      await tester.tap(find.text('Save').at(1));
+      await tester.tap(find.text('Save').at(2));
       await _settle(tester);
       expect(find.text('Quota for Bob Reyes set to 80 pages.'), findsOneWidget);
 

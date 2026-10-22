@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/print_job.dart';
+import '../models/printer.dart';
 import '../models/session.dart';
 import '../services/print_repository.dart';
 import '../utils/constants.dart';
@@ -31,6 +32,11 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
   List<PrintJob> _jobs = const [];
   QuotaInfo _quota = QuotaInfo.unknown;
   Set<String> _selected = {};
+  List<Printer> _printers = const [];
+  Printer? _printer;
+
+  /// True when the address names a printer (`?printer=`), as on a printer's own panel.
+  bool _printerLocked = false;
   bool _printing = false;
   Timer? _idleTimer;
   bool _idleStarted = false;
@@ -78,11 +84,24 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
       final results = await Future.wait([
         repo.myHeldJobs(widget.session),
         repo.myQuota(widget.session),
+        repo.printers(widget.session),
       ]);
       if (!mounted) return;
       final jobs = results[0] as List<PrintJob>;
       final quota = results[1] as QuotaInfo;
+      final printers =
+          (results[2] as List<Printer>).where((p) => p.enabled).toList();
+      final fixed = repo.panelPrinterId;
+      Printer? chosen;
+      for (final p in printers) {
+        if (p.id == fixed) chosen = p;
+      }
+      chosen ??= printers.where((p) => p.id == _printer?.id).firstOrNull;
+      chosen ??= printers.firstOrNull;
       setState(() {
+        _printers = printers;
+        _printer = chosen;
+        _printerLocked = fixed != null && chosen?.id == fixed;
         _jobs = jobs;
         _quota = quota;
         _selected = _defaultSelection(jobs, quota);
@@ -130,7 +149,7 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
       .fold(0, (n, j) => n + j.pages);
   int get _count => _selected.length;
   bool get _over => _quota.known && _pages > _quota.left;
-  bool get _canPrint => _count > 0 && !_over && !_printing;
+  bool get _canPrint => _count > 0 && !_over && !_printing && _printer != null;
   bool get _allSelected => _jobs.isNotEmpty && _selected.length == _jobs.length;
 
   void _toggleAll() {
@@ -160,7 +179,8 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
     final ids = _selected.toList();
     setState(() => _printing = true);
     try {
-      final printedIds = await repo.release(widget.session, ids);
+      final printedIds =
+          await repo.release(widget.session, ids, printerId: _printer?.id);
       if (!mounted) return;
       final printed = _jobs.where((j) => printedIds.contains(j.id)).toList();
       if (printed.isEmpty) {
@@ -177,6 +197,7 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
         builder: (_) => PrintedScreen(
           session: widget.session,
           printed: printed,
+          printerName: _printer?.name ?? 'the printer',
           notPrinted: ids.length - printed.length,
           pagesLeft: _quota.known ? _quota.left - pagesPrinted : null,
           totalPages: _quota.total,
@@ -353,6 +374,15 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
                 color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800),
           ),
           const SizedBox(width: 16),
+          if (_printer != null) ...[
+            const Icon(Icons.print_outlined,
+                size: 20, color: AppColors.onNavyMuted),
+            const SizedBox(width: 6),
+            Text(_printer!.name,
+                style: const TextStyle(
+                    fontSize: 16, color: AppColors.onNavyMuted)),
+            const SizedBox(width: 16),
+          ],
           if (_quota.known)
             Text(
               '${_quota.left} pages left this month',
@@ -394,10 +424,10 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
     if (_jobs.isEmpty) {
       return _message(
         'Nothing waiting to print.',
-        Constants.demoMode
+        widget.session.demo
             ? 'This is a demo, so you can send yourself some sample documents.'
             : 'Send a file to Pull Print from your computer.',
-        action: Constants.demoMode
+        action: widget.session.demo
             ? AppButton(
                 label: 'Send sample documents',
                 expand: false,
@@ -449,7 +479,7 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
             child: wide ? _grid(pad) : _list(pad),
           ),
         ),
-        if (Constants.demoMode)
+        if (widget.session.demo)
           Padding(
             padding: EdgeInsets.symmetric(horizontal: pad - 8),
             child: TextButton.icon(
@@ -531,9 +561,79 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
         : '${_quota.left - _pages} pages left after printing';
   }
 
-  String get _blockText => _count == 0
-      ? 'Select a document'
-      : (_quota.left == 0 ? 'No pages left' : 'Over your limit');
+  String get _blockText => _printer == null
+      ? 'No printer available'
+      : _count == 0
+          ? 'Select a document'
+          : (_quota.left == 0 ? 'No pages left' : 'Over your limit');
+
+  /// "Printer: Level 3 East" on the phone. Tap to pick another when there is a choice.
+  Widget _printerRow() {
+    final canPick = _printers.length > 1 && !_printerLocked && !_printing;
+    final row = Row(
+      children: [
+        const Icon(Icons.print_outlined, size: 18, color: AppColors.muted),
+        const SizedBox(width: 8),
+        const Text('Printer',
+            style: TextStyle(fontSize: 14, color: AppColors.muted)),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            _printer?.name ?? 'None set up yet',
+            textAlign: TextAlign.end,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: _printer == null ? AppColors.failedText : null,
+            ),
+          ),
+        ),
+        if (canPick)
+          const Icon(Icons.expand_more, size: 20, color: AppColors.muted),
+      ],
+    );
+    if (!canPick) return row;
+    return InkWell(
+      onTap: _pickPrinter,
+      borderRadius: BorderRadius.circular(8),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 44),
+        child: Align(alignment: Alignment.center, child: row),
+      ),
+    );
+  }
+
+  Future<void> _pickPrinter() async {
+    final picked = await showModalBottomSheet<Printer>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(24, 0, 24, 8),
+              child: Text('Print at',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+            ),
+            for (final p in _printers)
+              ListTile(
+                minVerticalPadding: 12,
+                title: Text(p.name),
+                subtitle: p.location.isEmpty ? null : Text(p.location),
+                trailing: p.id == _printer?.id
+                    ? const Icon(Icons.check, color: AppColors.primary)
+                    : null,
+                onTap: () => Navigator.of(context).pop(p),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (picked != null && mounted) setState(() => _printer = picked);
+  }
 
   Widget _footer(bool wide) {
     const shadow = [
@@ -596,27 +696,18 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Row(
-                children: [
-                  Icon(Icons.print_outlined, size: 18, color: AppColors.muted),
-                  SizedBox(width: 8),
-                  Text('Printer',
-                      style: TextStyle(fontSize: 14, color: AppColors.muted)),
-                  Spacer(),
-                  Text(Constants.printerName,
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                ],
-              ),
+              _printerRow(),
               const SizedBox(height: 12),
               AppButton(
                 label: _canPrint || _printing
                     ? 'Print ${_count == 1 ? '1 document' : '$_count documents'} · $_pages pages'
-                    : (_over ? _overText : 'Select a document to print'),
+                    : (_printer == null
+                        ? 'No printer available'
+                        : (_over ? _overText : 'Select a document to print')),
                 busy: _printing,
                 onPressed: _canPrint ? _print : null,
               ),
-              if (_over && Constants.demoMode)
+              if (_over && widget.session.demo)
                 const Padding(
                   padding: EdgeInsets.only(top: 8),
                   child: Text(
