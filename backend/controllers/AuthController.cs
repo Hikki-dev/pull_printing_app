@@ -9,6 +9,7 @@ namespace PullPrintingBackend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [RequestSizeLimit(16_384)]
     public class AuthController : ControllerBase
     {
         private readonly IPrintStore _store;

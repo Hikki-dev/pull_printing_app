@@ -43,6 +43,42 @@ class _ExpiredAfterSignIn extends MockPrintRepository {
       throw const SessionExpiredException();
 }
 
+/// Prints only the first document that was asked for, as when the printer rejects the rest.
+class _PartialRepo extends MockPrintRepository {
+  _PartialRepo() : super(latency: Duration.zero);
+
+  @override
+  Future<List<String>> release(Session session, List<String> jobIds) =>
+      super.release(session, [jobIds.first]);
+}
+
+/// The printer rejects everything.
+class _NothingPrintsRepo extends MockPrintRepository {
+  _NothingPrintsRepo() : super(latency: Duration.zero);
+
+  @override
+  Future<List<String>> release(Session session, List<String> jobIds) async =>
+      [];
+}
+
+/// The list on screen is out of date, so the server says the documents are not waiting.
+class _StaleListRepo extends MockPrintRepository {
+  _StaleListRepo() : super(latency: Duration.zero);
+
+  @override
+  Future<List<String>> release(Session session, List<String> jobIds) async =>
+      throw const PrintException('Those documents are not waiting to print.');
+}
+
+Future<MockPrintRepository> _withQuota(int total) async {
+  final repo = _repo();
+  await repo.setQuota(
+      const Session(token: 't', userId: 'admin', name: 'A', isAdmin: true),
+      'u1',
+      total);
+  return repo;
+}
+
 void main() {
   setUpAll(loadTestFonts);
 
@@ -236,6 +272,186 @@ void main() {
     });
   });
 
+  group('mistakes people make', () {
+    testWidgets('Select all and Clear change every document at once',
+        (tester) async {
+      await _openApp(tester, phone);
+      await _signIn(tester);
+      expect(find.text('Print 2 documents · 15 pages'), findsOneWidget);
+
+      await tester.tap(find.text('Select all'));
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(find.text('Over your limit by 6 pages. Untick one.'),
+          findsOneWidget); // 44 pages, 38 left
+
+      await tester.tap(find.text('Clear')); // the button now unticks everything
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(find.text('Select a document to print'), findsOneWidget);
+    });
+
+    testWidgets('one long document says what it needs and what is left',
+        (tester) async {
+      await _openApp(tester, phone, repo: await _withQuota(20)); // 8 pages left
+      await _signIn(tester);
+      expect(find.text('Select a document to print'),
+          findsOneWidget); // nothing fits, so nothing is ticked
+
+      await tester.tap(find.text('Contract draft v4.pdf'));
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(find.text('This document needs 28 pages. You have 8 left.'),
+          findsOneWidget);
+      expect(find.textContaining('Demo tip'), findsOneWidget);
+    });
+
+    testWidgets('no pages left is said plainly', (tester) async {
+      await _openApp(tester, phone, repo: await _withQuota(12)); // 0 left
+      await _signIn(tester);
+      await tester.tap(find.text('Floor plan.png'));
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(find.text('No pages left this month.'), findsOneWidget);
+    });
+
+    testWidgets(
+        'when only some documents print, the rest are named as still waiting',
+        (tester) async {
+      await _openApp(tester, phone, repo: _PartialRepo());
+      await _signIn(tester);
+      await tester.tap(find.text('Print 2 documents · 15 pages'));
+      await _settle(tester);
+
+      expect(find.text('Q3 budget review.pdf'), findsOneWidget);
+      expect(find.text('Site visit notes.docx'), findsNothing);
+      expect(find.text('1 document could not be printed and is still waiting.'),
+          findsOneWidget);
+      expect(find.text('26 of 50'),
+          findsOneWidget); // only the 12 printed pages were used
+    });
+
+    testWidgets(
+        'if nothing prints the person stays on their list with a message',
+        (tester) async {
+      await _openApp(tester, phone, repo: _NothingPrintsRepo());
+      await _signIn(tester);
+      await tester.tap(find.text('Print 2 documents · 15 pages'));
+      await _settle(tester);
+
+      expect(find.textContaining('The printer could not print your documents'),
+          findsOneWidget);
+      expect(find.text('Q3 budget review.pdf'), findsOneWidget);
+      expect(find.text('Print 2 documents · 15 pages'), findsOneWidget);
+    });
+
+    testWidgets(
+        'an out-of-date list is refreshed when the server says the documents are gone',
+        (tester) async {
+      await _openApp(tester, phone, repo: _StaleListRepo());
+      await _signIn(tester);
+      await tester.tap(find.text('Print 2 documents · 15 pages'));
+      await _settle(tester);
+
+      expect(
+          find.textContaining('Your list has been refreshed.'), findsOneWidget);
+    });
+
+    testWidgets(
+        'Start over gives fresh sample documents after everything was printed',
+        (tester) async {
+      await _openApp(tester, phone);
+      await _signIn(tester);
+      await tester.tap(find.text('Print 2 documents · 15 pages'));
+      await _settle(tester);
+      await tester.tap(find.text('Back to my documents'));
+      await _settle(tester);
+      expect(find.text('Q3 budget review.pdf'), findsNothing);
+
+      await tester.tap(find.text('What is this?'));
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.tap(find.text('Start over'));
+      await _settle(tester);
+      expect(find.text('Started over with fresh sample documents.'),
+          findsOneWidget);
+
+      await _signIn(tester);
+      expect(find.text('Q3 budget review.pdf'), findsOneWidget);
+      expect(find.text('Print 2 documents · 15 pages'), findsOneWidget);
+    });
+
+    testWidgets('the printer panel signs out someone who walks away',
+        (tester) async {
+      await _openApp(tester, panel);
+      await _signIn(tester);
+      expect(find.text('Your documents'), findsOneWidget);
+
+      await tester.pump(const Duration(seconds: 61));
+      await _settle(tester);
+      expect(find.text('Sign in to collect your prints'), findsOneWidget);
+      expect(find.text('You were signed out because the screen was idle.'),
+          findsOneWidget);
+    });
+
+    testWidgets('touching the printer panel keeps the person signed in',
+        (tester) async {
+      await _openApp(tester, panel);
+      await _signIn(tester);
+
+      await tester.pump(const Duration(seconds: 45));
+      await tester.tap(
+          find.text('Contract draft v4.pdf')); // a touch restarts the countdown
+      await tester.pump(const Duration(seconds: 45));
+      expect(find.text('Your documents'), findsOneWidget);
+
+      await tester.pump(const Duration(seconds: 20));
+      await _settle(tester);
+      expect(find.text('Sign in to collect your prints'), findsOneWidget);
+    });
+
+    testWidgets('a phone does not sign anyone out for being idle',
+        (tester) async {
+      await _openApp(tester, phone);
+      await _signIn(tester);
+      await tester.pump(const Duration(seconds: 120));
+      expect(find.text('Q3 budget review.pdf'), findsOneWidget);
+    });
+  });
+
+  group('large text and small screens', () {
+    for (final scale in [1.5, 2.0]) {
+      testWidgets('every phone screen copes with text at ${scale}x',
+          (tester) async {
+        tester.platformDispatcher.textScaleFactorTestValue = scale;
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+        await _openApp(tester, phone);
+        expect(find.textContaining('Collect at any printer'), findsOneWidget);
+        await _signIn(tester);
+        expect(find.text('Q3 budget review.pdf'), findsOneWidget);
+
+        await tester.tap(find.textContaining('Print 2 documents'));
+        await _settle(tester);
+        expect(find.text('Back to my documents'), findsOneWidget);
+      });
+    }
+
+    testWidgets('the printer panel copes with larger text', (tester) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await _openApp(tester, panel);
+      await _signIn(tester);
+      expect(find.text('Your documents'), findsOneWidget);
+      await tester.tap(find.text('Print'));
+      await _settle(tester);
+      expect(find.textContaining('Printing 15 pages'), findsOneWidget);
+    });
+
+    testWidgets('the admin screen works on a phone', (tester) async {
+      await _openApp(tester, phone);
+      await tester.tap(find.text('Demo: sign in as administrator'));
+      await _settle(tester);
+      expect(find.text('Pull Print Admin'), findsOneWidget);
+      expect(find.text('All jobs'), findsOneWidget);
+    });
+  });
+
   group('printer panel', () {
     testWidgets('sign in, print, then sign out automatically', (tester) async {
       await _openApp(tester, panel);
@@ -261,7 +477,8 @@ void main() {
       await _signIn(tester);
       await tester.tap(find.text('Contract draft v4.pdf'));
       await tester.pump(const Duration(milliseconds: 200));
-      expect(find.text('5 pages over your limit'), findsOneWidget);
+      expect(
+          find.text('Over your limit by 5 pages. Untick one.'), findsOneWidget);
       expect(find.text('Over your limit'), findsOneWidget);
     });
   });

@@ -46,6 +46,10 @@ class ApiService {
     if (response.statusCode >= 200 && response.statusCode < 300) return decoded;
 
     if (response.statusCode == 401) throw const SessionExpiredException();
+    if (response.statusCode == 429) {
+      throw const PrintException(
+          'Too many requests. Please wait a minute and try again.');
+    }
     if (decoded is Map<String, dynamic>) {
       if (response.statusCode == 409 && decoded['error'] == 'quota_exceeded') {
         throw QuotaExceededException(
@@ -107,8 +111,12 @@ class ApiService {
   Future<QuotaInfo> quota(String token) async => _quota(
       await _send('GET', '/jobs/quota', token: token) as Map<String, dynamic>);
 
-  Future<void> release(String token, List<String> jobIds) =>
-      _send('POST', '/jobs/release', token: token, body: {'jobIds': jobIds});
+  /// Ids of the jobs that really printed.
+  Future<List<String>> release(String token, List<String> jobIds) async {
+    final json = await _send('POST', '/jobs/release',
+        token: token, body: {'jobIds': jobIds}) as Map<String, dynamic>;
+    return (json['printed'] as List<dynamic>).cast<String>();
+  }
 
   Future<void> sendSample(String token) =>
       _send('POST', '/jobs/sample', token: token);

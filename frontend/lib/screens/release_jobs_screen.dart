@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/print_job.dart';
@@ -31,11 +32,40 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
   QuotaInfo _quota = QuotaInfo.unknown;
   Set<String> _selected = {};
   bool _printing = false;
+  Timer? _idleTimer;
+  bool _idleStarted = false;
 
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // A printer panel is shared, so it signs out a person who walks away.
+    final wide = MediaQuery.sizeOf(context).width >= AppTheme.panelBreakpoint;
+    if (wide && !_idleStarted) {
+      _idleStarted = true;
+      _resetIdle();
+    }
+  }
+
+  @override
+  void dispose() {
+    _idleTimer?.cancel();
+    super.dispose();
+  }
+
+  void _resetIdle() {
+    if (!_idleStarted) return;
+    _idleTimer?.cancel();
+    _idleTimer = Timer(
+      const Duration(seconds: Constants.idleSignOutSeconds),
+      () =>
+          _signOut(message: 'You were signed out because the screen was idle.'),
+    );
   }
 
   Future<void> _load() async {
@@ -101,6 +131,23 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
   int get _count => _selected.length;
   bool get _over => _quota.known && _pages > _quota.left;
   bool get _canPrint => _count > 0 && !_over && !_printing;
+  bool get _allSelected => _jobs.isNotEmpty && _selected.length == _jobs.length;
+
+  void _toggleAll() {
+    setState(() {
+      _selected = _allSelected ? <String>{} : _jobs.map((j) => j.id).toSet();
+    });
+  }
+
+  /// Why the selection cannot be printed, in words that say what to do.
+  String get _overText {
+    final left = _quota.left;
+    if (left == 0) return 'No pages left this month.';
+    if (_count == 1) {
+      return 'This document needs $_pages pages. You have $left left.';
+    }
+    return 'Over your limit by ${_pages - left} pages. Untick one.';
+  }
 
   void _toggle(PrintJob job, bool on) {
     setState(() => on ? _selected.add(job.id) : _selected.remove(job.id));
@@ -111,17 +158,27 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
     final ids = _selected.toList();
-    final pages = _pages;
-    final left = _quota.known ? _quota.left - pages : null;
     setState(() => _printing = true);
     try {
-      await repo.release(widget.session, ids);
+      final printedIds = await repo.release(widget.session, ids);
       if (!mounted) return;
+      final printed = _jobs.where((j) => printedIds.contains(j.id)).toList();
+      if (printed.isEmpty) {
+        messenger.showSnackBar(const SnackBar(
+          content: Text(
+              'The printer could not print your documents. They are still waiting.'),
+        ));
+        setState(() => _printing = false);
+        _load();
+        return;
+      }
+      final pagesPrinted = printed.fold(0, (n, j) => n + j.pages);
       navigator.pushReplacement(MaterialPageRoute(
         builder: (_) => PrintedScreen(
           session: widget.session,
-          printed: _jobs.where((j) => ids.contains(j.id)).toList(),
-          pagesLeft: left,
+          printed: printed,
+          notPrinted: ids.length - printed.length,
+          pagesLeft: _quota.known ? _quota.left - pagesPrinted : null,
           totalPages: _quota.total,
         ),
       ));
@@ -132,12 +189,19 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
       _load();
     } on SessionExpiredException catch (e) {
       _signOut(message: e.message);
+    } on PrintException catch (e) {
+      // Often "those documents are not waiting": the list was out of date.
+      if (!mounted) return;
+      messenger.showSnackBar(SnackBar(
+          content: Text('${e.message} Your list has been refreshed.')));
+      setState(() => _printing = false);
+      _load();
     } catch (e) {
       if (!mounted) return;
       messenger.showSnackBar(
-        SnackBar(
-            content: Text(
-                'Could not print. Your documents are still waiting. ($e)')),
+        const SnackBar(
+            content:
+                Text('Could not print. Your documents are still waiting.')),
       );
       setState(() => _printing = false);
     }
@@ -154,17 +218,26 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
   @override
   Widget build(BuildContext context) {
     final wide = MediaQuery.sizeOf(context).width >= AppTheme.panelBreakpoint;
+    final content = DemoShell(
+      child: Column(
+        children: [
+          wide ? _panelHeader() : _phoneHeader(),
+          Expanded(child: _body(wide)),
+          if (!_loading && _error == null && _jobs.isNotEmpty) _footer(wide),
+        ],
+      ),
+    );
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: DemoShell(
-        child: Column(
-          children: [
-            wide ? _panelHeader() : _phoneHeader(),
-            Expanded(child: _body(wide)),
-            if (!_loading && _error == null && _jobs.isNotEmpty) _footer(wide),
-          ],
-        ),
-      ),
+      body: wide
+          ? Listener(
+              behavior: HitTestBehavior.translucent,
+              onPointerDown: (_) => _resetIdle(),
+              onPointerMove: (_) => _resetIdle(),
+              onPointerSignal: (_) => _resetIdle(),
+              child: content,
+            )
+          : content,
     );
   }
 
@@ -359,11 +432,14 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
                 child: Text(wide ? 'Your documents' : 'Waiting to print',
                     style: titleStyle),
               ),
-              Text(
-                  wide
-                      ? 'Tap a document to include or leave it out'
-                      : 'Tap to select',
-                  style: hint),
+              if (wide)
+                Text('Tap a document to include or leave it out', style: hint),
+              TextButton(
+                onPressed: _toggleAll,
+                style:
+                    TextButton.styleFrom(minimumSize: Size(64, wide ? 48 : 44)),
+                child: Text(_allSelected ? 'Clear' : 'Select all'),
+              ),
             ],
           ),
         ),
@@ -401,12 +477,13 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
   }
 
   Widget _grid(double pad) {
+    final textScale = MediaQuery.textScalerOf(context).scale(1);
     return GridView.builder(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: EdgeInsets.fromLTRB(pad, 4, pad, 16),
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: 260,
-        mainAxisExtent: 262,
+        mainAxisExtent: 262 + 140 * (textScale > 1 ? textScale - 1 : 0),
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
       ),
@@ -450,12 +527,13 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
   String? get _afterText {
     if (!_quota.known) return null;
     return _over
-        ? '${_pages - _quota.left} pages over your limit'
+        ? _overText
         : '${_quota.left - _pages} pages left after printing';
   }
 
-  String get _blockText =>
-      _count == 0 ? 'Select a document' : 'Over your limit';
+  String get _blockText => _count == 0
+      ? 'Select a document'
+      : (_quota.left == 0 ? 'No pages left' : 'Over your limit');
 
   Widget _footer(bool wide) {
     const shadow = [
@@ -534,12 +612,19 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
               AppButton(
                 label: _canPrint || _printing
                     ? 'Print ${_count == 1 ? '1 document' : '$_count documents'} · $_pages pages'
-                    : (_over
-                        ? 'Over your limit by ${_pages - _quota.left} pages. Untick one.'
-                        : 'Select a document to print'),
+                    : (_over ? _overText : 'Select a document to print'),
                 busy: _printing,
                 onPressed: _canPrint ? _print : null,
               ),
+              if (_over && Constants.demoMode)
+                const Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: Text(
+                    'Demo tip: go back to sign-in and choose the administrator demo to raise your limit.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 13, color: AppColors.muted),
+                  ),
+                ),
             ],
           ),
         ),

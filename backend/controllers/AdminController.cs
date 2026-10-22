@@ -8,6 +8,7 @@ namespace PullPrintingBackend.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Policy = Claims.AdminPolicy)]
+    [RequestSizeLimit(16_384)]
     public class AdminController : ControllerBase
     {
         public const int MaxQuota = 10_000;

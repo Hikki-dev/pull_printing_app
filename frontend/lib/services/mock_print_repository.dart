@@ -8,8 +8,26 @@ class MockPrintRepository implements PrintRepository {
   MockPrintRepository({
     this.latency = const Duration(milliseconds: 350),
     DateTime? now,
-  }) {
-    final t = now ?? DateTime.now();
+  }) : _startedAt = now {
+    resetDemo();
+  }
+
+  final Duration latency;
+  final DateTime? _startedAt;
+  late List<PrintJob> _jobs;
+  late Map<String, int> _used;
+  late Map<String, int> _total;
+
+  final Map<String, String> _names = {
+    'u1': 'Alice Tan',
+    'u2': 'Bob Reyes',
+    'u3': 'Priya Nair',
+    'u4': 'Marcus Lee',
+  };
+
+  @override
+  void resetDemo() {
+    final t = _startedAt ?? DateTime.now();
     final yesterday = t.subtract(const Duration(days: 1));
     PrintJob job(String id, String uid, String name, String file, int pages,
             DateTime at, String status,
@@ -40,19 +58,9 @@ class MockPrintRepository implements PrintRepository {
       job('7', 'u4', 'Marcus Lee', 'Invoice 2291.pdf', 2, yesterday, 'Failed',
           'printer offline'),
     ];
+    _used = {'u1': 12, 'u2': 50, 'u3': 8, 'u4': 20};
+    _total = {'u1': 50, 'u2': 50, 'u3': 200, 'u4': 50};
   }
-
-  final Duration latency;
-  late List<PrintJob> _jobs;
-
-  final Map<String, String> _names = {
-    'u1': 'Alice Tan',
-    'u2': 'Bob Reyes',
-    'u3': 'Priya Nair',
-    'u4': 'Marcus Lee',
-  };
-  final Map<String, int> _used = {'u1': 12, 'u2': 50, 'u3': 8, 'u4': 20};
-  final Map<String, int> _total = {'u1': 50, 'u2': 50, 'u3': 200, 'u4': 50};
 
   Future<void> _wait() => latency == Duration.zero
       ? Future<void>.value()
@@ -90,7 +98,7 @@ class MockPrintRepository implements PrintRepository {
   }
 
   @override
-  Future<void> release(Session session, List<String> jobIds) async {
+  Future<List<String>> release(Session session, List<String> jobIds) async {
     await _wait();
     final chosen = _jobs
         .where((j) =>
@@ -108,6 +116,7 @@ class MockPrintRepository implements PrintRepository {
         else
           j,
     ];
+    return [for (final j in chosen) j.id];
   }
 
   @override

@@ -9,8 +9,11 @@ namespace PullPrintingBackend.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
+    [RequestSizeLimit(16_384)]
     public class JobsController : ControllerBase
     {
+        public const int MaxDocumentsPerRelease = 50;
+
         private readonly IPrintStore _store;
         private readonly DemoOptions _demo;
 
@@ -41,10 +44,13 @@ namespace PullPrintingBackend.Controllers
         [HttpPost("release")]
         public ActionResult<ReleaseResponse> Release([FromBody] ReleaseRequest request)
         {
-            var ids = new List<string>(request.JobIds ?? new List<string>());
+            var ids = (request.JobIds ?? new List<string>()).ToList();
             if (request.JobId is { Length: > 0 }) ids.Add(request.JobId);
+            ids = ids.Where(id => !string.IsNullOrWhiteSpace(id)).Distinct().ToList();
             if (ids.Count == 0)
                 return BadRequest(new ApiError("no_jobs", "Choose at least one document."));
+            if (ids.Count > MaxDocumentsPerRelease)
+                return BadRequest(new ApiError("too_many", $"Print at most {MaxDocumentsPerRelease} documents at a time."));
 
             var result = _store.Release(User.UserId(), ids);
             return result.Outcome switch

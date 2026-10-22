@@ -161,6 +161,24 @@ var app = builder.Build();
 
 app.UseForwardedHeaders();
 
+// Anything unexpected becomes a short JSON error. Details stay in the server log, never in the reply.
+app.UseExceptionHandler(errors => errors.Run(async context =>
+{
+    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+    await context.Response.WriteAsJsonAsync(
+        new PullPrintingBackend.Models.ApiError("server_error", "Something went wrong on the server. Please try again."));
+}));
+
+app.Use(async (context, next) =>
+{
+    var headers = context.Response.Headers;
+    headers["X-Content-Type-Options"] = "nosniff";
+    headers["Referrer-Policy"] = "no-referrer";
+    headers["X-Frame-Options"] = "DENY";
+    headers["Content-Security-Policy"] = "frame-ancestors 'none'";
+    await next();
+});
+
 // The Flutter web build is served from wwwroot. Files that change on every deploy must not be cached.
 app.UseDefaultFiles();
 app.UseStaticFiles(new StaticFileOptions

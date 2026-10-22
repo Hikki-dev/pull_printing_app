@@ -18,6 +18,9 @@ class PrintedScreen extends StatefulWidget {
   final Session session;
   final List<PrintJob> printed;
 
+  /// Documents that were chosen but did not print, and are still waiting.
+  final int notPrinted;
+
   /// Pages left after this print, or null when the quota is not known.
   final int? pagesLeft;
   final int totalPages;
@@ -26,6 +29,7 @@ class PrintedScreen extends StatefulWidget {
     super.key,
     required this.session,
     required this.printed,
+    this.notPrinted = 0,
     required this.pagesLeft,
     required this.totalPages,
   });
@@ -39,6 +43,10 @@ class _PrintedScreenState extends State<PrintedScreen> {
   bool _timerStarted = false;
 
   int get _pages => widget.printed.fold(0, (n, j) => n + j.pages);
+
+  String get _notPrintedText => widget.notPrinted == 1
+      ? '1 document could not be printed and is still waiting.'
+      : '${widget.notPrinted} documents could not be printed and are still waiting.';
 
   @override
   void didChangeDependencies() {
@@ -175,6 +183,17 @@ class _PrintedScreenState extends State<PrintedScreen> {
                         children: [
                           for (final j in widget.printed)
                             _row(j.fileName, pagesLabel(j.pages)),
+                          if (widget.notPrinted > 0)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 12),
+                              child: Text(
+                                _notPrintedText,
+                                style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.failedText),
+                              ),
+                            ),
                           if (widget.pagesLeft != null)
                             Padding(
                               padding: const EdgeInsets.only(top: 12),
@@ -182,10 +201,13 @@ class _PrintedScreenState extends State<PrintedScreen> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text('Pages left this month',
-                                      style: TextStyle(
-                                          fontSize: 15,
-                                          color: AppColors.muted)),
+                                  const Expanded(
+                                    child: Text('Pages left this month',
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            color: AppColors.muted)),
+                                  ),
+                                  const SizedBox(width: 12),
                                   Text(
                                     '${widget.pagesLeft} of ${widget.totalPages}',
                                     style: const TextStyle(
@@ -267,6 +289,7 @@ class _PrintedScreenState extends State<PrintedScreen> {
                     const SizedBox(height: 18),
                     Text(
                       '${Constants.demoMode ? 'This is a demo, so nothing was really printed.' : 'Collect your documents from the tray.'}'
+                      '${widget.notPrinted > 0 ? '\n$_notPrintedText' : ''}'
                       '${widget.pagesLeft == null ? '' : '\nYou have ${widget.pagesLeft} pages left this month.'}',
                       style: const TextStyle(
                           fontSize: 22,

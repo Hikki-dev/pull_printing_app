@@ -5,6 +5,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace PullPrintingBackend.Tests;
 
@@ -38,6 +39,42 @@ public class DemoOffFactory : ApiFactory
 public class DefaultLimitsFactory : ApiFactory
 {
     protected override int LoginsPerMinute => 20;
+}
+
+/// <summary>A store that fails the way a real bug would, to check what the person sees.</summary>
+public class BrokenStoreFactory : ApiFactory
+{
+    protected override void ConfigureWebHost(Microsoft.AspNetCore.Hosting.IWebHostBuilder builder)
+    {
+        base.ConfigureWebHost(builder);
+        builder.ConfigureServices(services =>
+        {
+            var inner = new PullPrintingBackend.Services.PrintStore(
+                new PullPrintingBackend.Services.SimulatedPrintDispatcher(
+                    Microsoft.Extensions.Logging.Abstractions.NullLogger<PullPrintingBackend.Services.SimulatedPrintDispatcher>.Instance),
+                TimeProvider.System);
+            services.AddSingleton<PullPrintingBackend.Services.IPrintStore>(new BrokenStore(inner));
+        });
+    }
+}
+
+public class BrokenStore : PullPrintingBackend.Services.IPrintStore
+{
+    private readonly PullPrintingBackend.Services.IPrintStore _inner;
+    public BrokenStore(PullPrintingBackend.Services.IPrintStore inner) => _inner = inner;
+
+    // Signing in works so the test can get a token; reading documents blows up.
+    public PullPrintingBackend.Models.UserSummary EnsureUser(string id, string name, bool isAdmin) => _inner.EnsureUser(id, name, isAdmin);
+    public PullPrintingBackend.Models.UserSummary EnsureDemoUser(string id, string name, bool isAdmin) => _inner.EnsureDemoUser(id, name, isAdmin);
+    public PullPrintingBackend.Models.UserSummary CreateDemoUser(bool isAdmin) => _inner.CreateDemoUser(isAdmin);
+    public PullPrintingBackend.Models.Quota? GetQuota(string userId) => _inner.GetQuota(userId);
+    public IReadOnlyList<PullPrintingBackend.Models.PrintJob> HeldJobs(string userId) => throw new InvalidOperationException("secret internal detail");
+    public IReadOnlyList<PullPrintingBackend.Models.PrintJob> AllJobs(string requesterId) => _inner.AllJobs(requesterId);
+    public IReadOnlyList<PullPrintingBackend.Models.UserSummary> Users(string requesterId) => _inner.Users(requesterId);
+    public PullPrintingBackend.Services.ReleaseResult Release(string userId, IReadOnlyCollection<string> jobIds) => _inner.Release(userId, jobIds);
+    public bool SetQuota(string requesterId, string userId, int quota) => _inner.SetQuota(requesterId, userId, quota);
+    public PullPrintingBackend.Models.PrintJob? AddSample(string userId) => _inner.AddSample(userId);
+    public int Sweep() => _inner.Sweep();
 }
 
 public record Session(string Token, string UserId, string Name, bool IsAdmin);
@@ -183,6 +220,34 @@ public class ApiTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
+    [Fact]
+    public async Task Replies_carry_basic_security_headers()
+    {
+        var response = await _factory.CreateClient().GetAsync("/healthz");
+        Assert.Equal("nosniff", response.Headers.GetValues("X-Content-Type-Options").Single());
+        Assert.Equal("DENY", response.Headers.GetValues("X-Frame-Options").Single());
+        Assert.Equal("no-referrer", response.Headers.GetValues("Referrer-Policy").Single());
+        Assert.Contains("frame-ancestors 'none'", response.Headers.GetValues("Content-Security-Policy").Single());
+    }
+
+    [Fact]
+    public async Task An_unexpected_failure_gives_a_short_json_error_with_no_details()
+    {
+        using var broken = new BrokenStoreFactory();
+        var client = broken.CreateClient();
+        var login = await client.PostAsJsonAsync("/api/auth/demo-login", new { admin = false });
+        var session = (await login.Content.ReadFromJsonAsync<Session>(Json))!;
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session.Token);
+
+        var response = await client.GetAsync("/api/jobs/held");
+
+        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        var text = await response.Content.ReadAsStringAsync();
+        Assert.Contains("server_error", text);
+        Assert.DoesNotContain("secret internal detail", text);
+        Assert.DoesNotContain("   at ", text); // no stack trace
+    }
+
     // ---- documents and quota -----------------------------------------------
 
     [Fact]
@@ -279,6 +344,28 @@ public class ApiTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.NotFound, (await client.PostAsJsonAsync("/api/jobs/release", new { jobId = id })).StatusCode);
         var quota = await Body(await client.GetAsync("/api/jobs/quota"));
         Assert.Equal(24, quota.GetProperty("used").GetInt32());
+    }
+
+    [Fact]
+    public async Task Printing_too_many_documents_in_one_go_is_refused()
+    {
+        var (client, _) = await SignIn();
+        var ids = Enumerable.Range(0, 51).Select(i => "id" + i).ToArray();
+        var response = await client.PostAsJsonAsync("/api/jobs/release", new { jobIds = ids });
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("too_many", (await Body(response)).GetProperty("error").GetString());
+    }
+
+    [Fact]
+    public async Task The_same_document_sent_twice_is_charged_once()
+    {
+        var (client, _) = await SignIn();
+        var id = (await Held(client)).First().GetProperty("id").GetString();
+
+        var response = await client.PostAsJsonAsync("/api/jobs/release", new { jobIds = new[] { id, id } });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(12, (await Body(response)).GetProperty("pages").GetInt32());
     }
 
     [Fact]

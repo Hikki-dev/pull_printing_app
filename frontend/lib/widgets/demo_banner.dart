@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../screens/login_screen.dart';
+import '../services/print_repository.dart';
 import '../utils/constants.dart';
 import '../utils/theme.dart';
 
@@ -120,6 +123,20 @@ Future<void> showDemoInfo(BuildContext context) {
         ),
       ),
       actions: [
+        TextButton(
+          onPressed: () {
+            context.read<PrintRepository>().resetDemo();
+            // Back to sign-in; signing in again starts from fresh sample documents.
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (_) => const LoginScreen(
+                    message: 'Started over with fresh sample documents.'),
+              ),
+              (_) => false,
+            );
+          },
+          child: const Text('Start over'),
+        ),
         TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Got it')),

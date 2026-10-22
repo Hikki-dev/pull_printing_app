@@ -38,7 +38,7 @@ class HttpPrintRepository implements PrintRepository {
   Future<QuotaInfo> myQuota(Session session) => _api.quota(session.token);
 
   @override
-  Future<void> release(Session session, List<String> jobIds) =>
+  Future<List<String>> release(Session session, List<String> jobIds) =>
       _api.release(session.token, jobIds);
 
   @override
@@ -51,6 +51,9 @@ class HttpPrintRepository implements PrintRepository {
   @override
   Future<void> setQuota(Session session, String userId, int quota) =>
       _api.setQuota(session.token, userId, quota);
+
+  @override
+  void resetDemo() {}
 
   @override
   Future<void> sendSampleDocuments(Session session, {int count = 1}) async {

@@ -51,12 +51,12 @@ class MicrosoftSignInButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: height,
+    return ConstrainedBox(
+      constraints: BoxConstraints(minHeight: height, minWidth: double.infinity),
       child: OutlinedButton(
         onPressed: busy ? null : onPressed,
         style: OutlinedButton.styleFrom(
+          minimumSize: Size(double.infinity, height),
           backgroundColor: Colors.white,
           foregroundColor: const Color(0xFF5E5E5E),
           disabledForegroundColor: const Color(0xFF5E5E5E),
@@ -79,7 +79,12 @@ class MicrosoftSignInButton extends StatelessWidget {
                 children: [
                   MicrosoftLogo(),
                   SizedBox(width: 12),
-                  Text('Sign in with Microsoft'),
+                  Flexible(
+                    child: Text(
+                      'Sign in with Microsoft',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 ],
               ),
       ),

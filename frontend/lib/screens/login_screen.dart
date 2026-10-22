@@ -86,7 +86,10 @@ class _LoginScreenState extends State<LoginScreen> {
     return LayoutBuilder(builder: (context, c) {
       // On short phones drop the step cards and shrink the printer so the
       // sign-in button stays on screen without scrolling.
-      final compact = c.maxHeight < 720;
+      // Large text takes more room, so the limit grows with it.
+      final textScale = MediaQuery.textScalerOf(context).scale(1);
+      final compact = c.maxHeight < 720 * (textScale > 1 ? textScale : 1);
+      final tiny = textScale >= 1.75;
       return SingleChildScrollView(
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: c.maxHeight),
@@ -124,7 +127,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               ],
                             ),
                             SizedBox(height: compact ? 12 : 32),
-                            PrinterIllustration(width: compact ? 200 : 300),
+                            if (!tiny)
+                              PrinterIllustration(width: compact ? 200 : 300),
                           ],
                         ),
                       ),
@@ -188,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           const Center(
                             child: Text(
                               Constants.demoMode
-                                  ? 'You get your own sample documents. Nothing is really printed.'
+                                  ? 'No account needed. You get your own sample documents, and nothing is really printed.'
                                   : 'Use your work account. No new password.',
                               style: TextStyle(
                                   fontSize: 13, color: AppColors.muted),
@@ -267,8 +271,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           height: 1.45,
                           color: AppColors.onNavyMuted),
                     ),
-                    Spacer(),
-                    Center(child: PrinterIllustration(width: 300)),
+                    Expanded(
+                      child: Center(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: PrinterIllustration(width: 300),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),

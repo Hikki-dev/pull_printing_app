@@ -2,6 +2,7 @@
 
 A **secure pull-printing** system. A user sends a document to print, the server **holds** it, and it only prints when the user walks up to a printer, signs in and releases it. Built with a **Flutter** app and an **ASP.NET Core** backend, with **Microsoft Entra ID** supported for sign-in.
 
+[![CI](https://github.com/Hikki-dev/pull_printing_app/actions/workflows/ci.yml/badge.svg)](https://github.com/Hikki-dev/pull_printing_app/actions/workflows/ci.yml)
 ![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)
 ![.NET](https://img.shields.io/badge/.NET-8-512BD4?logo=dotnet&logoColor=white)
 ![Status](https://img.shields.io/badge/status-working%20demo-orange)
@@ -10,7 +11,9 @@ A **secure pull-printing** system. A user sends a document to print, the server 
 
 ## Try the demo
 
-Open the hosted demo (see [Host it for free](#host-it-for-free) to put one online) and press **Sign in with Microsoft**. In the demo that signs you in to a private sandbox as "Alice Tan".
+**Live demo: <https://pull-print-demo-hikki-devs-projects.vercel.app>** (runs entirely in your browser on built-in sample data).
+
+Press **Sign in with Microsoft**. In the demo that signs you in to a private sandbox as "Alice Tan".
 
 - You start with four sample documents and 38 of 50 pages left.
 - Tick the documents you want and press **Print**. Tick too many and Print switches off and says by how many pages.
@@ -18,7 +21,8 @@ Open the hosted demo (see [Host it for free](#host-it-for-free) to put one onlin
 - Out of documents? **Send sample documents** gives you more.
 - **Demo: sign in as administrator** shows every job and lets you change page limits, on a private copy of sample people.
 - A banner on every screen says it is a demo, and **What is this?** explains it in plain words.
-- Other visitors never see your documents. Your sandbox is deleted after 2 hours without use.
+- Printed everything? **What is this?** in the banner has **Start over**.
+- Other visitors never see your documents. In the live demo your data lives only in your browser tab; in the full-stack version your sandbox is deleted after 2 hours without use.
 
 ## How it works
 
@@ -32,7 +36,10 @@ Open the hosted demo (see [Host it for free](#host-it-for-free) to put one onlin
 
 | Feature | Where | State |
 |---|---|---|
-| Phone and printer-panel screens: sign in, choose documents, print, confirmation | `frontend/lib/screens/` | Done |
+| Phone and printer-panel screens: sign in, choose documents, select all, print, confirmation | `frontend/lib/screens/` | Done |
+| Plain messages for a long document, no pages left, partial print, a stale list, an ended session | `release_jobs_screen.dart`, `api_service.dart` | Done, tested |
+| Printer panel signs out after 60 seconds without a touch | `release_jobs_screen.dart` | Done, tested |
+| Works at 1.5 and 2 times text size and on a 360 px phone | | Done, tested |
 | Documents are only ever your own, quota is enforced on the server | `backend/services/PrintStore.cs` | Done, tested |
 | Admin: stats, job table with search and filter, per-user quota editing | `admin_dashboard_screen.dart`, `AdminController.cs` | Done, tested |
 | Demo sign-in with a private sandbox per visitor | `AuthController.cs`, `PrintStore.cs` | Done, tested |
@@ -42,7 +49,7 @@ Open the hosted demo (see [Host it for free](#host-it-for-free) to put one onlin
 
 ## Design
 
-UX documents, mockups and the design rules are in [`docs/`](docs/README.md).
+UX documents, mockups, the design rules, an [architecture and API reference](docs/07-architecture-and-api.md) and a [review of what went wrong and was fixed](docs/08-review-and-fixes.md) are in [`docs/`](docs/README.md). See also [CONTRIBUTING](CONTRIBUTING.md), [SECURITY](SECURITY.md) and the [CHANGELOG](CHANGELOG.md).
 
 ## Architecture
 
@@ -110,13 +117,16 @@ flutter run -d chrome -t frontend/lib/main.dart \
   --dart-define=USE_MOCK=false --dart-define=API_BASE_URL=http://localhost:5000/api
 ```
 
-Run the tests with `flutter test` and `dotnet test backend.Tests`.
+Run the tests with `flutter test` (43) and `dotnet test backend.Tests` (39).
 
 Screens narrower than 760 px use the phone layout, wider ones the printer-panel layout.
 
 ## Host it for free
 
-The repository includes a `Dockerfile` that builds the web app and the API into one image, and a `render.yaml` for Render's free plan. The short version: create a free Render account, choose **New, Blueprint**, and pick this repository. [`docs/06-demo-hosting.md`](docs/06-demo-hosting.md) has the steps, the settings, and what to expect from a free host.
+Two ways, both described in [`docs/06-demo-hosting.md`](docs/06-demo-hosting.md):
+
+- **Static, no server (what the live demo uses).** `vercel.json` and `scripts/vercel-build.sh` build the app on built-in sample data. Connect the repository to a Vercel project.
+- **Full stack.** A `Dockerfile` builds the web app and the API into one image, and `render.yaml` deploys it on Render's free plan: create a free account, choose **New, Blueprint**, and pick this repository.
 
 ## Repository layout
 
@@ -124,6 +134,8 @@ The repository includes a `Dockerfile` that builds the web app and the API into 
 frontend/lib/        Flutter source: main.dart, screens, services, models, widgets, utils
 backend/             ASP.NET Core API: controllers, services, models
 backend.Tests/       API and store tests
+scripts/             Build script for static hosting
+CONTRIBUTING.md  SECURITY.md  CHANGELOG.md
 test/                Flutter tests
 docs/                Design documents, mockup images and mockup source
 Dockerfile           One image with the API and the web app
@@ -152,6 +164,7 @@ This is a demo, so on purpose:
 - [x] Redesigned UI, demo mode and tests
 - [x] Backend builds, routes match the app, endpoints protected, tests
 - [x] Free hosting for a public demo
+- [x] A review from each user's point of view, with fixes ([docs/08](docs/08-review-and-fixes.md))
 - [ ] Test Microsoft sign-in against a real tenant
 - [ ] Persist users, jobs and quotas in a database
 - [ ] A way to send a file to be held

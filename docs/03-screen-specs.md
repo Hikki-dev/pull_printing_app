@@ -92,19 +92,32 @@ Seven screens. Images are the mockups in [`design/screens/`](design/screens/).
 
 ---
 
-## States to design next
+## States and how they are handled
 
-These are described, not yet drawn.
+Each is built in the app and covered by a test. Wording is exact.
+
+| Screen | State | What happens |
+|---|---|---|
+| P2, K2 | Select all | The button above the list ticks every document, then reads **Clear** |
+| P2, K2 | One document longer than the pages left | "This document needs 28 pages. You have 8 left." Print is off |
+| P2, K2 | More than one document, over quota | "Over your limit by 5 pages. Untick one." |
+| P2, K2 | No pages left | "No pages left this month." |
+| P3, K3 | Only some documents printed | The ones that printed are listed, and "1 document could not be printed and is still waiting." |
+| P2, K2 | Nothing printed | A message, and the person stays on their list |
+| P2, K2 | The list was out of date | "Those documents are not waiting to print. Your list has been refreshed." |
+| K2 | No touch for 60 seconds | Signed out, with "You were signed out because the screen was idle." |
+| any | Session ended (server restart, 8 hours) | Back to sign-in with "Your session has ended. Please sign in again." |
+| any | Too many requests | "Too many requests. Please wait a minute and try again." |
+| any, demo | Banner | "Demo: nothing is really printed." and **What is this?**, which has **Start over** |
+
+Already built and not repeated above: "Nothing waiting to print." with **Send sample documents** (demo) or "Send a file to Pull Print from your computer.", "Cannot reach the print server." with **Try again**, and "No jobs match." with **Clear filters** on the administrator screen.
+
+Not built yet, described for when they are:
 
 | Screen | State | Message |
 |---|---|---|
-| P2, K2 | No documents | "Nothing waiting to print." Under it: "Send a file to Pull Print from your computer." |
-| P2, K2 | Over quota | "This is 5 pages over your limit. Untick a document to continue." |
-| P2, K2 | Zero pages left | "You have no pages left this month. Ask your administrator." |
-| K1 | Code expired | "That code has expired." Button: "Get a new code" |
-| K1, K2 | Cannot reach server | "Cannot reach the print server." Button: "Try again" |
+| K1 | Phone code expired | "That code has expired." Button: "Get a new code" |
 | K3 | Printer problem | "The printer is out of paper. Your documents are still waiting." |
-| A1 | No jobs match filter | "No jobs match." Button: "Clear filters" |
 
 ## Accessibility checks applied
 

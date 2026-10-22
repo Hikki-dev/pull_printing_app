@@ -11,9 +11,10 @@ abstract class PrintRepository {
 
   Future<QuotaInfo> myQuota(Session session);
 
-  /// Prints the given jobs and reduces the quota by their page count.
-  /// Throws [QuotaExceededException] when they do not fit.
-  Future<void> release(Session session, List<String> jobIds);
+  /// Prints the given jobs and reduces the quota by their page count. Returns the
+  /// ids that really printed, which can be fewer than were asked for when the
+  /// printer rejects one. Throws [QuotaExceededException] when they do not fit.
+  Future<List<String>> release(Session session, List<String> jobIds);
 
   Future<List<PrintJob>> allJobs(Session session);
 
@@ -23,6 +24,10 @@ abstract class PrintRepository {
 
   /// Demo only: adds up to [count] sample documents to the user's waiting list.
   Future<void> sendSampleDocuments(Session session, {int count = 1});
+
+  /// Demo only: puts the sample data back as it started. Does nothing when the
+  /// data lives on a server, where signing in again starts a fresh sandbox.
+  void resetDemo();
 }
 
 class QuotaExceededException implements Exception {

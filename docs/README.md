@@ -10,6 +10,8 @@ Design documents for the pull-printing app. They describe what the screens shoul
 | [04 Design guidelines](04-design-guidelines.md) | Colours, type, sizes, accessibility, and what we will not use |
 | [05 Open decisions](05-open-decisions.md) | Questions that change the design and need an answer |
 | [06 Hosting the demo](06-demo-hosting.md) | Putting the demo online for free, settings, what to expect |
+| [07 Architecture and API](07-architecture-and-api.md) | How the pieces fit, who decides what, every route with an example |
+| [08 Review and fixes](08-review-and-fixes.md) | What went wrong from each user's point of view, how it was found, and the fix |
 
 ## Mockups
 

@@ -37,6 +37,10 @@ class Constants {
   /// Seconds before the printer panel signs the user out after printing.
   static const int autoSignOutSeconds = 20;
 
+  /// Seconds without a touch before the printer panel signs the user out, so a
+  /// person who walks away does not leave their documents on screen.
+  static const int idleSignOutSeconds = 60;
+
   // If you later need a default printer for quick release, set it here.
   static const String? defaultPrinterId = null;
 }

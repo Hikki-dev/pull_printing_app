@@ -28,24 +28,30 @@ class QuotaRing extends StatelessWidget {
               child: child,
             ),
             child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '${quota.left}',
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        height: 1),
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${quota.left}',
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            height: 1),
+                      ),
+                      const SizedBox(height: 2),
+                      const Text(
+                        'pages left',
+                        style: TextStyle(
+                            color: AppColors.onNavyMuted, fontSize: 10),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 2),
-                  const Text(
-                    'pages left',
-                    style:
-                        TextStyle(color: AppColors.onNavyMuted, fontSize: 10),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
