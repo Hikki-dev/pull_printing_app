@@ -9,12 +9,14 @@ import 'utils/theme.dart';
 
 void main() {
   runApp(PullPrintingApp(
-    repository: Constants.useMockData ? MockPrintRepository() : HttpPrintRepository(),
+    repository:
+        Constants.useMockData ? MockPrintRepository() : HttpPrintRepository(),
   ));
 }
 
 class PullPrintingApp extends StatelessWidget {
   final PrintRepository repository;
+
   /// Only set by tests, which load a real font so text is measured realistically.
   final String? fontFamily;
 
@@ -27,7 +29,9 @@ class PullPrintingApp extends StatelessWidget {
       child: MaterialApp(
         title: Constants.appName,
         debugShowCheckedModeBanner: false,
-        theme: fontFamily == null ? AppTheme.light : AppTheme.build(fontFamily: fontFamily),
+        theme: fontFamily == null
+            ? AppTheme.light
+            : AppTheme.build(fontFamily: fontFamily),
         home: const LoginScreen(),
       ),
     );

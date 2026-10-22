@@ -31,12 +31,22 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (bg, fg, side) = switch (style) {
-      AppButtonStyle.primary => (AppColors.primary, Colors.white, BorderSide.none),
-      AppButtonStyle.onNavy =>
-        (AppColors.navyChip, Colors.white, const BorderSide(color: Color(0xFF3A5F8A))),
+      AppButtonStyle.primary => (
+          AppColors.primary,
+          Colors.white,
+          BorderSide.none
+        ),
+      AppButtonStyle.onNavy => (
+          AppColors.navyChip,
+          Colors.white,
+          const BorderSide(color: Color(0xFF3A5F8A))
+        ),
       AppButtonStyle.light => (Colors.white, AppColors.navy, BorderSide.none),
-      AppButtonStyle.outline =>
-        (Colors.white, AppColors.ink, const BorderSide(color: AppColors.ink)),
+      AppButtonStyle.outline => (
+          Colors.white,
+          AppColors.ink,
+          const BorderSide(color: AppColors.ink)
+        ),
     };
     final disabled = onPressed == null && !busy;
     return FilledButton(
@@ -67,7 +77,10 @@ class AppButton extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (icon != null) ...[Icon(icon, size: fontSize + 4), const SizedBox(width: 10)],
+                if (icon != null) ...[
+                  Icon(icon, size: fontSize + 4),
+                  const SizedBox(width: 10)
+                ],
                 Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
               ],
             ),

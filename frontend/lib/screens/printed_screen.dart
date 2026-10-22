@@ -6,6 +6,7 @@ import '../utils/constants.dart';
 import '../utils/format.dart';
 import '../utils/theme.dart';
 import '../widgets/app_button.dart';
+import '../widgets/demo_banner.dart';
 import '../widgets/printer_illustration.dart';
 import 'login_screen.dart';
 import 'release_jobs_screen.dart';
@@ -78,7 +79,7 @@ class _PrintedScreenState extends State<PrintedScreen> {
     final wide = MediaQuery.sizeOf(context).width >= AppTheme.panelBreakpoint;
     return Scaffold(
       backgroundColor: AppColors.navy,
-      body: wide ? _panel() : _phone(),
+      body: DemoShell(child: wide ? _panel() : _phone()),
     );
   }
 
@@ -122,30 +123,37 @@ class _PrintedScreenState extends State<PrintedScreen> {
                         bottom: false,
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(24, 48, 24, 8),
-                          child: Column(
-                            children: [
-                              _tick(64),
-                              const SizedBox(height: 20),
-                              const Text(
-                                'Printing at ${Constants.printerName}',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 28,
-                                  height: 1.15,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.4,
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: Column(
+                              children: [
+                                _tick(64),
+                                const SizedBox(height: 20),
+                                const Text(
+                                  'Printing at ${Constants.printerName}',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 28,
+                                    height: 1.15,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: -0.4,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 10),
-                              const Text(
-                                'Collect your pages from the tray.',
-                                style: TextStyle(
-                                    fontSize: 15, color: AppColors.onNavyMuted),
-                              ),
-                              const SizedBox(height: 24),
-                              const PrinterIllustration(width: 240),
-                            ],
+                                const SizedBox(height: 10),
+                                const Text(
+                                  Constants.demoMode
+                                      ? 'This is a demo, so nothing was really printed.'
+                                      : 'Collect your pages from the tray.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: AppColors.onNavyMuted),
+                                ),
+                                const SizedBox(height: 24),
+                                const PrinterIllustration(width: 240),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -258,9 +266,8 @@ class _PrintedScreenState extends State<PrintedScreen> {
                     ),
                     const SizedBox(height: 18),
                     Text(
-                      widget.pagesLeft == null
-                          ? 'Collect your documents from the tray.'
-                          : 'Collect your documents from the tray.\nYou have ${widget.pagesLeft} pages left this month.',
+                      '${Constants.demoMode ? 'This is a demo, so nothing was really printed.' : 'Collect your documents from the tray.'}'
+                      '${widget.pagesLeft == null ? '' : '\nYou have ${widget.pagesLeft} pages left this month.'}',
                       style: const TextStyle(
                           fontSize: 22,
                           height: 1.4,

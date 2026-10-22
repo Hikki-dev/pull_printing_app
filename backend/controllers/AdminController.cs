@@ -1,19 +1,34 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PullPrintingBackend.Models;
 using PullPrintingBackend.Services;
 
-[ApiController]
-[Route("api/[controller]")]
-public class AdminController : ControllerBase
+namespace PullPrintingBackend.Controllers
 {
-    private readonly UserService _userService;
-    public AdminController(UserService userService) => _userService = userService;
-
-    [HttpPost("set-quota")]
-    public IActionResult SetQuota([FromBody] dynamic payload)
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize(Policy = Claims.AdminPolicy)]
+    public class AdminController : ControllerBase
     {
-        string userId = payload.userId;
-        int quota = payload.quota;
-        _userService.UpdateQuota(userId, quota);
-        return Ok();
+        public const int MaxQuota = 10_000;
+
+        private readonly IPrintStore _store;
+        public AdminController(IPrintStore store) => _store = store;
+
+        [HttpGet("users")]
+        public IEnumerable<UserQuotaDto> Users() =>
+            _store.Users(User.UserId()).Select(u => new UserQuotaDto(u.UserId, u.Name, u.Quota));
+
+        [HttpPost("set-quota")]
+        public IActionResult SetQuota([FromBody] SetQuotaRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.UserId))
+                return BadRequest(new ApiError("bad_request", "userId is required."));
+            if (request.Quota is < 0 or > MaxQuota)
+                return BadRequest(new ApiError("bad_request", $"Quota must be between 0 and {MaxQuota} pages."));
+            return _store.SetQuota(User.UserId(), request.UserId, request.Quota)
+                ? Ok()
+                : NotFound(new ApiError("not_found", "No such user."));
+        }
     }
 }

@@ -1,11 +1,11 @@
 class PrintJob {
   final String id;
   final String userId;
-  final String userName;      // who sent it
-  final String fileName;      // which file
+  final String userName; // who sent it
+  final String fileName; // which file
   final int pages;
   final DateTime submittedAt;
-  final String status;        // Held | Released | Printed | Failed
+  final String status; // Held | Released | Printed | Failed
   final String? failureReason;
 
   const PrintJob({
@@ -54,13 +54,13 @@ class PrintJob {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'userId': userId,
-    'userName': userName,
-    'fileName': fileName,
-    'pages': pages,
-    'submittedAt': submittedAt.toIso8601String(),
-    'status': status,
-    if (failureReason != null) 'failureReason': failureReason,
-  };
+        'id': id,
+        'userId': userId,
+        'userName': userName,
+        'fileName': fileName,
+        'pages': pages,
+        'submittedAt': submittedAt.toIso8601String(),
+        'status': status,
+        if (failureReason != null) 'failureReason': failureReason,
+      };
 }

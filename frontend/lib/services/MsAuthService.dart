@@ -13,9 +13,9 @@ class MsAuthService {
     );
   }
 
-  Future<String?> login() async {
+  Future<String?> login({List<String> scopes = const ['User.Read']}) async {
     try {
-      final token = await _pca.acquireToken(['User.Read']);
+      final token = await _pca.acquireToken(scopes);
       return token; // Access token
     } catch (e) {
       debugPrint('Login failed: $e');

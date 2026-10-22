@@ -12,7 +12,8 @@ class MockPrintRepository implements PrintRepository {
     final t = now ?? DateTime.now();
     final yesterday = t.subtract(const Duration(days: 1));
     PrintJob job(String id, String uid, String name, String file, int pages,
-            DateTime at, String status, [String? reason]) =>
+            DateTime at, String status,
+            [String? reason]) =>
         PrintJob(
           id: id,
           userId: uid,
@@ -28,7 +29,8 @@ class MockPrintRepository implements PrintRepository {
           t.subtract(const Duration(minutes: 20)), 'Held'),
       job('2', 'u1', 'Alice Tan', 'Site visit notes.docx', 3,
           t.subtract(const Duration(minutes: 40)), 'Held'),
-      job('3', 'u1', 'Alice Tan', 'Contract draft v4.pdf', 28, yesterday, 'Held'),
+      job('3', 'u1', 'Alice Tan', 'Contract draft v4.pdf', 28, yesterday,
+          'Held'),
       job('4', 'u1', 'Alice Tan', 'Floor plan.png', 1,
           yesterday.subtract(const Duration(hours: 1)), 'Held'),
       job('5', 'u2', 'Bob Reyes', 'report.docx', 3,
@@ -61,7 +63,10 @@ class MockPrintRepository implements PrintRepository {
     await _wait();
     return asAdmin
         ? const Session(
-            token: 'demo-admin', userId: 'admin', name: 'Administrator', isAdmin: true)
+            token: 'demo-admin',
+            userId: 'admin',
+            name: 'Administrator',
+            isAdmin: true)
         : const Session(token: 'demo-user', userId: 'u1', name: 'Alice Tan');
   }
 
@@ -98,7 +103,10 @@ class MockPrintRepository implements PrintRepository {
     _used[session.userId] = (_used[session.userId] ?? 0) + pages;
     _jobs = [
       for (final j in _jobs)
-        if (chosen.any((c) => c.id == j.id)) j.copyWith(status: 'Printed') else j,
+        if (chosen.any((c) => c.id == j.id))
+          j.copyWith(status: 'Printed')
+        else
+          j,
     ];
   }
 
@@ -121,6 +129,42 @@ class MockPrintRepository implements PrintRepository {
           quota: QuotaInfo(used: _used[id] ?? 0, total: _total[id] ?? 0),
         ),
     ];
+  }
+
+  @override
+  Future<void> sendSampleDocuments(Session session, {int count = 1}) async {
+    await _wait();
+    const samples = [
+      ('Meeting agenda.docx', 2),
+      ('Safety checklist.pdf', 6),
+      ('Onboarding guide.pdf', 18),
+      ('Site photo.png', 1),
+    ];
+    final user = _names[session.userId] ?? session.name;
+    var added = 0;
+    for (final (file, pages) in samples) {
+      if (added >= count) break;
+      final waiting = _jobs.any(
+          (j) => j.userId == session.userId && j.isHeld && j.fileName == file);
+      if (waiting) continue;
+      _jobs = [
+        ..._jobs,
+        PrintJob(
+          id: 's${_jobs.length + 1}',
+          userId: session.userId,
+          userName: user,
+          fileName: file,
+          pages: pages,
+          submittedAt: DateTime.now(),
+          status: 'Held',
+        ),
+      ];
+      added++;
+    }
+    if (added == 0) {
+      throw const PrintException(
+          'You already have plenty of documents waiting.');
+    }
   }
 
   @override

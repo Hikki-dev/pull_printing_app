@@ -1,0 +1,13 @@
+# Render Blueprint: deploys the demo on Render's free plan.
+# In Render: New > Blueprint > pick this repository.
+services:
+  - type: web
+    name: pull-print-demo
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      # Keeps visitors signed in across restarts.
+      - key: Demo__SigningKey
+        generateValue: true

@@ -9,6 +9,7 @@ Design documents for the pull-printing app. They describe what the screens shoul
 | [03 Screen specs](03-screen-specs.md) | Each mockup with its purpose, contents, states and exact wording |
 | [04 Design guidelines](04-design-guidelines.md) | Colours, type, sizes, accessibility, and what we will not use |
 | [05 Open decisions](05-open-decisions.md) | Questions that change the design and need an answer |
+| [06 Hosting the demo](06-demo-hosting.md) | Putting the demo online for free, settings, what to expect |
 
 ## Mockups
 

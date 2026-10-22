@@ -34,12 +34,16 @@ class QuotaRing extends StatelessWidget {
                   Text(
                     '${quota.left}',
                     style: const TextStyle(
-                        color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800, height: 1),
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        height: 1),
                   ),
                   const SizedBox(height: 2),
                   const Text(
                     'pages left',
-                    style: TextStyle(color: AppColors.onNavyMuted, fontSize: 10),
+                    style:
+                        TextStyle(color: AppColors.onNavyMuted, fontSize: 10),
                   ),
                 ],
               ),
@@ -58,7 +62,8 @@ class _RingPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     const stroke = 8.0;
-    final rect = Rect.fromLTWH(stroke / 2, stroke / 2, size.width - stroke, size.height - stroke);
+    final rect = Rect.fromLTWH(
+        stroke / 2, stroke / 2, size.width - stroke, size.height - stroke);
     final track = Paint()
       ..color = AppColors.ringTrack
       ..style = PaintingStyle.stroke

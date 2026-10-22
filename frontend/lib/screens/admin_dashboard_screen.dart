@@ -8,6 +8,7 @@ import '../utils/format.dart';
 import '../utils/theme.dart';
 import '../widgets/app_button.dart';
 import '../widgets/brand_mark.dart';
+import '../widgets/demo_banner.dart';
 import '../widgets/doc_thumbnail.dart';
 import 'login_screen.dart';
 
@@ -78,6 +79,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         _users = users;
         _loading = false;
       });
+    } on SessionExpiredException catch (e) {
+      _signOut(message: e.message);
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -102,15 +105,18 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       messenger.showSnackBar(SnackBar(
           content: Text('Quota for ${user.name} set to $value pages.')));
       _load();
+    } on SessionExpiredException catch (e) {
+      _signOut(message: e.message);
     } catch (e) {
       if (!mounted) return;
       messenger.showSnackBar(SnackBar(content: Text('Could not save: $e')));
     }
   }
 
-  void _signOut() {
+  void _signOut({String? message}) {
+    if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      MaterialPageRoute(builder: (_) => LoginScreen(message: message)),
       (_) => false,
     );
   }
@@ -141,38 +147,42 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Column(
-        children: [
-          _topBar(),
-          Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _error != null
-                    ? _errorView()
-                    : RefreshIndicator(
-                        onRefresh: _load,
-                        child: SingleChildScrollView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          padding: const EdgeInsets.all(24),
-                          child: Center(
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 1200),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  _stats(),
-                                  const SizedBox(height: 24),
-                                  _jobsSection(),
-                                  const SizedBox(height: 24),
-                                  _quotaSection(),
-                                ],
+      body: DemoShell(
+        child: Column(
+          children: [
+            _topBar(),
+            Expanded(
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _error != null
+                      ? _errorView()
+                      : RefreshIndicator(
+                          onRefresh: _load,
+                          child: SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.all(24),
+                            child: Center(
+                              child: ConstrainedBox(
+                                constraints:
+                                    const BoxConstraints(maxWidth: 1200),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    _stats(),
+                                    const SizedBox(height: 24),
+                                    _jobsSection(),
+                                    const SizedBox(height: 24),
+                                    _quotaSection(),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -221,7 +231,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 fontSize: 15,
                 radius: 10,
                 expand: false,
-                onPressed: _signOut,
+                onPressed: () => _signOut(),
               ),
             ],
           ),

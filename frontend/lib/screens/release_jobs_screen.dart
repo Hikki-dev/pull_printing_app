@@ -8,6 +8,7 @@ import '../utils/format.dart';
 import '../utils/theme.dart';
 import '../widgets/app_button.dart';
 import '../widgets/brand_mark.dart';
+import '../widgets/demo_banner.dart';
 import '../widgets/job_card.dart';
 import '../widgets/quota_ring.dart';
 import 'login_screen.dart';
@@ -57,6 +58,8 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
         _selected = _defaultSelection(jobs, quota);
         _loading = false;
       });
+    } on SessionExpiredException catch (e) {
+      _signOut(message: e.message);
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -64,6 +67,20 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
         _loading = false;
       });
     }
+  }
+
+  Future<void> _sendSamples(int count) async {
+    final repo = context.read<PrintRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await repo.sendSampleDocuments(widget.session, count: count);
+    } on SessionExpiredException catch (e) {
+      _signOut(message: e.message);
+      return;
+    } on PrintException catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+    }
+    if (mounted) _load();
   }
 
   /// Newest documents first, stopping at the first one that would go over quota.
@@ -78,8 +95,9 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
     return picked;
   }
 
-  int get _pages =>
-      _jobs.where((j) => _selected.contains(j.id)).fold(0, (n, j) => n + j.pages);
+  int get _pages => _jobs
+      .where((j) => _selected.contains(j.id))
+      .fold(0, (n, j) => n + j.pages);
   int get _count => _selected.length;
   bool get _over => _quota.known && _pages > _quota.left;
   bool get _canPrint => _count > 0 && !_over && !_printing;
@@ -112,18 +130,23 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
       messenger.showSnackBar(SnackBar(content: Text(e.toString())));
       setState(() => _printing = false);
       _load();
+    } on SessionExpiredException catch (e) {
+      _signOut(message: e.message);
     } catch (e) {
       if (!mounted) return;
       messenger.showSnackBar(
-        SnackBar(content: Text('Could not print. Your documents are still waiting. ($e)')),
+        SnackBar(
+            content: Text(
+                'Could not print. Your documents are still waiting. ($e)')),
       );
       setState(() => _printing = false);
     }
   }
 
-  void _signOut() {
+  void _signOut({String? message}) {
+    if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      MaterialPageRoute(builder: (_) => LoginScreen(message: message)),
       (_) => false,
     );
   }
@@ -133,12 +156,14 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
     final wide = MediaQuery.sizeOf(context).width >= AppTheme.panelBreakpoint;
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Column(
-        children: [
-          wide ? _panelHeader() : _phoneHeader(),
-          Expanded(child: _body(wide)),
-          if (!_loading && _error == null && _jobs.isNotEmpty) _footer(wide),
-        ],
+      body: DemoShell(
+        child: Column(
+          children: [
+            wide ? _panelHeader() : _phoneHeader(),
+            Expanded(child: _body(wide)),
+            if (!_loading && _error == null && _jobs.isNotEmpty) _footer(wide),
+          ],
+        ),
       ),
     );
   }
@@ -164,17 +189,20 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
                       child: Text(
                         Constants.appName,
                         style: TextStyle(
-                            color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700),
                       ),
                     ),
                     IconButton(
                       tooltip: 'Sign out',
-                      onPressed: _signOut,
+                      onPressed: () => _signOut(),
                       style: IconButton.styleFrom(
                         backgroundColor: AppColors.navyChip,
                         foregroundColor: Colors.white,
                         minimumSize: const Size(44, 44),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
                       icon: const Icon(Icons.logout),
                     ),
@@ -188,7 +216,8 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(greeting(),
-                              style: const TextStyle(fontSize: 14, color: AppColors.onNavyMuted)),
+                              style: const TextStyle(
+                                  fontSize: 14, color: AppColors.onNavyMuted)),
                           Text(
                             widget.session.name,
                             maxLines: 1,
@@ -247,13 +276,15 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
           const SizedBox(width: 16),
           Text(
             widget.session.name,
-            style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800),
+            style: const TextStyle(
+                color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800),
           ),
           const SizedBox(width: 16),
           if (_quota.known)
             Text(
               '${_quota.left} pages left this month',
-              style: const TextStyle(fontSize: 16, color: AppColors.onNavyMuted),
+              style:
+                  const TextStyle(fontSize: 16, color: AppColors.onNavyMuted),
             ),
           const Spacer(),
           AppButton(
@@ -263,7 +294,7 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
             height: 48,
             fontSize: 16,
             expand: false,
-            onPressed: _signOut,
+            onPressed: () => _signOut(),
           ),
         ],
       ),
@@ -290,13 +321,21 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
     if (_jobs.isEmpty) {
       return _message(
         'Nothing waiting to print.',
-        'Send a file to Pull Print from your computer.',
-        action: AppButton(
-          label: 'Check again',
-          style: AppButtonStyle.outline,
-          expand: false,
-          onPressed: _load,
-        ),
+        Constants.demoMode
+            ? 'This is a demo, so you can send yourself some sample documents.'
+            : 'Send a file to Pull Print from your computer.',
+        action: Constants.demoMode
+            ? AppButton(
+                label: 'Send sample documents',
+                expand: false,
+                onPressed: () => _sendSamples(4),
+              )
+            : AppButton(
+                label: 'Check again',
+                style: AppButtonStyle.outline,
+                expand: false,
+                onPressed: _load,
+              ),
       );
     }
 
@@ -317,9 +356,13 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
             textBaseline: TextBaseline.alphabetic,
             children: [
               Expanded(
-                child: Text(wide ? 'Your documents' : 'Waiting to print', style: titleStyle),
+                child: Text(wide ? 'Your documents' : 'Waiting to print',
+                    style: titleStyle),
               ),
-              Text(wide ? 'Tap a document to include or leave it out' : 'Tap to select',
+              Text(
+                  wide
+                      ? 'Tap a document to include or leave it out'
+                      : 'Tap to select',
                   style: hint),
             ],
           ),
@@ -330,6 +373,15 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
             child: wide ? _grid(pad) : _list(pad),
           ),
         ),
+        if (Constants.demoMode)
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: pad - 8),
+            child: TextButton.icon(
+              onPressed: () => _sendSamples(1),
+              icon: const Icon(Icons.add),
+              label: const Text('Send another sample document'),
+            ),
+          ),
       ],
     );
   }
@@ -376,7 +428,8 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
           children: [
             Text(title,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+                style:
+                    const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
             const SizedBox(height: 8),
             Text(detail,
                 textAlign: TextAlign.center,
@@ -391,7 +444,8 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
 
   // ---- footer ------------------------------------------------------------
 
-  String get _summary => '${_count == 1 ? '1 document' : '$_count documents'} · $_pages pages';
+  String get _summary =>
+      '${_count == 1 ? '1 document' : '$_count documents'} · $_pages pages';
 
   String? get _afterText {
     if (!_quota.known) return null;
@@ -400,10 +454,13 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
         : '${_quota.left - _pages} pages left after printing';
   }
 
-  String get _blockText => _count == 0 ? 'Select a document' : 'Over your limit';
+  String get _blockText =>
+      _count == 0 ? 'Select a document' : 'Over your limit';
 
   Widget _footer(bool wide) {
-    const shadow = [BoxShadow(color: Color(0x0F0E2A47), blurRadius: 18, offset: Offset(0, -6))];
+    const shadow = [
+      BoxShadow(color: Color(0x0F0E2A47), blurRadius: 18, offset: Offset(0, -6))
+    ];
     if (wide) {
       return Container(
         height: 104,
@@ -421,7 +478,8 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(_summary,
-                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+                      style: const TextStyle(
+                          fontSize: 22, fontWeight: FontWeight.w800)),
                   if (_afterText != null)
                     Text(_afterText!,
                         style: TextStyle(
@@ -464,10 +522,12 @@ class _ReleaseJobsScreenState extends State<ReleaseJobsScreen> {
                 children: [
                   Icon(Icons.print_outlined, size: 18, color: AppColors.muted),
                   SizedBox(width: 8),
-                  Text('Printer', style: TextStyle(fontSize: 14, color: AppColors.muted)),
+                  Text('Printer',
+                      style: TextStyle(fontSize: 14, color: AppColors.muted)),
                   Spacer(),
                   Text(Constants.printerName,
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                 ],
               ),
               const SizedBox(height: 12),

@@ -31,7 +31,12 @@ class JobTile extends StatelessWidget {
             width: 2,
           ),
           boxShadow: selected
-              ? const [BoxShadow(color: Color(0x240B5CAD), blurRadius: 14, offset: Offset(0, 4))]
+              ? const [
+                  BoxShadow(
+                      color: Color(0x240B5CAD),
+                      blurRadius: 14,
+                      offset: Offset(0, 4))
+                ]
               : const [],
         ),
         child: Material(
@@ -53,12 +58,14 @@ class JobTile extends StatelessWidget {
                           job.fileName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 3),
                         Text(
                           jobMeta(job),
-                          style: const TextStyle(fontSize: 13, color: AppColors.muted),
+                          style: const TextStyle(
+                              fontSize: 13, color: AppColors.muted),
                         ),
                       ],
                     ),
@@ -106,7 +113,12 @@ class JobCard extends StatelessWidget {
           width: 3,
         ),
         boxShadow: selected
-            ? const [BoxShadow(color: Color(0x2E0B5CAD), blurRadius: 18, offset: Offset(0, 6))]
+            ? const [
+                BoxShadow(
+                    color: Color(0x2E0B5CAD),
+                    blurRadius: 18,
+                    offset: Offset(0, 6))
+              ]
             : const [],
       ),
       clipBehavior: Clip.antiAlias,
@@ -148,12 +160,14 @@ class JobCard extends StatelessWidget {
                       job.fileName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+                      style: const TextStyle(
+                          fontSize: 17, fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       jobMeta(job),
-                      style: const TextStyle(fontSize: 15, color: AppColors.muted),
+                      style:
+                          const TextStyle(fontSize: 15, color: AppColors.muted),
                     ),
                   ],
                 ),

@@ -12,8 +12,8 @@ class PrinterIllustration extends StatefulWidget {
 
 class _PrinterIllustrationState extends State<PrinterIllustration>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 3200));
+  late final AnimationController _controller = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 3200));
   bool _started = false;
 
   @override
@@ -47,7 +47,8 @@ class _PrinterIllustrationState extends State<PrinterIllustration>
           height: widget.width * 230 / 320,
           child: AnimatedBuilder(
             animation: _controller,
-            builder: (context, _) => CustomPaint(painter: _PrinterPainter(_controller.value)),
+            builder: (context, _) =>
+                CustomPaint(painter: _PrinterPainter(_controller.value)),
           ),
         ),
       ),
@@ -62,15 +63,20 @@ class _PrinterPainter extends CustomPainter {
   Paint _p(int argb, [double opacity = 1]) =>
       Paint()..color = Color(argb).withAlpha((opacity * 255).round());
 
-  void _rr(Canvas c, double x, double y, double w, double h, double r, Paint p) =>
-      c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x, y, w, h), Radius.circular(r)), p);
+  void _rr(Canvas c, double x, double y, double w, double h, double r,
+          Paint p) =>
+      c.drawRRect(
+          RRect.fromRectAndRadius(
+              Rect.fromLTWH(x, y, w, h), Radius.circular(r)),
+          p);
 
   @override
   void paint(Canvas canvas, Size size) {
     canvas.scale(size.width / 320, size.height / 230);
 
     canvas.drawOval(
-        Rect.fromCenter(center: const Offset(160, 216), width: 264, height: 18), _p(0xFF000000, .22));
+        Rect.fromCenter(center: const Offset(160, 216), width: 264, height: 18),
+        _p(0xFF000000, .22));
 
     canvas.save();
     canvas.translate(160, 52);

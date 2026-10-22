@@ -1,8 +1,8 @@
 namespace PullPrintingBackend.Models
 {
-    public class Quota
+    /// <summary>Pages used and allowed this month.</summary>
+    public record Quota(int Used, int Total)
     {
-        public string UserId { get; set; }
-        public int RemainingQuota { get; set; }
+        public int Left => Math.Max(Total - Used, 0);
     }
 }

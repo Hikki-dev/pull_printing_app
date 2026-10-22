@@ -1,0 +1,17 @@
+.git
+.github
+.dart_tool
+build
+android
+ios
+macos
+linux
+windows
+docs
+test
+backend.Tests
+backend/bin
+backend/obj
+backend/wwwroot
+**/bin
+**/obj

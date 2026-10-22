@@ -71,7 +71,8 @@ class MicrosoftSignInButton extends StatelessWidget {
             ? const SizedBox(
                 width: 24,
                 height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2.5, color: Color(0xFF5E5E5E)),
+                child: CircularProgressIndicator(
+                    strokeWidth: 2.5, color: Color(0xFF5E5E5E)),
               )
             : const Row(
                 mainAxisAlignment: MainAxisAlignment.center,

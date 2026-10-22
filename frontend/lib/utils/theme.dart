@@ -38,24 +38,26 @@ class AppTheme {
   static const double panelBreakpoint = 760;
 
   static ThemeData build({String? fontFamily}) => ThemeData(
-    useMaterial3: true,
-    fontFamily: fontFamily,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
-      primary: AppColors.primary,
-      surface: AppColors.surface,
-    ),
-    scaffoldBackgroundColor: AppColors.background,
-    snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating),
-    inputDecorationTheme: InputDecorationTheme(
-      isDense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Color(0xFF8A97A4)),
-      ),
-    ),
-  );
+        useMaterial3: true,
+        fontFamily: fontFamily,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: AppColors.primary,
+          primary: AppColors.primary,
+          surface: AppColors.surface,
+        ),
+        scaffoldBackgroundColor: AppColors.background,
+        snackBarTheme:
+            const SnackBarThemeData(behavior: SnackBarBehavior.floating),
+        inputDecorationTheme: InputDecorationTheme(
+          isDense: true,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Color(0xFF8A97A4)),
+          ),
+        ),
+      );
 
   static final ThemeData light = build();
 

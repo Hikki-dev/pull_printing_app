@@ -6,10 +6,11 @@ class MsalService {
 
   Future<void> initialize() async {
     try {
-      _publicClientApplication = await PublicClientApplication.createPublicClientApplication(
+      _publicClientApplication =
+          await PublicClientApplication.createPublicClientApplication(
         '880bec29-de8b-49b2-9911-e12da787f3f1 ', // Replace with your client ID
         // Replace with your authority and redirect URI
-        // authority: 'https://login.microsoftonline.com/your-tenant-id', 
+        // authority: 'https://login.microsoftonline.com/your-tenant-id',
         // redirectUri: 'your-redirect-uri',
         authority: 'https://login.microsoftonline.com/common',
         redirectUri: 'your-redirect-uri',
@@ -39,5 +40,6 @@ class MsalService {
   }
 
   String? get accessToken => _accessToken;
-  String? get clientId => '880bec29-de8b-49b2-9911-e12da787f3f1'; // Replace with your client ID
+  String? get clientId =>
+      '880bec29-de8b-49b2-9911-e12da787f3f1'; // Replace with your client ID
 }

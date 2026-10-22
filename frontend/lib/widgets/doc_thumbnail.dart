@@ -49,7 +49,8 @@ class DocThumbnail extends StatelessWidget {
           width: w == null ? null : w * s,
           height: h * s,
           child: DecoratedBox(
-            decoration: BoxDecoration(color: c, borderRadius: BorderRadius.circular(3 * s)),
+            decoration: BoxDecoration(
+                color: c, borderRadius: BorderRadius.circular(3 * s)),
           ),
         );
 
@@ -62,7 +63,8 @@ class DocThumbnail extends StatelessWidget {
           borderRadius: BorderRadius.circular(4),
           border: width < 80 ? Border.all(color: AppColors.line) : null,
           boxShadow: const [
-            BoxShadow(color: Color(0x240E2A47), blurRadius: 6, offset: Offset(0, 2)),
+            BoxShadow(
+                color: Color(0x240E2A47), blurRadius: 6, offset: Offset(0, 2)),
           ],
         ),
         clipBehavior: Clip.antiAlias,

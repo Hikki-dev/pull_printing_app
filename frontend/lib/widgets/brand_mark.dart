@@ -22,7 +22,8 @@ class _BrandMarkPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     canvas.scale(size.width / 36, size.height / 36);
     canvas.drawRRect(
-      RRect.fromRectAndRadius(const Rect.fromLTWH(0, 0, 36, 36), const Radius.circular(9)),
+      RRect.fromRectAndRadius(
+          const Rect.fromLTWH(0, 0, 36, 36), const Radius.circular(9)),
       Paint()..color = AppColors.primary,
     );
     const r = Radius.circular(1);
@@ -50,7 +51,8 @@ class _BrandMarkPainter extends CustomPainter {
       Rect.fromLTWH(13, 21, 10, 1.8),
       Rect.fromLTWH(13, 25, 6, 1.8),
     ]) {
-      canvas.drawRRect(RRect.fromRectAndRadius(l, const Radius.circular(0.9)), line);
+      canvas.drawRRect(
+          RRect.fromRectAndRadius(l, const Radius.circular(0.9)), line);
     }
   }
 

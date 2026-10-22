@@ -20,6 +20,9 @@ abstract class PrintRepository {
   Future<List<UserQuota>> users(Session session);
 
   Future<void> setQuota(Session session, String userId, int quota);
+
+  /// Demo only: adds up to [count] sample documents to the user's waiting list.
+  Future<void> sendSampleDocuments(Session session, {int count = 1});
 }
 
 class QuotaExceededException implements Exception {
@@ -36,4 +39,10 @@ class PrintException implements Exception {
 
   @override
   String toString() => message;
+}
+
+/// The token is no longer valid, for example after the demo server restarted.
+class SessionExpiredException extends PrintException {
+  const SessionExpiredException()
+      : super('Your session has ended. Please sign in again.');
 }

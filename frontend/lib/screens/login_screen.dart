@@ -6,13 +6,16 @@ import '../utils/constants.dart';
 import '../utils/theme.dart';
 import '../widgets/app_button.dart';
 import '../widgets/brand_mark.dart';
+import '../widgets/demo_banner.dart';
 import '../widgets/microsoft_logo.dart';
 import '../widgets/printer_illustration.dart';
 import 'admin_dashboard_screen.dart';
 import 'release_jobs_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  /// Shown once on arrival, for example "Your session has ended".
+  final String? message;
+  const LoginScreen({super.key, this.message});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -21,23 +24,39 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool _loading = false;
 
+  @override
+  void initState() {
+    super.initState();
+    final message = widget.message;
+    if (message != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(message)));
+        }
+      });
+    }
+  }
+
   Future<void> _login({bool asAdmin = false}) async {
     final repo = context.read<PrintRepository>();
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
     setState(() => _loading = true);
     Session? session;
+    String? failure;
     try {
       session = await repo.signIn(asAdmin: asAdmin);
-    } catch (_) {
+    } catch (e) {
       session = null;
+      failure = e is PrintException ? e.message : null;
     }
     if (!mounted) return;
     setState(() => _loading = false);
 
     if (session == null) {
       messenger.showSnackBar(
-        const SnackBar(content: Text('Sign-in failed. Please try again.')),
+        SnackBar(content: Text(failure ?? 'Sign-in failed. Please try again.')),
       );
       return;
     }
@@ -53,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final wide = MediaQuery.sizeOf(context).width >= AppTheme.panelBreakpoint;
     return Scaffold(
       backgroundColor: wide ? AppColors.background : AppColors.navy,
-      body: wide ? _panel() : _phone(),
+      body: DemoShell(child: wide ? _panel() : _phone()),
     );
   }
 
@@ -65,6 +84,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _phone() {
     return LayoutBuilder(builder: (context, c) {
+      // On short phones drop the step cards and shrink the printer so the
+      // sign-in button stays on screen without scrolling.
+      final compact = c.maxHeight < 720;
       return SingleChildScrollView(
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: c.maxHeight),
@@ -81,13 +103,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         right: -90,
                         top: 120,
                         child: _circle(260, AppColors.navyDeep)),
-                    const SafeArea(
+                    SafeArea(
                       bottom: false,
                       child: Padding(
-                        padding: EdgeInsets.fromLTRB(24, 20, 24, 8),
+                        padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
                         child: Column(
                           children: [
-                            Row(
+                            const Row(
                               children: [
                                 BrandMark(size: 36),
                                 SizedBox(width: 10),
@@ -101,8 +123,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 32),
-                            PrinterIllustration(width: 300),
+                            SizedBox(height: compact ? 12 : 32),
+                            PrinterIllustration(width: compact ? 200 : 300),
                           ],
                         ),
                       ),
@@ -141,20 +163,23 @@ class _LoginScreenState extends State<LoginScreen> {
                                 height: 1.5,
                                 color: AppColors.muted),
                           ),
-                          const SizedBox(height: 16),
-                          const IntrinsicHeight(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Expanded(child: _StepCard(1, 'Send a file')),
-                                SizedBox(width: 8),
-                                Expanded(
-                                    child: _StepCard(2, 'Walk up and sign in')),
-                                SizedBox(width: 8),
-                                Expanded(child: _StepCard(3, 'Tap Print')),
-                              ],
+                          if (!compact) ...[
+                            const SizedBox(height: 16),
+                            const IntrinsicHeight(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Expanded(child: _StepCard(1, 'Send a file')),
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                      child:
+                                          _StepCard(2, 'Walk up and sign in')),
+                                  SizedBox(width: 8),
+                                  Expanded(child: _StepCard(3, 'Tap Print')),
+                                ],
+                              ),
                             ),
-                          ),
+                          ],
                           const Spacer(),
                           const SizedBox(height: 20),
                           MicrosoftSignInButton(
@@ -162,12 +187,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           const SizedBox(height: 12),
                           const Center(
                             child: Text(
-                              'Use your work account. No new password.',
+                              Constants.demoMode
+                                  ? 'You get your own sample documents. Nothing is really printed.'
+                                  : 'Use your work account. No new password.',
                               style: TextStyle(
                                   fontSize: 13, color: AppColors.muted),
                             ),
                           ),
-                          if (Constants.useMockData)
+                          if (Constants.demoMode)
                             Center(
                               child: TextButton(
                                 onPressed: _loading
@@ -291,7 +318,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   busy: _loading,
                                   height: 64,
                                 ),
-                                if (Constants.useMockData) ...[
+                                if (Constants.demoMode) ...[
                                   const SizedBox(height: 12),
                                   AppButton(
                                     label: 'Demo: sign in as administrator',

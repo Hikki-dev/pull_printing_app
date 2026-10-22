@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../frontend/lib/main.dart';
+import '../frontend/lib/models/print_job.dart';
 import '../frontend/lib/models/session.dart';
 import '../frontend/lib/services/mock_print_repository.dart';
 import '../frontend/lib/services/print_repository.dart';
@@ -18,17 +19,28 @@ Future<void> _settle(WidgetTester tester) async {
   }
 }
 
-Future<void> _openApp(WidgetTester tester, Size size, {MockPrintRepository? repo}) async {
+Future<void> _openApp(WidgetTester tester, Size size,
+    {MockPrintRepository? repo}) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  await tester.pumpWidget(PullPrintingApp(repository: repo ?? _repo(), fontFamily: 'Roboto'));
+  await tester.pumpWidget(
+      PullPrintingApp(repository: repo ?? _repo(), fontFamily: 'Roboto'));
   await _settle(tester);
 }
 
 Future<void> _signIn(WidgetTester tester) async {
   await tester.tap(find.text('Sign in with Microsoft'));
   await _settle(tester);
+}
+
+/// Signs in fine, then the server rejects the token, as after a restart.
+class _ExpiredAfterSignIn extends MockPrintRepository {
+  _ExpiredAfterSignIn() : super(latency: Duration.zero);
+
+  @override
+  Future<List<PrintJob>> myHeldJobs(Session session) async =>
+      throw const SessionExpiredException();
 }
 
 void main() {
@@ -38,7 +50,8 @@ void main() {
   const panel = Size(1024, 600);
 
   group('phone', () {
-    testWidgets('sign-in shows only the user\'s own documents, ticked to fit quota',
+    testWidgets(
+        'sign-in shows only the user\'s own documents, ticked to fit quota',
         (tester) async {
       await _openApp(tester, phone);
       expect(find.text('Print now.\nCollect at any printer.'), findsOneWidget);
@@ -58,7 +71,8 @@ void main() {
       expect(find.text('38'), findsOneWidget); // pages-left ring
     });
 
-    testWidgets('going over quota disables Print and says by how much', (tester) async {
+    testWidgets('going over quota disables Print and says by how much',
+        (tester) async {
       await _openApp(tester, phone);
       await _signIn(tester);
 
@@ -67,7 +81,11 @@ void main() {
 
       final blocked = find.text('Over your limit by 5 pages. Untick one.');
       expect(blocked, findsOneWidget);
-      expect(tester.widget<FilledButton>(find.ancestor(of: blocked, matching: find.byType(FilledButton))).onPressed,
+      expect(
+          tester
+              .widget<FilledButton>(find.ancestor(
+                  of: blocked, matching: find.byType(FilledButton)))
+              .onPressed,
           isNull);
 
       await tester.tap(find.text('Contract draft v4.pdf'));
@@ -85,11 +103,16 @@ void main() {
 
       final blocked = find.text('Select a document to print');
       expect(blocked, findsOneWidget);
-      expect(tester.widget<FilledButton>(find.ancestor(of: blocked, matching: find.byType(FilledButton))).onPressed,
+      expect(
+          tester
+              .widget<FilledButton>(find.ancestor(
+                  of: blocked, matching: find.byType(FilledButton)))
+              .onPressed,
           isNull);
     });
 
-    testWidgets('printing confirms, reduces quota and removes the printed jobs', (tester) async {
+    testWidgets('printing confirms, reduces quota and removes the printed jobs',
+        (tester) async {
       await _openApp(tester, phone);
       await _signIn(tester);
 
@@ -120,19 +143,90 @@ void main() {
     testWidgets('empty state when nothing is waiting', (tester) async {
       final repo = _repo();
       await repo.release(
-          const Session(token: 't', userId: 'u1', name: 'Alice Tan'), ['1', '2']);
+          const Session(token: 't', userId: 'u1', name: 'Alice Tan'),
+          ['1', '2']);
       await repo.setQuota(
-          const Session(token: 't', userId: 'admin', name: 'A', isAdmin: true), 'u1', 500);
+          const Session(token: 't', userId: 'admin', name: 'A', isAdmin: true),
+          'u1',
+          500);
       await repo.release(
-          const Session(token: 't', userId: 'u1', name: 'Alice Tan'), ['3', '4']);
+          const Session(token: 't', userId: 'u1', name: 'Alice Tan'),
+          ['3', '4']);
       await _openApp(tester, phone, repo: repo);
       await _signIn(tester);
       expect(find.text('Nothing waiting to print.'), findsOneWidget);
     });
   });
 
+  group('demo', () {
+    testWidgets('the banner explains the demo and its dialog can be opened',
+        (tester) async {
+      await _openApp(tester, phone);
+      expect(find.text('Demo: nothing is really printed.'), findsOneWidget);
+
+      await tester.tap(find.text('What is this?'));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.textContaining('Print does not use a real printer'),
+          findsOneWidget);
+      expect(find.textContaining('Other visitors cannot see them'),
+          findsOneWidget);
+
+      await tester.tap(find.text('Got it'));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.textContaining('Print does not use a real printer'),
+          findsNothing);
+    });
+
+    testWidgets(
+        'an empty list offers sample documents, and sending them fills it',
+        (tester) async {
+      final repo = _repo();
+      const alice = Session(token: 't', userId: 'u1', name: 'Alice Tan');
+      await repo.setQuota(
+          const Session(token: 't', userId: 'admin', name: 'A', isAdmin: true),
+          'u1',
+          500);
+      await repo.release(alice, ['1', '2', '3', '4']);
+
+      await _openApp(tester, phone, repo: repo);
+      await _signIn(tester);
+      expect(find.text('Nothing waiting to print.'), findsOneWidget);
+
+      await tester.tap(find.text('Send sample documents'));
+      await _settle(tester);
+
+      expect(find.text('Nothing waiting to print.'), findsNothing);
+      expect(find.text('Meeting agenda.docx'), findsOneWidget);
+      expect(find.text('Safety checklist.pdf'), findsOneWidget);
+    });
+
+    testWidgets('"Send another sample document" adds one to a non-empty list',
+        (tester) async {
+      await _openApp(tester, phone);
+      await _signIn(tester);
+      expect(find.text('Meeting agenda.docx'), findsNothing);
+
+      await tester.tap(find.text('Send another sample document'));
+      await _settle(tester);
+
+      expect(find.text('Meeting agenda.docx'), findsOneWidget);
+    });
+
+    testWidgets(
+        'a session that has ended sends the user back to sign-in with a message',
+        (tester) async {
+      await _openApp(tester, phone, repo: _ExpiredAfterSignIn());
+      await _signIn(tester);
+
+      expect(find.text('Sign in with Microsoft'), findsOneWidget);
+      expect(find.text('Your session has ended. Please sign in again.'),
+          findsOneWidget);
+    });
+  });
+
   group('small screens', () {
-    testWidgets('a 360 x 640 phone shows every screen without overflow', (tester) async {
+    testWidgets('a 360 x 640 phone shows every screen without overflow',
+        (tester) async {
       await _openApp(tester, const Size(360, 640));
       await _signIn(tester);
       expect(find.text('Q3 budget review.pdf'), findsOneWidget);
@@ -161,7 +255,8 @@ void main() {
       expect(find.text('Sign in to collect your prints'), findsOneWidget);
     });
 
-    testWidgets('over quota shows the shortfall and blocks Print', (tester) async {
+    testWidgets('over quota shows the shortfall and blocks Print',
+        (tester) async {
       await _openApp(tester, panel);
       await _signIn(tester);
       await tester.tap(find.text('Contract draft v4.pdf'));
@@ -183,12 +278,14 @@ void main() {
       expect(find.text('Failed: printer offline'), findsOneWidget);
       expect(find.text('Waiting to print'), findsOneWidget);
 
-      await tester.enterText(find.widgetWithText(TextField, 'Search user or file'), 'priya');
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Search user or file'), 'priya');
       await tester.pump();
       expect(find.text('Safety audit.pdf'), findsOneWidget);
       expect(find.text('Q3 budget review.pdf'), findsNothing);
 
-      await tester.enterText(find.widgetWithText(TextField, 'Search user or file'), 'zzz');
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Search user or file'), 'zzz');
       await tester.pump();
       expect(find.text('No jobs match.'), findsOneWidget);
       await tester.tap(find.text('Clear filters'));
@@ -212,13 +309,16 @@ void main() {
 
   group('repository', () {
     const alice = Session(token: 't', userId: 'u1', name: 'Alice Tan');
-    const admin = Session(token: 't', userId: 'admin', name: 'A', isAdmin: true);
+    const admin =
+        Session(token: 't', userId: 'admin', name: 'A', isAdmin: true);
 
-    test('release rejects jobs that do not fit the quota and changes nothing', () async {
+    test('release rejects jobs that do not fit the quota and changes nothing',
+        () async {
       final repo = _repo();
       expect(
         () => repo.release(alice, ['1', '2', '3']), // 43 pages, 38 left
-        throwsA(isA<QuotaExceededException>().having((e) => e.pagesOver, 'over', 5)),
+        throwsA(isA<QuotaExceededException>()
+            .having((e) => e.pagesOver, 'over', 5)),
       );
       expect((await repo.myHeldJobs(alice)).length, 4);
       expect((await repo.myQuota(alice)).used, 12);
@@ -239,7 +339,8 @@ void main() {
     test('admin endpoints refuse non-admins', () async {
       final repo = _repo();
       expect(() => repo.allJobs(alice), throwsA(isA<PrintException>()));
-      expect(() => repo.setQuota(alice, 'u1', 999), throwsA(isA<PrintException>()));
+      expect(() => repo.setQuota(alice, 'u1', 999),
+          throwsA(isA<PrintException>()));
       expect((await repo.allJobs(admin)).length, 7);
     });
   });
