@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using PullPrintingBackend.Models;
 using PullPrintingBackend.Services;
 
@@ -14,12 +15,13 @@ public class StoreTests
 
     private class FailingDispatcher : IPrintDispatcher
     {
-        public void Print(PrintJob job) => throw new InvalidOperationException("printer offline");
+        public void Print(PrintJob job, Printer printer) => throw new InvalidOperationException("printer offline");
     }
 
-    private static PrintStore NewStore(FakeClock? clock = null, IPrintDispatcher? dispatcher = null) =>
+    private static PrintStore NewStore(FakeClock? clock = null, IPrintDispatcher? dispatcher = null, int defaultQuota = 50) =>
         new(dispatcher ?? new SimulatedPrintDispatcher(NullLogger<SimulatedPrintDispatcher>.Instance),
-            clock ?? new FakeClock());
+            clock ?? new FakeClock(),
+            Options.Create(new WorkspaceOptions { DefaultQuota = defaultQuota }));
 
     [Fact]
     public void Idle_sandboxes_are_removed_with_their_documents_but_the_shared_group_stays()
@@ -27,8 +29,8 @@ public class StoreTests
         var clock = new FakeClock();
         var store = NewStore(clock);
         var root = store.EnsureUser("root", "Root", isAdmin: true);
+        store.EnsureUser("pat", "Pat Doe", isAdmin: false);
         var visitor = store.CreateDemoUser(isAdmin: false);
-        var sharedJobs = store.AllJobs(root.UserId).Count;
 
         clock.Now += TimeSpan.FromHours(1);
         Assert.Equal(0, store.Sweep());
@@ -37,8 +39,7 @@ public class StoreTests
         Assert.Equal(1, store.Sweep());
         Assert.Null(store.GetQuota(visitor.UserId));
         Assert.Empty(store.HeldJobs(visitor.UserId));
-        Assert.Equal(sharedJobs, store.AllJobs(root.UserId).Count);
-        Assert.Contains(store.Users(root.UserId), u => u.Name == "Priya Nair");
+        Assert.Contains(store.Users(root.UserId), u => u.Name == "Pat Doe");
     }
 
     [Fact]

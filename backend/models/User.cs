@@ -9,10 +9,14 @@ namespace PullPrintingBackend.Models
         public bool IsAdmin { get; set; }
         public int PrintQuota { get; set; }
         public int PagesUsed { get; set; }
+
+        /// <summary>The month the used pages count belongs to, as year * 100 + month. Pages reset when it changes.</summary>
+        public int QuotaPeriod { get; set; }
+
         public DateTimeOffset LastSeen { get; set; }
 
         /// <summary>
-        /// Who can see and manage this person. Everyone who signs in for real shares the
+        /// Who can see and manage this person. Everyone who signs in with a work account shares the
         /// <c>default</c> group; each demo visitor and demo administrator gets a private one.
         /// </summary>
         public string SandboxId { get; init; } = "default";
@@ -20,5 +24,5 @@ namespace PullPrintingBackend.Models
         public Quota Quota => new(PagesUsed, PrintQuota);
     }
 
-    public record UserSummary(string UserId, string Name, bool IsAdmin, Quota Quota);
+    public record UserSummary(string UserId, string Name, bool IsAdmin, Quota Quota, string? Email = null);
 }

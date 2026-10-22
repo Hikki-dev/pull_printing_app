@@ -24,7 +24,7 @@ public class ApiFactory : WebApplicationFactory<Program>
         builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["Demo:Enabled"] = DemoEnabled ? "true" : "false",
-            ["Demo:SigningKey"] = Key,
+            ["Auth:SigningKey"] = Key,
             ["RateLimit:LoginPerMinute"] = LoginsPerMinute.ToString(),
             ["RateLimit:PerMinute"] = "100000",
         }));
@@ -52,7 +52,8 @@ public class BrokenStoreFactory : ApiFactory
             var inner = new PullPrintingBackend.Services.PrintStore(
                 new PullPrintingBackend.Services.SimulatedPrintDispatcher(
                     Microsoft.Extensions.Logging.Abstractions.NullLogger<PullPrintingBackend.Services.SimulatedPrintDispatcher>.Instance),
-                TimeProvider.System);
+                TimeProvider.System,
+                Microsoft.Extensions.Options.Options.Create(new PullPrintingBackend.Services.WorkspaceOptions()));
             services.AddSingleton<PullPrintingBackend.Services.IPrintStore>(new BrokenStore(inner));
         });
     }
@@ -64,14 +65,21 @@ public class BrokenStore : PullPrintingBackend.Services.IPrintStore
     public BrokenStore(PullPrintingBackend.Services.IPrintStore inner) => _inner = inner;
 
     // Signing in works so the test can get a token; reading documents blows up.
-    public PullPrintingBackend.Models.UserSummary EnsureUser(string id, string name, bool isAdmin) => _inner.EnsureUser(id, name, isAdmin);
+    public PullPrintingBackend.Models.UserSummary EnsureUser(string id, string name, bool isAdmin, string? email = null) => _inner.EnsureUser(id, name, isAdmin, email);
     public PullPrintingBackend.Models.UserSummary EnsureDemoUser(string id, string name, bool isAdmin) => _inner.EnsureDemoUser(id, name, isAdmin);
     public PullPrintingBackend.Models.UserSummary CreateDemoUser(bool isAdmin) => _inner.CreateDemoUser(isAdmin);
     public PullPrintingBackend.Models.Quota? GetQuota(string userId) => _inner.GetQuota(userId);
     public IReadOnlyList<PullPrintingBackend.Models.PrintJob> HeldJobs(string userId) => throw new InvalidOperationException("secret internal detail");
     public IReadOnlyList<PullPrintingBackend.Models.PrintJob> AllJobs(string requesterId) => _inner.AllJobs(requesterId);
     public IReadOnlyList<PullPrintingBackend.Models.UserSummary> Users(string requesterId) => _inner.Users(requesterId);
-    public PullPrintingBackend.Services.ReleaseResult Release(string userId, IReadOnlyCollection<string> jobIds) => _inner.Release(userId, jobIds);
+    public PullPrintingBackend.Services.ReleaseResult Release(string userId, IReadOnlyCollection<string> jobIds, string? printerId = null) => _inner.Release(userId, jobIds, printerId);
+    public int? DefaultQuota(string requesterId) => _inner.DefaultQuota(requesterId);
+    public bool SetDefaultQuota(string requesterId, int quota) => _inner.SetDefaultQuota(requesterId, quota);
+    public int SetQuotaForAll(string requesterId, int quota) => _inner.SetQuotaForAll(requesterId, quota);
+    public IReadOnlyList<PullPrintingBackend.Models.Printer> Printers(string requesterId) => _inner.Printers(requesterId);
+    public PullPrintingBackend.Models.Printer? AddPrinter(string requesterId, string name, string location) => _inner.AddPrinter(requesterId, name, location);
+    public bool UpdatePrinter(string requesterId, string printerId, string name, string location, bool enabled) => _inner.UpdatePrinter(requesterId, printerId, name, location, enabled);
+    public bool DeletePrinter(string requesterId, string printerId) => _inner.DeletePrinter(requesterId, printerId);
     public bool SetQuota(string requesterId, string userId, int quota) => _inner.SetQuota(requesterId, userId, quota);
     public PullPrintingBackend.Models.PrintJob? AddSample(string userId) => _inner.AddSample(userId);
     public int Sweep() => _inner.Sweep();
@@ -133,7 +141,7 @@ public class ApiTests : IClassFixture<ApiFactory>
         // A well-formed token signed with some other key.
         var forged = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler().WriteToken(
             new System.IdentityModel.Tokens.Jwt.JwtSecurityToken(
-                "pullprint-demo", "pullprint-demo",
+                "pullprint", "pullprint",
                 new[] { new System.Security.Claims.Claim("uid", "u2"), new System.Security.Claims.Claim("role", "Admin") },
                 expires: DateTime.UtcNow.AddHours(1),
                 signingCredentials: new Microsoft.IdentityModel.Tokens.SigningCredentials(

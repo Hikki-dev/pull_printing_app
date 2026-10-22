@@ -8,7 +8,7 @@ namespace PullPrintingBackend.Services
     /// </summary>
     public interface IPrintDispatcher
     {
-        void Print(PrintJob job);
+        void Print(PrintJob job, Printer printer);
     }
 
     /// <summary>Demo dispatcher: logs the job and prints nothing.</summary>
@@ -17,7 +17,8 @@ namespace PullPrintingBackend.Services
         private readonly ILogger<SimulatedPrintDispatcher> _log;
         public SimulatedPrintDispatcher(ILogger<SimulatedPrintDispatcher> log) => _log = log;
 
-        public void Print(PrintJob job) =>
-            _log.LogInformation("Simulated print: {File} ({Pages} pages) for {User}", job.FileName, job.Pages, job.UserName);
+        public void Print(PrintJob job, Printer printer) =>
+            _log.LogInformation("Simulated print: {File} ({Pages} pages) for {User} on {Printer}",
+                job.FileName, job.Pages, job.UserName, printer.Name);
     }
 }

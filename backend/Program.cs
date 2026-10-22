@@ -1,50 +1,35 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.RateLimiting;
-using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
+using PullPrintingBackend.Controllers;
 using PullPrintingBackend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<DemoOptions>(builder.Configuration.GetSection("Demo"));
-var azure = builder.Configuration.GetSection("AzureAd").Get<AzureAdOptions>() ?? new AzureAdOptions();
+builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection("Auth"));
+builder.Services.Configure<WorkspaceOptions>(builder.Configuration.GetSection("Workspace"));
 
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IPrintDispatcher, SimulatedPrintDispatcher>();
 builder.Services.AddSingleton<IPrintStore, PrintStore>();
-builder.Services.AddSingleton<DemoTokenService>();
+builder.Services.AddSingleton<AppTokenService>();
 builder.Services.AddHostedService<DemoCleanupService>();
 builder.Services.AddControllers();
 
 // --- Authentication -------------------------------------------------------
-// Two token sources behind one default scheme: tokens made by demo sign-in, and
-// Microsoft Entra ID tokens when AzureAd:TenantId and AzureAd:ClientId are set.
-const string smartScheme = "Smart";
-const string demoScheme = "Demo";
-const string entraScheme = "Entra";
-
-var auth = builder.Services.AddAuthentication(smartScheme)
-    .AddPolicyScheme(smartScheme, smartScheme, options =>
-    {
-        options.ForwardDefaultSelector = context =>
-        {
-            var header = context.Request.Headers.Authorization.ToString();
-            if (azure.Enabled && header.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-            {
-                var raw = header["Bearer ".Length..].Trim();
-                var handler = new JwtSecurityTokenHandler();
-                if (handler.CanReadToken(raw) && handler.ReadJwtToken(raw).Issuer != DemoTokenService.Issuer)
-                    return entraScheme;
-            }
-            return demoScheme;
-        };
-    })
-    .AddJwtBearer(demoScheme, options =>
+// Everyone ends up with the server's own session token (see AppTokenService), whether they signed in
+// to a demo sandbox or with their organisation's Microsoft or Google work account. The work-account
+// step is a normal OpenID Connect sign-in done here on the server, so the app needs no provider SDK.
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options =>
     {
         options.MapInboundClaims = false;
         options.Events = new JwtBearerEvents
@@ -52,28 +37,52 @@ var auth = builder.Services.AddAuthentication(smartScheme)
             OnTokenValidated = context =>
             {
                 var services = context.HttpContext.RequestServices;
-                if (!services.GetRequiredService<IOptions<DemoOptions>>().Value.Enabled)
+                var principal = context.Principal!;
+                var store = services.GetRequiredService<IPrintStore>();
+                var name = principal.FindFirstValue(Claims.Name) ?? "Signed-in user";
+                var isAdmin = principal.IsInRole(Claims.AdminRole);
+                switch (principal.FindFirstValue(Claims.Kind))
                 {
-                    context.Fail("Demo sign-in is switched off.");
-                    return Task.CompletedTask;
+                    case Claims.DemoKind when services.GetRequiredService<IOptions<DemoOptions>>().Value.Enabled:
+                        store.EnsureDemoUser(principal.UserId(), name, isAdmin);
+                        break;
+                    case Claims.WorkspaceKind when services.GetRequiredService<IOptions<WorkspaceOptions>>().Value.Enabled:
+                        store.EnsureUser(principal.UserId(), name, isAdmin);
+                        break;
+                    default:
+                        // The way this token was issued has been switched off since.
+                        context.Fail("That kind of sign-in is switched off.");
+                        break;
                 }
-                var p = context.Principal!;
-                services.GetRequiredService<IPrintStore>().EnsureDemoUser(
-                    p.UserId(),
-                    p.FindFirstValue(Claims.Name) ?? "Visitor",
-                    p.IsInRole(Claims.AdminRole));
                 return Task.CompletedTask;
             },
         };
-    });
+    })
+    .AddCookie(AuthController.ExternalScheme, options =>
+    {
+        // Holds who the work account said you are for the few seconds between the two redirects.
+        options.Cookie.Name = ".pullprint.external";
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+        options.SlidingExpiration = false;
+        options.Events.OnRedirectToLogin = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        };
+    })
+    // Always registered, but only used when Workspace settings are complete (see AuthController.Login).
+    // Its settings are read when it is first used, so it needs nothing when the server runs on demo sign-in alone.
+    .AddOpenIdConnect(AuthController.WorkspaceScheme, _ => { });
 
-builder.Services.AddOptions<JwtBearerOptions>(demoScheme)
-    .Configure<DemoTokenService>((options, tokens) =>
+builder.Services.AddOptions<JwtBearerOptions>("Bearer")
+    .Configure<AppTokenService>((options, tokens) =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidIssuer = DemoTokenService.Issuer,
-            ValidAudience = DemoTokenService.Audience,
+            ValidIssuer = AppTokenService.Issuer,
+            ValidAudience = AppTokenService.Audience,
             IssuerSigningKey = tokens.Key,
             ValidAlgorithms = new[] { SecurityAlgorithms.HmacSha256 },
             NameClaimType = Claims.Name,
@@ -82,45 +91,48 @@ builder.Services.AddOptions<JwtBearerOptions>(demoScheme)
         };
     });
 
-if (azure.Enabled)
-{
-    auth.AddJwtBearer(entraScheme, options =>
+builder.Services.AddOptions<OpenIdConnectOptions>(AuthController.WorkspaceScheme)
+    .Configure<IOptions<WorkspaceOptions>>((options, workspace) =>
     {
+        var w = workspace.Value;
+        options.Authority = w.EffectiveAuthority;
+        options.ClientId = string.IsNullOrWhiteSpace(w.ClientId) ? "not-configured" : w.ClientId;
+        options.ClientSecret = string.IsNullOrWhiteSpace(w.ClientSecret) ? "not-configured" : w.ClientSecret;
+        options.RequireHttpsMetadata = w.RequireHttpsMetadata;
+        options.ResponseType = OpenIdConnectResponseType.Code;
+        options.UsePkce = true;
+        options.CallbackPath = "/api/auth/callback";
+        options.SignInScheme = AuthController.ExternalScheme;
         options.MapInboundClaims = false;
-        options.Authority = $"https://login.microsoftonline.com/{azure.TenantId}/v2.0";
-        options.TokenValidationParameters = new TokenValidationParameters
+        options.SaveTokens = false;
+        options.GetClaimsFromUserInfoEndpoint = false;
+        options.Scope.Clear();
+        options.Scope.Add("openid");
+        options.Scope.Add("profile");
+        options.Scope.Add("email");
+        options.CorrelationCookie.SameSite = SameSiteMode.Lax;
+        options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.NonceCookie.SameSite = SameSiteMode.Lax;
+        options.NonceCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.TokenValidationParameters.NameClaimType = Claims.Name;
+        options.Events = new OpenIdConnectEvents
         {
-            ValidAudiences = new[] { azure.ClientId!, $"api://{azure.ClientId}" },
-            NameClaimType = Claims.Name,
-            RoleClaimType = Claims.Role,
-        };
-        options.Events = new JwtBearerEvents
-        {
-            OnTokenValidated = context =>
+            OnRedirectToIdentityProvider = context =>
             {
-                var p = context.Principal!;
-                var id = p.FindFirstValue("oid") ?? p.FindFirstValue("sub");
-                if (id is null)
-                {
-                    context.Fail("Token has no user id.");
-                    return Task.CompletedTask;
-                }
-                var name = p.FindFirstValue("name") ?? p.FindFirstValue("preferred_username") ?? "Signed-in user";
-                var isAdmin = p.FindAll("roles").Any(c => c.Value == azure.AdminRole);
-
-                p.AddIdentity(new ClaimsIdentity(new[]
-                {
-                    new Claim(Claims.UserId, id),
-                    new Claim(Claims.Name, name),
-                    new Claim(Claims.Role, isAdmin ? Claims.AdminRole : Claims.UserRole),
-                }, entraScheme, Claims.Name, Claims.Role));
-
-                context.HttpContext.RequestServices.GetRequiredService<IPrintStore>().EnsureUser(id, name, isAdmin);
+                context.ProtocolMessage.Prompt = "select_account";
+                // A hint that limits the account chooser to the organisation. The server still checks the account itself.
+                if (w.IsGoogle && !string.IsNullOrWhiteSpace(w.Domain))
+                    context.ProtocolMessage.SetParameter("hd", w.Domain!.TrimStart('@'));
+                return Task.CompletedTask;
+            },
+            OnRemoteFailure = context =>
+            {
+                context.Response.Redirect("/#error=sign_in_failed");
+                context.HandleResponse();
                 return Task.CompletedTask;
             },
         };
     });
-}
 
 builder.Services.AddAuthorization(options =>
     options.AddPolicy(Claims.AdminPolicy, policy => policy.RequireRole(Claims.AdminRole)));
@@ -189,6 +201,18 @@ app.UseStaticFiles(new StaticFileOptions
         if (name is "index.html" or "flutter_service_worker.js" or "flutter_bootstrap.js" or "version.json")
             context.Context.Response.Headers.CacheControl = "no-cache";
     },
+});
+
+// The work-account callback only exists once Microsoft or Google sign-in is set up.
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/api/auth/callback") &&
+        !context.RequestServices.GetRequiredService<IOptions<WorkspaceOptions>>().Value.Enabled)
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        return;
+    }
+    await next();
 });
 
 app.UseRouting();

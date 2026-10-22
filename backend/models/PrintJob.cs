@@ -16,5 +16,6 @@ namespace PullPrintingBackend.Models
         int Pages,
         DateTimeOffset SubmittedAt,
         string Status,
-        string? FailureReason = null);
+        string? FailureReason = null,
+        string? PrinterName = null);
 }

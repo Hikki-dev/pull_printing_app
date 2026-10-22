@@ -52,11 +52,15 @@ namespace PullPrintingBackend.Controllers
             if (ids.Count > MaxDocumentsPerRelease)
                 return BadRequest(new ApiError("too_many", $"Print at most {MaxDocumentsPerRelease} documents at a time."));
 
-            var result = _store.Release(User.UserId(), ids);
+            var result = _store.Release(User.UserId(), ids, request.PrinterId);
             return result.Outcome switch
             {
                 ReleaseOutcome.Printed => new ReleaseResponse(
-                    result.Printed.Select(j => j.Id).ToList(), result.Pages, result.Quota),
+                    result.Printed.Select(j => j.Id).ToList(), result.Pages, result.Quota, result.PrinterName),
+                ReleaseOutcome.NoPrinter => Conflict(new ApiError(
+                    "no_printer", "No printer has been set up yet. Ask an administrator.")),
+                ReleaseOutcome.PrinterUnavailable => Conflict(new ApiError(
+                    "printer_unavailable", "That printer is not available. Choose another one.")),
                 ReleaseOutcome.OverQuota => Conflict(new ApiError(
                     "quota_exceeded",
                     $"Over your limit by {result.PagesOver} pages.",
