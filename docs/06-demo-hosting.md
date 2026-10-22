@@ -56,3 +56,12 @@ Open `/healthz` on your address. It should answer `{"status":"ok"}`. Then open t
 - Sign-in and request limits are per address. Many people behind one office or school network share a limit, which is generous for normal use but can be hit by a classroom all signing in at once.
 - The app trusts the host's proxy to say who is calling, which is right for Render and similar hosts. If you put it behind something else, check that it sets `X-Forwarded-For`.
 - The Microsoft logo on the sign-in button is drawn to Microsoft's rules. Replace it with Microsoft's own asset before any public launch.
+
+## Option 3: Vercel (static, no server)
+
+The simplest free option needs no server at all. In this mode the app runs on its built-in sample data inside the visitor's browser, so every visitor already has their own private copy and nothing sleeps.
+
+- `vercel.json` and `scripts/vercel-build.sh` build the web app with `USE_MOCK=true`. Connect the repository to a Vercel project and it builds on every push.
+- Data lives in the browser tab and resets when the page is reloaded.
+- There is no API in this mode, so nothing can be shared between visitors and the administrator view only shows the built-in sample people.
+- Use Option 1 or 2 when you want to show the real API.

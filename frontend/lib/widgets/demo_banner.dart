@@ -78,7 +78,7 @@ Future<void> showDemoInfo(BuildContext context) {
     'You get your own sample documents. Other visitors cannot see them.',
     'Print does not use a real printer. It marks your documents as printed and uses up pages from your quota.',
     if (Constants.useMockData)
-      'Everything resets when you restart the app.'
+      'Everything resets when you reload the page or restart the app.'
     else
       'Everything is deleted after 2 hours without use, and whenever the server restarts.',
     'Run out of documents? Use "Send sample documents" to get more.',
