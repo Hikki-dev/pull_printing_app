@@ -55,15 +55,14 @@ A review of the demo from each kind of user's point of view, what went wrong or 
 
 Each one is a GitHub issue.
 
-- Microsoft sign-in has not been run against a real tenant. [#2](https://github.com/Hikki-dev/pull_printing_app/issues/2)
+- Work-account sign-in (Microsoft and Google) has not been run against a real tenant. [#2](https://github.com/Hikki-dev/pull_printing_app/issues/2)
 - Data is in memory only. [#3](https://github.com/Hikki-dev/pull_printing_app/issues/3)
 - There is no way to send your own file. [#4](https://github.com/Hikki-dev/pull_printing_app/issues/4)
 - Nothing is really printed. [#5](https://github.com/Hikki-dev/pull_printing_app/issues/5)
 - Staff-card sign-in and the phone code sign-in from the mockups are not built. [#6](https://github.com/Hikki-dev/pull_printing_app/issues/6)
-- The Pull Print mark, printer picture, thumbnails and Microsoft mark are placeholders. [#7](https://github.com/Hikki-dev/pull_printing_app/issues/7)
+- The Pull Print mark, printer picture, thumbnails and Microsoft and Google marks are placeholders. [#7](https://github.com/Hikki-dev/pull_printing_app/issues/7)
 - The browser Back button leaves the demo instead of going to the previous screen. [#8](https://github.com/Hikki-dev/pull_printing_app/issues/8)
 - The app is light-only, English-only, and has not been checked with a screen reader on a real device. [#9](https://github.com/Hikki-dev/pull_printing_app/issues/9)
-- A duplicate Microsoft sign-in wrapper is still in the code. [#10](https://github.com/Hikki-dev/pull_printing_app/issues/10)
 - Limits are per address, so a whole room behind one network address shares them. (Noted in [SECURITY.md](../SECURITY.md).)
 
 ## How to repeat this review

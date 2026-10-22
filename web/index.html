@@ -66,6 +66,17 @@
       if (el) el.remove();
     });
   </script>
+  <script>
+    // Signing in with a work account comes back to this page as "#token=..." or "#error=...".
+    // Keep it for the app and take it out of the address bar and the history straight away.
+    (function () {
+      var h = location.hash.slice(1);
+      if (/^(token|error)=/.test(h)) {
+        window.pullPrintHash = h;
+        history.replaceState(null, '', location.pathname + location.search);
+      }
+    })();
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

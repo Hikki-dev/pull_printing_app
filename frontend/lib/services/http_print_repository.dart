@@ -12,16 +12,16 @@ class HttpPrintRepository implements PrintRepository {
     ApiService? api,
     Uri Function()? location,
     void Function(String url)? navigate,
-    void Function()? clearFragment,
+    String Function()? takeFragment,
   })  : _api = api ?? ApiService(),
         _location = location ?? (() => Uri.base),
         _navigate = navigate ?? browser.goTo,
-        _clearFragment = clearFragment ?? browser.removeAddressFragment;
+        _takeFragment = takeFragment ?? browser.takeSignInFragment;
 
   final ApiService _api;
   final Uri Function() _location;
   final void Function(String url) _navigate;
-  final void Function() _clearFragment;
+  final String Function() _takeFragment;
 
   /// What each reason the server gives for turning someone away means for the person.
   static String signInProblem(String? code) => switch (code) {
@@ -51,18 +51,14 @@ class HttpPrintRepository implements PrintRepository {
 
   @override
   Future<Session?> resumeSignIn() async {
-    final fragment = _location().fragment;
-    if (!fragment.contains('token=') && !fragment.contains('error=')) {
-      return null;
-    }
+    final fragment = _takeFragment();
+    if (fragment.isEmpty) return null;
     Map<String, String> values;
     try {
       values = Uri.splitQueryString(fragment);
     } on FormatException {
       return null;
     }
-    // The token must not stay in the address bar or the browser history.
-    _clearFragment();
     final error = values['error'];
     if (error != null) throw PrintException(signInProblem(error));
     final token = values['token'];

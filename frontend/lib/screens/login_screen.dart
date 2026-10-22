@@ -29,6 +29,9 @@ class _LoginScreenState extends State<LoginScreen> {
   AuthConfig? _config;
   bool _configFailed = false;
 
+  /// Why the last work-account sign-in did not work. Stays until the next attempt.
+  String? _notice;
+
   @override
   void initState() {
     super.initState();
@@ -62,9 +65,9 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
     } on PrintException catch (e) {
-      _notify(e.message);
+      _notice = e.message;
     } catch (_) {
-      _notify('Sign-in did not work. Please try again.');
+      _notice = 'Sign-in did not work. Please try again.';
     }
     try {
       final config = await repo.authConfig();
@@ -93,7 +96,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _workspaceLogin() {
-    setState(() => _loading = true);
+    setState(() {
+      _notice = null;
+      _loading = true;
+    });
     context.read<PrintRepository>().startWorkspaceSignIn();
   }
 
@@ -194,7 +200,24 @@ class _LoginScreenState extends State<LoginScreen> {
         : (domain == null || domain.isEmpty
             ? 'Use your work account. No new password.'
             : 'Use your @$domain account. No new password.');
+    final notice = _notice;
     return [
+      if (notice != null) ...[
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.failedBackground,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(notice,
+              style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.failedText)),
+        ),
+        const SizedBox(height: 12),
+      ],
       button,
       const SizedBox(height: 12),
       Center(

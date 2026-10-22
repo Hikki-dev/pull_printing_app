@@ -250,14 +250,24 @@ void main() {
   group('browser hand-over', () {
     http.Client noServer() => MockClient((r) async => http.Response('{}', 200));
 
+    /// [fragment] is what the page was opened with after signing in; it can be read once.
     HttpPrintRepository repo(String url,
-        {List<String>? went, List<int>? cleared, http.Client? client}) {
+        {String fragment = '',
+        List<String>? went,
+        List<int>? taken,
+        http.Client? client}) {
+      var left = fragment;
       return HttpPrintRepository(
         api: ApiService(
             baseUrl: 'https://p.example/api', client: client ?? noServer()),
         location: () => Uri.parse(url),
         navigate: (u) => went?.add(u),
-        clearFragment: () => cleared?.add(1),
+        takeFragment: () {
+          taken?.add(1);
+          final value = left;
+          left = '';
+          return value;
+        },
       );
     }
 
@@ -277,30 +287,25 @@ void main() {
       expect(repo('https://p.example/?printer=').panelPrinterId, isNull);
     });
 
-    test('the token is read from the address, then removed from it', () async {
-      final cleared = <int>[];
+    test('the token the page was opened with is used, and only once', () async {
       final client = MockClient((r) async {
         expect(r.headers['Authorization'], 'Bearer abc.def-ghi_jkl');
         return http.Response(
             jsonEncode({'userId': 'g-1', 'name': 'Pat', 'isAdmin': true}), 200,
             headers: {'content-type': 'application/json'});
       });
-      final session = await repo(
-              'https://p.example/?printer=p2#token=abc.def-ghi_jkl',
-              cleared: cleared,
-              client: client)
-          .resumeSignIn();
+      final r = repo('https://p.example/?printer=p2',
+          fragment: 'token=abc.def-ghi_jkl', client: client);
+      final session = await r.resumeSignIn();
       expect(session!.name, 'Pat');
       expect(session.isAdmin, isTrue);
       expect(session.demo, isFalse);
-      expect(cleared, hasLength(1));
+      // Asking again finds nothing, so a refresh does not sign in twice.
+      expect(await r.resumeSignIn(), isNull);
     });
 
-    test('nothing to resume when the address has no sign-in result', () async {
-      final cleared = <int>[];
-      expect(await repo('https://p.example/', cleared: cleared).resumeSignIn(),
-          isNull);
-      expect(cleared, isEmpty);
+    test('nothing to resume when the page was opened normally', () async {
+      expect(await repo('https://p.example/').resumeSignIn(), isNull);
     });
 
     test('every reason for being turned away is explained', () async {
@@ -310,14 +315,11 @@ void main() {
         'no_identity',
         'sign_in_failed'
       ]) {
-        final cleared = <int>[];
         await expectLater(
-          repo('https://p.example/#error=$code', cleared: cleared)
-              .resumeSignIn(),
+          repo('https://p.example/', fragment: 'error=$code').resumeSignIn(),
           throwsA(isA<PrintException>().having((e) => e.message, 'message',
               HttpPrintRepository.signInProblem(code))),
         );
-        expect(cleared, hasLength(1));
       }
       expect(HttpPrintRepository.signInProblem('wrong_account'),
           isNot(HttpPrintRepository.signInProblem('sign_in_failed')));

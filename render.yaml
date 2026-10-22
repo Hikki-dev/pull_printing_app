@@ -9,5 +9,5 @@ services:
     autoDeploy: true
     envVars:
       # Keeps visitors signed in across restarts.
-      - key: Demo__SigningKey
+      - key: Auth__SigningKey
         generateValue: true

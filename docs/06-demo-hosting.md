@@ -21,7 +21,7 @@ The `Dockerfile` works anywhere that runs a container and tells it which port to
 
 ```bash
 docker build -t pull-print-demo .
-docker run -p 8080:8080 -e Demo__SigningKey="$(openssl rand -base64 48)" pull-print-demo
+docker run -p 8080:8080 -e Auth__SigningKey="$(openssl rand -base64 48)" pull-print-demo
 ```
 
 Then open `http://localhost:8080`.
@@ -33,11 +33,10 @@ Set these as environment variables on the host. Double underscores stand for the
 | Variable | Default | What it does |
 |---|---|---|
 | `Demo__Enabled` | `true` in the image | Lets visitors sign in to a sandbox. `false` turns demo sign-in off and invalidates demo tokens |
-| `Demo__SigningKey` | random at start | At least 32 characters. Set it so visitors stay signed in when the server restarts. The Render blueprint generates one |
+| `Auth__SigningKey` | random at start | At least 32 characters. Set it so visitors stay signed in when the server restarts. The Render blueprint generates one |
 | `RateLimit__LoginPerMinute` | `20` | Sign-ins per minute from one address |
 | `RateLimit__PerMinute` | `300` | All requests per minute from one address |
-| `AzureAd__TenantId`, `AzureAd__ClientId` | empty | Turns on Microsoft sign-in. See the README |
-| `AzureAd__AdminRole` | `PullPrint.Admin` | App role that makes someone an administrator |
+| `Workspace__*` | empty | Turns on Microsoft or Google work-account sign-in. See [09](09-connecting-your-workspace.md) |
 | `Cors__AllowAnyOrigin` | `false` | Only needed if the web app is served from a different address |
 
 ## What to expect from a free host
@@ -55,7 +54,8 @@ Open `/healthz` on your address. It should answer `{"status":"ok"}`. Then open t
 - Anyone with the link can sign in. That is the point of a demo, so keep real data out of it.
 - Sign-in and request limits are per address. Many people behind one office or school network share a limit, which is generous for normal use but can be hit by a classroom all signing in at once.
 - The app trusts the host's proxy to say who is calling, which is right for Render and similar hosts. If you put it behind something else, check that it sets `X-Forwarded-For`.
-- The Microsoft logo on the sign-in button is drawn to Microsoft's rules. Replace it with Microsoft's own asset before any public launch.
+- The Microsoft and Google logos on the sign-in buttons are drawn to their rules. Replace them with the companies' own assets before any public launch.
+- This page is about the sample-data demo. To use real accounts, printers and quotas, see [09 Connecting your workspace](09-connecting-your-workspace.md) and switch the demo off.
 
 ## Option 3: Vercel (static, no server)
 

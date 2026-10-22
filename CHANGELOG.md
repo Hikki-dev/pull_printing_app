@@ -5,6 +5,10 @@ All notable changes. Newest first.
 ## Unreleased (pull request #1)
 
 ### Added
+- **Work-account sign-in.** People sign in with their Microsoft 365 or Google Workspace account. The server does the sign-in, only lets in people from your organisation, adds them on first sign-in, and decides who is an administrator.
+- **Printers and quotas managed on the server.** Administrators add, switch off and remove printers, set pages a month for new people, for everyone or for one person, and see a setup check that names anything still to do. Pages start again each month.
+- A printer picker on the phone, and printer panels fixed to one printer by their address (`?printer=`).
+- `docs/09-connecting-your-workspace.md`: the ten-minute setup for Microsoft and Google.
 - Phone and printer-panel screens: sign in, choose documents, print, confirmation, administrator view.
 - A working .NET 8 backend with protected routes, quota checks on the server, and private demo sandboxes.
 - Demo banner and "What is this?" dialog on every screen, sample documents on demand, and **Start over**.
@@ -14,7 +18,7 @@ All notable changes. Newest first.
 - A branded loading screen, page title, description, icons and manifest for the web build.
 - Design documents, mockups, an architecture and API reference, and a review record in `docs/`.
 - CI for the backend, the app, and the Docker image.
-- 39 backend tests and 43 app tests.
+- 112 backend tests and 64 app tests, including a simulated Microsoft/Google sign-in.
 
 ### Changed
 - `PullPrintingBackend.csproj` is no longer empty; the backend builds.
@@ -28,6 +32,8 @@ All notable changes. Newest first.
 - Unexpected server errors, missing security headers, and unbounded request sizes.
 
 ### Removed
+- The MSAL wrapper (`msal_flutter`, `MsAuthService.dart`) and the `AUTH_MODE` and `MS_SCOPE` build settings. Sign-in no longer needs anything in the app.
+- The `AzureAd__*` settings, replaced by `Workspace__*`. `Demo__SigningKey` is now `Auth__SigningKey` (the old name still works).
 - Windows-only printing code (`System.Printing`), replaced by `IPrintDispatcher` with a simulated implementation.
 - The mock JSON server data (`frontend/db.json`).
 

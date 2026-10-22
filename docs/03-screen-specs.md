@@ -21,7 +21,9 @@ Seven screens. Images are the mockups in [`design/screens/`](design/screens/).
 **Purpose:** get the person signed in, and tell a first-time user what the product does in three lines.
 
 - Dark hero with the printer illustration (a sheet feeds out of it, animated). White sheet below holds the heading and three step cards.
-- One button: **Sign in with Microsoft**, using Microsoft's official mark and button style.
+- One button: **Sign in with Microsoft** or **Sign in with Google**, whichever your organisation uses (the server says which), in that company's button style. In the demo it is the Microsoft button and signs in to sample data.
+- Under the button, one line says who can sign in, for example "Use your @example.com account. No new password."
+- If an account is turned away, a red box above the button says why in plain words and stays until the next try.
 - "How it works" is three numbered steps. This is the in-app guide for new users.
 - No registration, no password field. Identity comes from the work account.
 
@@ -35,7 +37,7 @@ Seven screens. Images are the mockups in [`design/screens/`](design/screens/).
 - Dark header with greeting and a ring showing pages left.
 - Each job is a whole row that toggles a checkbox. Shows a document thumbnail with file-type strip, file name, page count, when it was sent. Selecting updates the button and totals live; over quota disables the button and says by how many pages.
 - Selected rows have a thick blue border and a tick, so selection is not shown by colour alone.
-- Bottom bar: chosen printer and one button that states what it will do, "Print 2 jobs · 15 pages".
+- Bottom bar: chosen printer and one button that states what it will do, "Print 2 jobs · 15 pages". Tap the printer to pick another when there is more than one. With none set up it says "No printer available" and Print stays off.
 - Sign-out is an icon button with an accessible label.
 
 ## P3 Phone: sent to printer
@@ -79,15 +81,17 @@ Seven screens. Images are the mockups in [`design/screens/`](design/screens/).
 - **Print more** returns to K2. **Sign out** returns to K1.
 - Signs out automatically after 20 seconds, with a visible message saying so.
 
-## A1 Admin: jobs and quotas
+## A1 Admin: setup, printers, people and jobs
 
 ![Admin](design/screens/07-admin.png)
 
-**Purpose:** see everything, fix quota problems, find failed jobs.
+**Purpose:** set the system up once, keep printers and page limits right, find failed jobs.
 
-- Four counts at the top: waiting, printed today, failed today, users out of quota.
-- Jobs table with search and status filter. Status is a text label, with a failure reason where there is one.
-- Users and quotas table with an editable number and **Save** per row.
+- **Setup** card first: "Setup is complete", or "Finish setting up" with each thing still to do in plain words, and (for Microsoft or Google) the exact sign-in address to register with a **Copy** button.
+- Four counts: waiting, printed today, failed, people out of quota.
+- **Printers**: add, rename, switch off and remove. **Copy panel link** gives the address to open on that printer's own screen, which fixes it to that printer.
+- **People and quotas**: **New people start with** (a default), **Give everyone** (asks to confirm, because it replaces every limit), then one row per person with an editable number and **Save**. People appear the first time they sign in.
+- **All jobs** table with search and status filter. Status is a text label, with a failure reason where there is one.
 - Layout is fluid. Tables scroll sideways inside their box on narrow screens.
 
 ---

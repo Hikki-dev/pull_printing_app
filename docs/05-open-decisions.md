@@ -10,9 +10,15 @@ The README says quota "goes down by one" per print, which reads as per job. `Quo
 
 ## 2. How does someone sign in at the printer?
 
-Options: Microsoft device code (as drawn), staff card, or both. Device code needs only a screen and works today. Card is faster, but needs readers and a mapping from card to user.
+Built so far: the person signs in with their work account (Microsoft or Google) in the browser on the panel. Still open: the phone-code screen from the mockups (the person enters a short code on their own phone, so nobody types a password on a shared screen), and staff cards. Card is faster, but needs readers and a mapping from card to user.
 
-**Recommendation:** ship device code first, add card when hardware exists. Card would then be the 5-second path.
+**Recommendation:** add the phone code next, since it keeps passwords off a shared screen. Add card when hardware exists. Card would then be the 5-second path.
+
+## 2b. Quotas by group?
+
+Pages are per person today, with a default for new people and one number for everyone. Real organisations want "students 30, staff 200". That needs the directory (Microsoft Graph groups or Google organisational units).
+
+**Recommendation:** after real-tenant testing, map one or two groups to quotas. Keep the per-person override.
 
 ## 3. Should phone release require being at the printer?
 

@@ -419,6 +419,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
           for (final p in _printers)
             Container(
+              width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: const BoxDecoration(
                 border: Border(top: BorderSide(color: AppColors.lineSoft)),
@@ -490,6 +491,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       required String button,
       required VoidCallback onPressed}) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: const BoxDecoration(
         border: Border(top: BorderSide(color: AppColors.lineSoft)),
@@ -513,7 +515,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
           ),
           SizedBox(
-            width: 150,
+            width: 190,
             child: TextField(
               controller: controller,
               keyboardType: TextInputType.number,
@@ -924,6 +926,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
           for (final u in _users)
             Container(
+              width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: const BoxDecoration(
                 border: Border(top: BorderSide(color: AppColors.lineSoft)),

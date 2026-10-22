@@ -10,7 +10,7 @@ COPY frontend ./frontend
 COPY web ./web
 RUN flutter pub get
 RUN flutter build web -t frontend/lib/main.dart --release --no-web-resources-cdn \
-    --dart-define=USE_MOCK=false --dart-define=AUTH_MODE=demo
+    --dart-define=USE_MOCK=false
 
 # 2) The API (ASP.NET Core).
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS api

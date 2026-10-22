@@ -12,6 +12,7 @@ Design documents for the pull-printing app. They describe what the screens shoul
 | [06 Hosting the demo](06-demo-hosting.md) | Putting the demo online for free, settings, what to expect |
 | [07 Architecture and API](07-architecture-and-api.md) | How the pieces fit, who decides what, every route with an example |
 | [08 Review and fixes](08-review-and-fixes.md) | What went wrong from each user's point of view, how it was found, and the fix |
+| [09 Connecting your workspace](09-connecting-your-workspace.md) | Sign in with Microsoft 365 or Google Workspace, add printers, set page limits: the ten-minute setup |
 
 ## Mockups
 

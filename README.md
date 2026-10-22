@@ -1,6 +1,6 @@
 # pull_printing_app
 
-A **secure pull-printing** system. A user sends a document to print, the server **holds** it, and it only prints when the user walks up to a printer, signs in and releases it. Built with a **Flutter** app and an **ASP.NET Core** backend, with **Microsoft Entra ID** supported for sign-in.
+A **secure pull-printing** system. A user sends a document to print, the server **holds** it, and it only prints when the user walks up to a printer, signs in and releases it. Built with a **Flutter** app and an **ASP.NET Core** backend, with sign-in through your **Microsoft 365** or **Google Workspace** account, and printers and page limits managed centrally on the server.
 
 [![CI](https://github.com/Hikki-dev/pull_printing_app/actions/workflows/ci.yml/badge.svg)](https://github.com/Hikki-dev/pull_printing_app/actions/workflows/ci.yml)
 ![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)
@@ -9,11 +9,15 @@ A **secure pull-printing** system. A user sends a document to print, the server 
 
 > **Status: working demo.** The app and API work together end to end, and the whole thing can be hosted for free as a public demo where each visitor gets their own sample documents. Nothing is sent to a real printer. See [Limits](#limits) for what is not built.
 
+## Use it with your own accounts
+
+Run the server with your Microsoft 365 or Google Workspace details and people sign in with the work account they already have. You add printers once, and set pages a month for one person or everyone, from one screen. Step by step, about ten minutes: **[docs/09 Connecting your workspace](docs/09-connecting-your-workspace.md)**.
+
 ## Try the demo
 
 **Live demo: <https://pull-print-demo-hikki-devs-projects.vercel.app>** (runs entirely in your browser on built-in sample data).
 
-Press **Sign in with Microsoft**. In the demo that signs you in to a private sandbox as "Alice Tan".
+Press **Sign in with Microsoft**. In the demo that signs you in to a private sandbox as "Alice Tan" (no account needed).
 
 - You start with four sample documents and 38 of 50 pages left.
 - Tick the documents you want and press **Print**. Tick too many and Print switches off and says by how many pages.
@@ -43,7 +47,9 @@ Press **Sign in with Microsoft**. In the demo that signs you in to a private san
 | Documents are only ever your own, quota is enforced on the server | `backend/services/PrintStore.cs` | Done, tested |
 | Admin: stats, job table with search and filter, per-user quota editing | `admin_dashboard_screen.dart`, `AdminController.cs` | Done, tested |
 | Demo sign-in with a private sandbox per visitor | `AuthController.cs`, `PrintStore.cs` | Done, tested |
-| Microsoft Entra ID sign-in | `Program.cs`, `MsAuthService.dart` | Written, **not tested against a real tenant** |
+| Sign in with a Microsoft or Google work account, people added on first sign-in | `Program.cs`, `AuthController.cs`, `WorkspaceOptions.cs` | Done, tested with a simulated provider, **not yet run against a real tenant** |
+| Printers and page limits managed on the server: add printers, a default for new people, one for everyone, one per person, monthly reset | `AdminController.cs`, `admin_dashboard_screen.dart` | Done, tested |
+| Setup check that names anything still to do | `AdminController.Setup` | Done, tested |
 | Real printing | `IPrintDispatcher` | Not built. The demo uses a simulated printer |
 | Sending a file to be held | | Not built. The demo creates sample documents |
 
@@ -57,7 +63,8 @@ UX documents, mockups, the design rules, an [architecture and API reference](doc
 Flutter app (frontend/)                     ASP.NET Core API (backend/)
  LoginScreen ─┐                                /api/auth/*   sign-in
  ReleaseJobsScreen                             /api/jobs/*   my documents, print
- PrintedScreen ── PrintRepository             /api/admin/*  users and quotas
+ PrintedScreen ── PrintRepository             /api/printers printers
+                                               /api/admin/*  setup, printers, people, quotas
  AdminDashboardScreen  ├ MockPrintRepository    /healthz
                        └ HttpPrintRepository ─HTTP─▶  PrintStore (in memory)
                                                         IPrintDispatcher (simulated)
@@ -71,15 +78,22 @@ All routes except sign-in and health need `Authorization: Bearer <token>`.
 
 | Method | Route | Who | What it does |
 |---|---|---|---|
+| `GET` | `/api/auth/config` | anyone | Which sign-in to offer: `{ provider, providerName, domain, demo }` |
 | `POST` | `/api/auth/demo-login` | anyone, demo only | Creates a private sandbox and returns a token. Body `{ "admin": false }`. 404 unless `Demo__Enabled` is true |
+| `GET` | `/api/auth/login` | anyone, work accounts only | Sends the browser to Microsoft or Google. `?returnTo=/path` says where to come back to. 404 unless work sign-in is set up |
 | `GET` | `/api/auth/me` | signed in | Name and role from the token |
+| `GET` | `/api/printers` | signed in | The printers people can use (administrators also see switched-off ones) |
 | `GET` | `/api/jobs/held` | signed in | Your waiting documents, newest first |
 | `GET` | `/api/jobs/quota` | signed in | `{ used, total, left }` pages |
-| `POST` | `/api/jobs/release` | signed in | Body `{ "jobIds": [...] }`. 200 with what printed, 409 `quota_exceeded` with `pagesOver`, 404 if none of them are yours and waiting, 400 if empty |
+| `POST` | `/api/jobs/release` | signed in | Body `{ "jobIds": [...], "printerId": "..." }`. 200 with what printed and where, 409 `quota_exceeded` with `pagesOver`, 409 `no_printer` or `printer_unavailable`, 404 if none of them are yours and waiting, 400 if empty |
 | `POST` | `/api/jobs/sample` | signed in, demo only | Adds one sample document to your list |
 | `GET` | `/api/jobs` | administrator | Every job in the administrator's own group |
+| `GET` | `/api/admin/setup` | administrator | How the server is set up and anything still to do, plus the address to register with Microsoft or Google |
 | `GET` | `/api/admin/users` | administrator | People in the administrator's group with their quotas |
 | `POST` | `/api/admin/set-quota` | administrator | Body `{ "userId", "quota" }`, 0 to 10000 pages |
+| `POST` | `/api/admin/default-quota` | administrator | Body `{ "quota" }`. Pages a month for people who sign in from now on |
+| `POST` | `/api/admin/set-quota-all` | administrator | Body `{ "quota" }`. Gives everyone the same pages, returns `{ "changed" }` |
+| `POST` `PUT` `DELETE` | `/api/admin/printers`, `/api/admin/printers/{id}` | administrator | Add, change (name, place, on or off) and remove printers |
 | `GET` | `/healthz` | anyone | `{ "status": "ok" }` |
 
 ## Sign-in and security
@@ -87,13 +101,9 @@ All routes except sign-in and health need `Authorization: Bearer <token>`.
 - **Every route except sign-in and `/healthz` needs a valid token.** Tokens are real signed JWTs, checked on every request. Admin routes need the Admin role.
 - **People only reach their own data.** Printing ignores any document id that is not yours and waiting. Administrators only see and change people in their own group, so a demo administrator cannot touch another visitor.
 - **Demo sign-in** (`Demo__Enabled=true`) hands out tokens for private sandboxes. It is limited to 20 sign-ins a minute per address and 300 requests a minute overall, at most 300 sandboxes exist at once, and each person can have at most 12 documents waiting. Switch it off for anything real: its tokens stop working immediately.
-- **Microsoft Entra ID** is used when `AzureAd__TenantId` and `AzureAd__ClientId` are set. Tokens are validated against your tenant's published keys, the audience must be your client id (or `api://<client id>`), and anyone with the `PullPrint.Admin` app role is an administrator. New people get 50 pages on first sign-in.
-  1. Register an app in Entra ID and expose an API scope such as `access_as_user`.
-  2. Add an app role `PullPrint.Admin` and assign it to administrators.
-  3. Put your tenant and client ids in `frontend/lib/services/MsAuthService.dart`, set `AzureAd__TenantId` and `AzureAd__ClientId` on the server.
-  4. Build the app with `--dart-define=USE_MOCK=false --dart-define=AUTH_MODE=microsoft --dart-define=MS_SCOPE=api://<client id>/access_as_user`.
+- **Work accounts** (Microsoft 365 or Google Workspace) are used when the `Workspace__*` settings are complete. The sign-in happens on Microsoft's or Google's own page; the server checks the person belongs to your organisation, adds them on first sign-in with the default pages a month, and gives them its own 8-hour session token. Administrators come from `Workspace__Admins` (or a Microsoft app role). Setup takes about ten minutes: [docs/09 Connecting your workspace](docs/09-connecting-your-workspace.md).
 
-  This path is written but has not been run against a real tenant.
+  This is tested against a simulated provider only. It has not been run against a real tenant.
 
 ## Run it locally
 
@@ -108,7 +118,7 @@ flutter pub get
 flutter run -t frontend/lib/main.dart
 
 # The whole thing: API plus app, the way the hosted demo runs.
-flutter build web -t frontend/lib/main.dart --dart-define=USE_MOCK=false --dart-define=AUTH_MODE=demo
+flutter build web -t frontend/lib/main.dart --dart-define=USE_MOCK=false
 mkdir -p backend/wwwroot && cp -r build/web/. backend/wwwroot/
 ASPNETCORE_ENVIRONMENT=Development dotnet run --project backend   # then open the address it prints
 
@@ -153,11 +163,11 @@ This is a demo, so on purpose:
 1. **Data lives in memory.** Everything resets when the server restarts, and demo sandboxes are deleted after 2 hours without use. A database would replace `PrintStore` (it sits behind `IPrintStore`).
 2. **Nothing is really printed.** `SimulatedPrintDispatcher` only logs. A real printer integration implements `IPrintDispatcher`.
 3. **No way to send a file yet.** The demo makes sample documents. Real submission (a print driver, email-to-print or upload) is an open decision, see `docs/05-open-decisions.md`.
-4. **Microsoft sign-in is untested** against a real tenant, and the `msal_flutter` package only supports Android and iOS, so a Windows or Linux printer panel needs another approach such as the device code flow.
+4. **Work-account sign-in is untested** against a real Microsoft or Google tenant. Sign-in runs in the browser, so a printer panel needs a browser in kiosk mode.
 5. **Free hosts sleep.** The first visit after a quiet period can take a minute to wake the server.
-6. **Placeholders to replace:** the Pull Print mark, the printer illustration, drawn document thumbnails and the drawn Microsoft mark (use Microsoft's own asset). See `docs/04-design-guidelines.md`.
+6. **Placeholders to replace:** the Pull Print mark, the printer illustration, drawn document thumbnails and the drawn Microsoft and Google marks (use their own assets). See `docs/04-design-guidelines.md`.
 7. **Not built:** staff-card sign-in and the phone code sign-in screen from the mockups.
-8. **Duplicate MSAL wrappers.** `MsAuthService.dart` and `msal_flutter.dart` overlap. Keep one.
+8. **People, printers and quotas are lost on restart** until a database backs `IPrintStore`, and quotas are per person (no groups yet).
 
 ## Roadmap
 
@@ -165,7 +175,8 @@ This is a demo, so on purpose:
 - [x] Backend builds, routes match the app, endpoints protected, tests
 - [x] Free hosting for a public demo
 - [x] A review from each user's point of view, with fixes ([docs/08](docs/08-review-and-fixes.md))
-- [ ] Test Microsoft sign-in against a real tenant
+- [x] Work-account sign-in (Microsoft and Google), central printers and quotas
+- [ ] Test work-account sign-in against a real tenant
 - [ ] Persist users, jobs and quotas in a database
 - [ ] A way to send a file to be held
 - [ ] A real printer integration
