@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Printer panel printing</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+body{margin:0;font-family:'Inter',system-ui,sans-serif}
+a{text-decoration:none}
+</style>
+</helmet>
+<div style="width:1024px;height:600px;box-sizing:border-box;background:#F4F6F8;color:#16212C;display:flex;flex-direction:column">
+
+  <div style="height:64px;box-sizing:border-box;padding:0 32px;display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid #D5DBE1">
+    <div style="font-size:20px;font-weight:700">Alice Tan</div>
+    <div style="font-size:16px;color:#4A5866">Level 3 East</div>
+  </div>
+
+  <div style="flex-grow:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:0 32px;text-align:center">
+    <div style="width:80px;height:80px;border-radius:40px;background:#0B5CAD;color:#fff;display:flex;align-items:center;justify-content:center">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+    </div>
+    <h1 style="margin:0;font-size:44px;font-weight:700;letter-spacing:-0.02em">Printing 15 pages</h1>
+    <p style="margin:0;font-size:22px;color:#4A5866">Collect your documents from the tray. 23 pages left this month.</p>
+    <div style="margin-top:12px;display:flex;gap:16px">
+      <a href="Kiosk-Jobs.dc.html" style="display:flex;align-items:center;justify-content:center;height:64px;padding:0 32px;border-radius:12px;border:1px solid #16212C;background:#fff;color:#16212C;font-size:20px;font-weight:600">Print more</a>
+      <a href="Kiosk-SignIn.dc.html" style="display:flex;align-items:center;justify-content:center;height:64px;padding:0 32px;border-radius:12px;background:#0B5CAD;color:#fff;font-size:20px;font-weight:600">Sign out</a>
+    </div>
+    <p style="margin:0;font-size:16px;color:#4A5866">You will be signed out automatically in 20 seconds.</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1024,"height":600}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

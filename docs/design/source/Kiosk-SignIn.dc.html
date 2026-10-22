@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Printer panel sign in</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+body{margin:0;font-family:'Inter',system-ui,sans-serif}
+a{text-decoration:none}
+</style>
+</helmet>
+<div style="width:1024px;height:600px;box-sizing:border-box;background:#F4F6F8;color:#16212C;display:flex;flex-direction:column">
+
+  <div style="height:64px;box-sizing:border-box;padding:0 32px;display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid #D5DBE1">
+    <div style="font-size:20px;font-weight:700">Pull Print</div>
+    <div style="display:flex;align-items:center;gap:12px;font-size:16px">
+      <span style="font-weight:600">Level 3 East</span>
+      <span style="color:#4A5866">Ready</span>
+    </div>
+  </div>
+
+  <div style="flex-grow:1;display:flex;gap:32px;padding:40px 32px 32px">
+    <div style="flex:1 1 0;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:16px">
+      <h1 style="margin:0;font-size:44px;line-height:1.1;font-weight:700;letter-spacing:-0.02em">Sign in to collect your prints</h1>
+      <p style="margin:0;font-size:20px;line-height:1.45;color:#4A5866">You will only see your own documents.</p>
+    </div>
+
+    <div style="flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:16px;justify-content:center">
+      <div style="background:#fff;border:2px solid #0B5CAD;border-radius:16px;padding:28px 28px 24px;display:flex;flex-direction:column;gap:16px">
+        <div style="font-size:22px;font-weight:700">Sign in with your phone</div>
+        <div style="font-size:18px;line-height:1.5;color:#16212C">On your phone, open <b>microsoft.com/devicelogin</b> and enter this code</div>
+        <div style="font-size:52px;font-weight:700;letter-spacing:0.12em;font-variant-numeric:tabular-nums;text-align:center;padding:12px 0;background:#F4F6F8;border-radius:12px">K7QH 4M2B</div>
+        <a href="Kiosk-Jobs.dc.html" style="display:flex;align-items:center;justify-content:center;height:64px;border-radius:12px;background:#0B5CAD;color:#fff;font-size:20px;font-weight:600">I have entered the code</a>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #D5DBE1;border-radius:16px;padding:0 24px;height:72px;color:#4A5866;font-size:18px">
+        <span>Tap your staff card</span>
+        <span style="font-size:14px;font-weight:600;border:1px solid #D5DBE1;border-radius:6px;padding:4px 10px">Coming later</span>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1024,"height":600}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

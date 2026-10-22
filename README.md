@@ -32,6 +32,10 @@ An app that runs against a server and uses Azure to get the user's login details
 | Admin set-quota endpoint | `backend/controllers/AdminController.cs` | Written |
 | Print to a Windows queue | `backend/services/PrintService.cs` | Written (Windows only) |
 
+## Design
+
+UX documents and mockups for the phone, printer panel and admin screens are in [`docs/`](docs/README.md).
+
 ## Architecture
 
 ```

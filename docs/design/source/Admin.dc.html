@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Admin jobs and quotas</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+body{margin:0;font-family:'Inter',system-ui,sans-serif}
+a{text-decoration:none}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th{text-align:left;font-size:13px;font-weight:600;color:#4A5866;padding:10px 16px;border-bottom:1px solid #D5DBE1;background:#F9FAFB}
+td{font-size:15px;padding:0 16px;height:52px;border-bottom:1px solid #E3E8ED}
+</style>
+</helmet>
+<div style="min-height:760px;background:#F4F6F8;color:#16212C">
+
+  <div style="background:#fff;border-bottom:1px solid #D5DBE1">
+    <div style="max-width:1200px;margin:0 auto;padding:0 24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 24px;min-height:64px">
+      <div style="display:flex;align-items:center;gap:32px;flex-wrap:wrap">
+        <span style="font-size:18px;font-weight:700">Pull Print Admin</span>
+        <nav style="display:flex;gap:4px;flex-wrap:wrap" aria-label="Sections">
+          <a href="Admin.dc.html" aria-current="page" style="display:flex;align-items:center;height:44px;padding:0 14px;border-radius:8px;background:#E6EEF7;color:#0B4A8A;font-size:15px;font-weight:600">Jobs</a>
+          <a href="Admin.dc.html" style="display:flex;align-items:center;height:44px;padding:0 14px;border-radius:8px;color:#16212C;font-size:15px;font-weight:500">Users and quotas</a>
+          <a href="Admin.dc.html" style="display:flex;align-items:center;height:44px;padding:0 14px;border-radius:8px;color:#16212C;font-size:15px;font-weight:500">Printers</a>
+        </nav>
+      </div>
+      <span style="font-size:14px;color:#4A5866">Signed in as an administrator</span>
+    </div>
+  </div>
+
+  <div style="max-width:1200px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:24px">
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+      <div style="background:#fff;border:1px solid #D5DBE1;border-radius:12px;padding:16px 20px">
+        <div style="font-size:14px;color:#4A5866">Waiting to print</div>
+        <div style="font-size:32px;font-weight:700;margin-top:4px">14</div>
+      </div>
+      <div style="background:#fff;border:1px solid #D5DBE1;border-radius:12px;padding:16px 20px">
+        <div style="font-size:14px;color:#4A5866">Printed today</div>
+        <div style="font-size:32px;font-weight:700;margin-top:4px">96</div>
+      </div>
+      <div style="background:#fff;border:1px solid #D5DBE1;border-radius:12px;padding:16px 20px">
+        <div style="font-size:14px;color:#4A5866">Failed today</div>
+        <div style="font-size:32px;font-weight:700;margin-top:4px">2</div>
+      </div>
+      <div style="background:#fff;border:1px solid #D5DBE1;border-radius:12px;padding:16px 20px">
+        <div style="font-size:14px;color:#4A5866">Users out of quota</div>
+        <div style="font-size:32px;font-weight:700;margin-top:4px">3</div>
+      </div>
+    </div>
+
+    <section aria-labelledby="jobs-h" style="background:#fff;border:1px solid #D5DBE1;border-radius:12px;overflow:hidden">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:16px">
+        <h2 id="jobs-h" style="margin:0;font-size:18px;font-weight:700">All jobs</h2>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <label style="display:flex;flex-direction:column;gap:2px;font-size:12px;color:#4A5866">Search user or file
+            <input type="search" placeholder="Name or file" style="height:44px;box-sizing:border-box;width:240px;padding:0 12px;border:1px solid #8A97A4;border-radius:8px;font:inherit;font-size:15px">
+          </label>
+          <label style="display:flex;flex-direction:column;gap:2px;font-size:12px;color:#4A5866">Status
+            <select style="height:44px;box-sizing:border-box;padding:0 12px;border:1px solid #8A97A4;border-radius:8px;font:inherit;font-size:15px;background:#fff">
+              <option>All</option><option>Held</option><option>Printed</option><option>Failed</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>User</th><th>File</th><th>Pages</th><th>Submitted</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td style="font-weight:600">Alice Tan</td><td>Q3 budget review.pdf</td><td>12</td><td>Today 9:02</td><td><span style="display:inline-block;padding:4px 10px;border-radius:6px;background:#FFF0D1;color:#6B4200;font-size:13px;font-weight:600">Held</span></td></tr>
+            <tr><td style="font-weight:600">Bob Reyes</td><td>report.docx</td><td>3</td><td>Today 8:55</td><td><span style="display:inline-block;padding:4px 10px;border-radius:6px;background:#E3E8ED;color:#16212C;font-size:13px;font-weight:600">Printed</span></td></tr>
+            <tr><td style="font-weight:600">Priya Nair</td><td>Safety audit.pdf</td><td>41</td><td>Today 8:31</td><td><span style="display:inline-block;padding:4px 10px;border-radius:6px;background:#FFF0D1;color:#6B4200;font-size:13px;font-weight:600">Held</span></td></tr>
+            <tr><td style="font-weight:600">Marcus Lee</td><td>Invoice 2291.pdf</td><td>2</td><td>Yesterday</td><td><span style="display:inline-block;padding:4px 10px;border-radius:6px;background:#FBE3E3;color:#7A1F1F;font-size:13px;font-weight:600">Failed: printer offline</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section aria-labelledby="quota-h" style="background:#fff;border:1px solid #D5DBE1;border-radius:12px;overflow:hidden">
+      <div style="padding:16px"><h2 id="quota-h" style="margin:0;font-size:18px;font-weight:700">Users and quotas</h2></div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>User</th><th>Used this month</th><th>Monthly quota (pages)</th><th></th></tr></thead>
+          <tbody>
+            <tr><td style="font-weight:600">Alice Tan</td><td>12</td><td><label><span style="position:absolute;left:-9999px">Quota for Alice Tan</span><input type="number" value="50" style="height:44px;box-sizing:border-box;width:96px;padding:0 12px;border:1px solid #8A97A4;border-radius:8px;font:inherit;font-size:15px"></label></td><td style="text-align:right"><a href="Admin.dc.html" style="display:inline-flex;align-items:center;height:44px;padding:0 18px;border-radius:8px;background:#0B5CAD;color:#fff;font-size:15px;font-weight:600">Save</a></td></tr>
+            <tr><td style="font-weight:600">Bob Reyes</td><td>50</td><td><label><span style="position:absolute;left:-9999px">Quota for Bob Reyes</span><input type="number" value="50" style="height:44px;box-sizing:border-box;width:96px;padding:0 12px;border:1px solid #8A97A4;border-radius:8px;font:inherit;font-size:15px"></label></td><td style="text-align:right"><a href="Admin.dc.html" style="display:inline-flex;align-items:center;height:44px;padding:0 18px;border-radius:8px;background:#0B5CAD;color:#fff;font-size:15px;font-weight:600">Save</a></td></tr>
+            <tr><td style="font-weight:600">Priya Nair</td><td>8</td><td><label><span style="position:absolute;left:-9999px">Quota for Priya Nair</span><input type="number" value="200" style="height:44px;box-sizing:border-box;width:96px;padding:0 12px;border:1px solid #8A97A4;border-radius:8px;font:inherit;font-size:15px"></label></td><td style="text-align:right"><a href="Admin.dc.html" style="display:inline-flex;align-items:center;height:44px;padding:0 18px;border-radius:8px;background:#0B5CAD;color:#fff;font-size:15px;font-weight:600">Save</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":760}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
