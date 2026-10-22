@@ -1,78 +1,232 @@
-# pull_printing_app
-
-A **secure pull-printing** system. A user sends a document to print, the server **holds** it, and it only prints when the user walks up to a printer, signs in and releases it. Built with a **Flutter** app and an **ASP.NET Core** backend, with sign-in through your **Microsoft 365** or **Google Workspace** account, and printers and page limits managed centrally on the server.
+# Pull Print
 
 [![CI](https://github.com/Hikki-dev/pull_printing_app/actions/workflows/ci.yml/badge.svg)](https://github.com/Hikki-dev/pull_printing_app/actions/workflows/ci.yml)
 ![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)
 ![.NET](https://img.shields.io/badge/.NET-8-512BD4?logo=dotnet&logoColor=white)
+[![Live demo](https://img.shields.io/badge/live-demo-0B5CAD)](https://pull-print-demo-hikki-devs-projects.vercel.app)
 ![Status](https://img.shields.io/badge/status-working%20demo-orange)
 
-> **Status: working demo.** The app and API work together end to end, and the whole thing can be hosted for free as a public demo where each visitor gets their own sample documents. Nothing is sent to a real printer. See [Limits](#limits) for what is not built.
+Send a document to print. It waits safely on a server. It only prints when you walk up to a printer, sign in with your work account and press **Print**. Printers and every person's page limit are managed from one screen.
 
-## Use it with your own accounts
+<p align="center"><img src="docs/images/demo.gif" alt="A short walk through on a phone: sign in, two documents are ticked, the third would go over the page limit, then Print and the confirmation" width="300"></p>
 
-Run the server with your Microsoft 365 or Google Workspace details and people sign in with the work account they already have. You add printers once, and set pages a month for one person or everyone, from one screen. Step by step, about ten minutes: **[docs/09 Connecting your workspace](docs/09-connecting-your-workspace.md)**.
+<p align="center"><sub>A short walk through on a phone. <b><a href="https://pull-print-demo-hikki-devs-projects.vercel.app">Try it yourself</a></b>. It runs on sample data, so nothing is really printed and no account is needed.</sub></p>
 
-## Try the demo
+You do not need to know how any of it works. Every screen says in plain words what to do next.
+
+## On this page
+
+* [What you get](#what-you-get)
+* [How everything fits together](#how-everything-fits-together): one document, from sending to paper
+* [Try it first](#try-it-first): the live demo, no account needed
+* [Use it with your own accounts](#use-it-with-your-own-accounts): Microsoft 365 or Google Workspace
+* [The screens, step by step](#the-screens-step-by-step)
+  * [1. Sign in](#1-sign-in)
+  * [2. Choose what to print](#2-choose-what-to-print)
+  * [3. Print](#3-print)
+  * [At the printer's own screen](#at-the-printers-own-screen)
+  * [For administrators](#for-administrators)
+  * [Signing in with a work account](#signing-in-with-a-work-account)
+* [Run it yourself](#run-it-yourself) and [host it for free](#host-it-for-free)
+* [Your privacy and safety](#your-privacy-and-safety)
+* [The API in one table](#the-api-in-one-table)
+* [Limits](#limits) and [roadmap](#roadmap)
+* [Help and more reading](#help-and-more-reading)
+
+## What you get
+
+| | | |
+|---|---|---|
+| **A phone and printer screen** | Sign in, see only your own documents, tick what you want, press Print | [Screens](#the-screens-step-by-step) |
+| **Page limits that cannot be skipped** | Checked on the server. Going over blocks Print and says by how many pages | [Choose what to print](#2-choose-what-to-print) |
+| **Work-account sign-in** | Microsoft 365 or Google Workspace. Only your organisation gets in | [Work accounts](#signing-in-with-a-work-account) |
+| **One place to manage everything** | Add printers, set pages a month for one person or everyone, see what is still to set up | [Administrators](#for-administrators) |
+| **Printer screens fixed to one printer** | Open a printer's link on its own screen and it prints there | [Printer's own screen](#at-the-printers-own-screen) |
+| **A free demo** | Every visitor gets private sample documents | [Try it first](#try-it-first) |
+
+## How everything fits together
+
+Send once, walk up, sign in, press Print. The server holds the document until then, and decides who may do what.
+
+<p align="center"><a href="docs/images/how-it-fits.svg"><img src="docs/images/how-it-fits.svg" alt="Diagram: a person sends a document, the Pull Print server holds it, at the printer's screen the person signs in and presses Print, the server checks their pages and sends it to the printer. Microsoft 365 or Google Workspace proves who the person is" width="100%"></a></p>
+
+The whole story, including who decides what, is in [Architecture and API](docs/07-architecture-and-api.md).
+
+## Try it first
 
 **Live demo: <https://pull-print-demo-hikki-devs-projects.vercel.app>** (runs entirely in your browser on built-in sample data).
 
-Press **Sign in with Microsoft**. In the demo that signs you in to a private sandbox as "Alice Tan" (no account needed).
+* Press **Sign in with Microsoft**. In the demo that signs you in to a private sandbox as "Alice Tan". No account is needed.
+* You start with four sample documents and 38 of 50 pages left.
+* Tick the documents you want and press **Print**. Tick too many and Print switches off and says by how many pages.
+* Printing does not use a real printer. It marks the documents as printed and uses up pages.
+* **Demo: sign in as administrator** shows every job and lets you manage printers and page limits, on a private copy of sample people.
+* A banner on every screen says it is a demo, and **What is this?** explains it in plain words. It also has **Start over**.
+* Other visitors never see your documents.
 
-- You start with four sample documents and 38 of 50 pages left.
-- Tick the documents you want and press **Print**. Tick too many and Print switches off and says by how many pages.
-- Printing does not use a real printer. It marks the documents as printed and uses up pages.
-- Out of documents? **Send sample documents** gives you more.
-- **Demo: sign in as administrator** shows every job and lets you change page limits, on a private copy of sample people.
-- A banner on every screen says it is a demo, and **What is this?** explains it in plain words.
-- Printed everything? **What is this?** in the banner has **Start over**.
-- Other visitors never see your documents. In the live demo your data lives only in your browser tab; in the full-stack version your sandbox is deleted after 2 hours without use.
+## Use it with your own accounts
 
-## How it works
+Run the server with your Microsoft 365 or Google Workspace details and people sign in with the work account they already have. You add printers once, and set pages a month for one person or everyone, from one screen. Step by step, about ten minutes: **[Connecting your workspace](docs/09-connecting-your-workspace.md)**.
 
-1. A user sends a file to print, from anywhere in the company.
-2. The server stores the job as **Waiting**. Nothing prints yet.
-3. At the printer the user signs in.
-4. A screen shows **only their own documents**. They press Print on the ones they want.
-5. The job prints and their page quota goes down. An administrator can set quotas.
+> Tested against a simulated Microsoft/Google sign-in only. It has not been run against a real tenant yet, so try it on a test tenant first ([issue #2](https://github.com/Hikki-dev/pull_printing_app/issues/2)).
 
-## Features
+## The screens, step by step
 
-| Feature | Where | State |
-|---|---|---|
-| Phone and printer-panel screens: sign in, choose documents, select all, print, confirmation | `frontend/lib/screens/` | Done |
-| Plain messages for a long document, no pages left, partial print, a stale list, an ended session | `release_jobs_screen.dart`, `api_service.dart` | Done, tested |
-| Printer panel signs out after 60 seconds without a touch | `release_jobs_screen.dart` | Done, tested |
-| Works at 1.5 and 2 times text size and on a 360 px phone | | Done, tested |
-| Documents are only ever your own, quota is enforced on the server | `backend/services/PrintStore.cs` | Done, tested |
-| Admin: stats, job table with search and filter, per-user quota editing | `admin_dashboard_screen.dart`, `AdminController.cs` | Done, tested |
-| Demo sign-in with a private sandbox per visitor | `AuthController.cs`, `PrintStore.cs` | Done, tested |
-| Sign in with a Microsoft or Google work account, people added on first sign-in | `Program.cs`, `AuthController.cs`, `WorkspaceOptions.cs` | Done, tested with a simulated provider, **not yet run against a real tenant** |
-| Printers and page limits managed on the server: add printers, a default for new people, one for everyone, one per person, monthly reset | `AdminController.cs`, `admin_dashboard_screen.dart` | Done, tested |
-| Setup check that names anything still to do | `AdminController.Setup` | Done, tested |
-| Real printing | `IPrintDispatcher` | Not built. The demo uses a simulated printer |
-| Sending a file to be held | | Not built. The demo creates sample documents |
+Every picture below was taken from the running app. Click one to see it full size. [Getting started](docs/10-getting-started.md) walks through the same screens with more detail, and [how the pictures are made](tools/screenshots/README.md) is explained if you want to refresh them.
 
-## Design
+### 1. Sign in
 
-UX documents, mockups, the design rules, an [architecture and API reference](docs/07-architecture-and-api.md) and a [review of what went wrong and was fixed](docs/08-review-and-fixes.md) are in [`docs/`](docs/README.md). See also [CONTRIBUTING](CONTRIBUTING.md), [SECURITY](SECURITY.md) and the [CHANGELOG](CHANGELOG.md).
+<p align="center"><a href="docs/images/phone-1-sign-in.png"><img src="docs/images/phone-1-sign-in.png" alt="Phone sign-in screen: a printer picture, the heading Print now, collect at any printer, three steps and a Sign in with Microsoft button" width="300"></a></p>
 
-## Architecture
+One button. There is no registration and no password field: the person signs in with their work account. In the demo the same button opens a private sandbox, and the banner at the top says so.
+
+<p align="center"><a href="docs/images/phone-1b-about-demo.png"><img src="docs/images/phone-1b-about-demo.png" alt="The About this demo dialog explaining that nothing is really printed" width="300"></a></p>
+
+### 2. Choose what to print
+
+<p align="center"><a href="docs/images/phone-2-documents.png"><img src="docs/images/phone-2-documents.png" alt="The person's waiting documents with the first two ticked, a ring showing 38 pages left, and a Print 2 documents, 15 pages button" width="300"></a></p>
+
+Only the person's own documents are listed, newest first. The newest ones are ticked for them, stopping before anything would go over their limit. The ring shows the pages left this month.
+
+Tick a document that is too big, and Print switches off and says what to do:
+
+<p align="center"><a href="docs/images/phone-3-over-limit.png"><img src="docs/images/phone-3-over-limit.png" alt="Three documents ticked, 43 pages. The button is grey and says Over your limit by 5 pages. Untick one." width="300"></a></p>
+
+If more than one printer is set up, tap the printer name at the bottom to choose where to print:
+
+<p align="center"><a href="docs/images/phone-4-pick-printer.png"><img src="docs/images/phone-4-pick-printer.png" alt="A list of three printers with their places, Level 3 East ticked" width="300"></a></p>
+
+### 3. Print
+
+<p align="center"><a href="docs/images/phone-5-printed.png"><img src="docs/images/phone-5-printed.png" alt="Confirmation: Printing at Reception, the two documents with their pages, and 23 of 50 pages left this month" width="300"></a></p>
+
+The confirmation names the printer, lists what printed, and shows the pages left. If the printer rejects some documents, they are named and stay on the list. Nothing is charged for a document that did not print.
+
+### At the printer's own screen
+
+Open a printer's **panel link** on the screen next to it, in full screen. It is fixed to that printer, so there is no question about where to print. It signs the person out after 60 seconds without a touch, and 20 seconds after printing, so the next person never sees their documents.
+
+<p align="center"><a href="docs/images/panel-1-sign-in.png"><img src="docs/images/panel-1-sign-in.png" alt="The printer screen sign-in: Sign in with your work account, and a Tap your staff card option marked Coming later" width="100%"></a></p>
+
+<p align="center"><a href="docs/images/panel-2-documents.png"><img src="docs/images/panel-2-documents.png" alt="The printer screen showing the person's documents as large cards, the printer name Level 3 East and 38 pages left at the top, and a large Print button" width="100%"></a></p>
+
+<p align="center"><a href="docs/images/panel-3-printing.png"><img src="docs/images/panel-3-printing.png" alt="The printer screen after printing: Printing 15 pages, with the pages left this month" width="100%"></a></p>
+
+Staff-card sign-in and a phone-code sign-in are drawn in the mockups but not built yet ([issue #6](https://github.com/Hikki-dev/pull_printing_app/issues/6)).
+
+### For administrators
+
+Everything an administrator needs is on one screen, in the order they need it.
+
+<p align="center"><a href="docs/images/admin-1-overview.png"><img src="docs/images/admin-1-overview.png" alt="The administrator screen: a Setup is complete card, four counts, and the Printers list" width="100%"></a></p>
+
+**Setup.** The first card says **Setup is complete**, or **Finish setting up** with each thing still to do in plain words. For a Microsoft or Google set-up it also shows the exact sign-in address to register, with a **Copy** button.
+
+<p align="center"><a href="docs/images/setup-1-finish.png"><img src="docs/images/setup-1-finish.png" alt="The setup card saying Finish setting up, with the line No printers yet. Add one so people can print." width="100%"></a></p>
+
+<p align="center"><a href="docs/images/setup-2-register-address.png"><img src="docs/images/setup-2-register-address.png" alt="The setup card listing two things to do, and the sign-in address to register with Google, with a Copy button" width="100%"></a></p>
+
+**Printers.** Add, rename, switch off and remove printers. **Copy panel link** gives the address to open on that printer's own screen.
+
+<p align="center"><a href="docs/images/admin-2-printers.png"><img src="docs/images/admin-2-printers.png" alt="The Printers list: Level 3 East, Print room and Reception, each with an on switch, Copy panel link, edit and remove" width="100%"></a></p>
+
+<p align="center"><a href="docs/images/admin-5-add-printer.png"><img src="docs/images/admin-5-add-printer.png" alt="The Add a printer dialog with a name and an optional place" width="100%"></a></p>
+
+**People and quotas.** **New people start with** sets the pages a month for anyone who signs in from now on. **Give everyone** sets one number for the whole organisation (it asks first, because it replaces every limit). Each person also has their own row. People appear here the first time they sign in. Pages start again on the 1st of every month.
+
+<p align="center"><a href="docs/images/admin-3-people.png"><img src="docs/images/admin-3-people.png" alt="People and quotas: a default for new people, a box to give everyone the same pages, and a row per person with a bar and a Save button. Bob Reyes shows 50 of 50, none left." width="100%"></a></p>
+
+<p align="center"><a href="docs/images/admin-6-apply-to-everyone.png"><img src="docs/images/admin-6-apply-to-everyone.png" alt="The confirmation Give everyone 75 pages a month? with Cancel and Apply to everyone" width="100%"></a></p>
+
+**All jobs.** Every job with a search box and a status filter. A failed job says why.
+
+<p align="center"><a href="docs/images/admin-4-jobs.png"><img src="docs/images/admin-4-jobs.png" alt="The All jobs table with the user, document, pages, when it was sent and its status" width="100%"></a></p>
+
+### Signing in with a work account
+
+When the server is set up for Microsoft 365 or Google Workspace, the sign-in button changes to match, and says who can use it.
+
+<table>
+<tr>
+<td width="33%"><a href="docs/images/workspace-google-phone.png"><img src="docs/images/workspace-google-phone.png" alt="Phone sign-in with a Sign in with Google button and the line Use your @example.com account" width="100%"></a></td>
+<td width="33%"><a href="docs/images/workspace-microsoft-phone.png"><img src="docs/images/workspace-microsoft-phone.png" alt="Phone sign-in with a Sign in with Microsoft button and the line Use your work account" width="100%"></a></td>
+<td width="33%"><a href="docs/images/workspace-with-demo.png"><img src="docs/images/workspace-with-demo.png" alt="Phone sign-in with a Google button and a Try the demo instead link" width="100%"></a></td>
+</tr>
+<tr><td align="center"><sub>Google Workspace</sub></td><td align="center"><sub>Microsoft 365</sub></td><td align="center"><sub>With the demo still on</sub></td></tr>
+</table>
+
+Someone who is not allowed in sees the reason, and can try again:
+
+<p align="center"><a href="docs/images/workspace-turned-away.png"><img src="docs/images/workspace-turned-away.png" alt="The sign-in screen with a red box: That account is not allowed here. Sign in with your work account." width="100%"></a></p>
+
+What happens behind the button:
+
+<p align="center"><a href="docs/images/sign-in-flow.svg"><img src="docs/images/sign-in-flow.svg" alt="Six steps: press Sign in, sent to the provider, sign in there, the server checks, added if new, back in the app. A person who is not allowed sees the reason." width="100%"></a></p>
+
+## Run it yourself
+
+You need the [Flutter SDK](https://docs.flutter.dev/get-started/install) and the [.NET 8 SDK](https://dotnet.microsoft.com/download).
+
+```bash
+git clone https://github.com/Hikki-dev/pull_printing_app.git
+cd pull_printing_app
+
+# Just the app, on built-in sample data. No server needed.
+flutter pub get
+flutter run -t frontend/lib/main.dart
+
+# The whole thing: API plus app, the way the hosted demo runs.
+flutter build web -t frontend/lib/main.dart --dart-define=USE_MOCK=false
+mkdir -p backend/wwwroot && cp -r build/web/. backend/wwwroot/
+ASPNETCORE_ENVIRONMENT=Development dotnet run --project backend   # then open the address it prints
+
+# The app against an API running somewhere else (for example flutter run -d chrome)
+flutter run -d chrome -t frontend/lib/main.dart \
+  --dart-define=USE_MOCK=false --dart-define=API_BASE_URL=http://localhost:5000/api
+```
+
+Run the tests with `flutter test` (64) and `dotnet test backend.Tests` (112).
+
+Screens narrower than 760 px use the phone layout, wider ones the printer-panel layout.
+
+### Host it for free
+
+Two ways, both described in [Hosting the demo](docs/06-demo-hosting.md):
+
+* **Static, no server (what the live demo uses).** `vercel.json` and `scripts/vercel-build.sh` build the app on built-in sample data. Connect the repository to a Vercel project.
+* **Full stack.** A `Dockerfile` builds the web app and the API into one image, and `render.yaml` deploys it on Render's free plan: create a free account, choose **New, Blueprint**, and pick this repository.
+
+To use real accounts instead of the demo, follow [Connecting your workspace](docs/09-connecting-your-workspace.md).
+
+### Repository layout
 
 ```
-Flutter app (frontend/)                     ASP.NET Core API (backend/)
- LoginScreen ─┐                                /api/auth/*   sign-in
- ReleaseJobsScreen                             /api/jobs/*   my documents, print
- PrintedScreen ── PrintRepository             /api/printers printers
-                                               /api/admin/*  setup, printers, people, quotas
- AdminDashboardScreen  ├ MockPrintRepository    /healthz
-                       └ HttpPrintRepository ─HTTP─▶  PrintStore (in memory)
-                                                        IPrintDispatcher (simulated)
+frontend/lib/        Flutter source: main.dart, screens, services, models, widgets, utils
+backend/             ASP.NET Core API: controllers, services, models
+backend.Tests/       API, store and sign-in tests (with a simulated Microsoft/Google)
+test/                Flutter tests
+tools/screenshots/   Takes every picture in these docs from the running app
+scripts/             Build script for static hosting
+docs/                Guides, design documents, pictures and mockups
+Dockerfile           One image with the API and the web app
+render.yaml          One-click free hosting on Render
+.github/workflows/   CI: backend tests, Flutter tests, and the Docker image
+CONTRIBUTING.md  SECURITY.md  CHANGELOG.md
 ```
 
-In the hosted demo the API also serves the web build of the app, so there is one address and no cross-origin set-up.
+The Flutter entry point is **`frontend/lib/main.dart`**, not `lib/main.dart`.
 
-### API
+## Your privacy and safety
+
+* **Every route except sign-in and `/healthz` needs a valid token.** Tokens are signed by the server and checked on every request. Admin routes need the Admin role.
+* **People only reach their own data.** Printing ignores any document that is not yours and waiting. Administrators only see and change people in their own group.
+* **Work accounts** sign in on Microsoft's or Google's own page. Pull Print never sees a password, only your organisation gets in, and the client secret stays on the server.
+* **The demo** is limited to 20 sign-ins a minute per address, at most 300 sandboxes exist at once, and each is deleted after 2 hours without use. Switch it off for anything real (`Demo__Enabled=false`): its tokens stop working immediately.
+* **Data is in memory** and is lost when the server restarts (see [Limits](#limits)).
+
+To report a security problem, read [SECURITY.md](SECURITY.md).
+
+## The API in one table
 
 All routes except sign-in and health need `Authorization: Bearer <token>`.
 
@@ -95,66 +249,6 @@ All routes except sign-in and health need `Authorization: Bearer <token>`.
 | `POST` | `/api/admin/set-quota-all` | administrator | Body `{ "quota" }`. Gives everyone the same pages, returns `{ "changed" }` |
 | `POST` `PUT` `DELETE` | `/api/admin/printers`, `/api/admin/printers/{id}` | administrator | Add, change (name, place, on or off) and remove printers |
 | `GET` | `/healthz` | anyone | `{ "status": "ok" }` |
-
-## Sign-in and security
-
-- **Every route except sign-in and `/healthz` needs a valid token.** Tokens are real signed JWTs, checked on every request. Admin routes need the Admin role.
-- **People only reach their own data.** Printing ignores any document id that is not yours and waiting. Administrators only see and change people in their own group, so a demo administrator cannot touch another visitor.
-- **Demo sign-in** (`Demo__Enabled=true`) hands out tokens for private sandboxes. It is limited to 20 sign-ins a minute per address and 300 requests a minute overall, at most 300 sandboxes exist at once, and each person can have at most 12 documents waiting. Switch it off for anything real: its tokens stop working immediately.
-- **Work accounts** (Microsoft 365 or Google Workspace) are used when the `Workspace__*` settings are complete. The sign-in happens on Microsoft's or Google's own page; the server checks the person belongs to your organisation, adds them on first sign-in with the default pages a month, and gives them its own 8-hour session token. Administrators come from `Workspace__Admins` (or a Microsoft app role). Setup takes about ten minutes: [docs/09 Connecting your workspace](docs/09-connecting-your-workspace.md).
-
-  This is tested against a simulated provider only. It has not been run against a real tenant.
-
-## Run it locally
-
-You need the [Flutter SDK](https://docs.flutter.dev/get-started/install) and the [.NET 8 SDK](https://dotnet.microsoft.com/download).
-
-```bash
-git clone https://github.com/Hikki-dev/pull_printing_app.git
-cd pull_printing_app
-
-# Just the app, on built-in sample data. No server needed.
-flutter pub get
-flutter run -t frontend/lib/main.dart
-
-# The whole thing: API plus app, the way the hosted demo runs.
-flutter build web -t frontend/lib/main.dart --dart-define=USE_MOCK=false
-mkdir -p backend/wwwroot && cp -r build/web/. backend/wwwroot/
-ASPNETCORE_ENVIRONMENT=Development dotnet run --project backend   # then open the address it prints
-
-# The app against an API running somewhere else (for example flutter run -d chrome)
-flutter run -d chrome -t frontend/lib/main.dart \
-  --dart-define=USE_MOCK=false --dart-define=API_BASE_URL=http://localhost:5000/api
-```
-
-Run the tests with `flutter test` (43) and `dotnet test backend.Tests` (39).
-
-Screens narrower than 760 px use the phone layout, wider ones the printer-panel layout.
-
-## Host it for free
-
-Two ways, both described in [`docs/06-demo-hosting.md`](docs/06-demo-hosting.md):
-
-- **Static, no server (what the live demo uses).** `vercel.json` and `scripts/vercel-build.sh` build the app on built-in sample data. Connect the repository to a Vercel project.
-- **Full stack.** A `Dockerfile` builds the web app and the API into one image, and `render.yaml` deploys it on Render's free plan: create a free account, choose **New, Blueprint**, and pick this repository.
-
-## Repository layout
-
-```
-frontend/lib/        Flutter source: main.dart, screens, services, models, widgets, utils
-backend/             ASP.NET Core API: controllers, services, models
-backend.Tests/       API and store tests
-scripts/             Build script for static hosting
-CONTRIBUTING.md  SECURITY.md  CHANGELOG.md
-test/                Flutter tests
-docs/                Design documents, mockup images and mockup source
-Dockerfile           One image with the API and the web app
-render.yaml          One-click free hosting on Render
-.github/workflows/   CI: backend and Flutter tests
-android/ ios/ web/ macos/ linux/ windows/   Flutter platform folders
-```
-
-The Flutter entry point is **`frontend/lib/main.dart`**, not `lib/main.dart`.
 
 ## Limits
 
@@ -181,6 +275,28 @@ This is a demo, so on purpose:
 - [ ] A way to send a file to be held
 - [ ] A real printer integration
 - [ ] Card login at the printer
+
+## Help and more reading
+
+| If you want to | Read |
+|---|---|
+| Follow every screen with pictures | [Getting started](docs/10-getting-started.md) |
+| Use Microsoft 365 or Google Workspace | [Connecting your workspace](docs/09-connecting-your-workspace.md) |
+| Find a quick answer or fix a problem | [Fixing problems](docs/11-fixing-problems.md) |
+| Put the demo online for free | [Hosting the demo](docs/06-demo-hosting.md) |
+| Understand how the pieces fit, every route and setting | [Architecture and API](docs/07-architecture-and-api.md) |
+| See what went wrong from each user's point of view, and the fixes | [Review and fixes](docs/08-review-and-fixes.md) |
+| See the screens as designed, with exact wording | [Screen specs](docs/03-screen-specs.md) |
+| Answer the questions that change the design | [Open decisions](docs/05-open-decisions.md) |
+| Refresh the pictures in these docs | [tools/screenshots](tools/screenshots/README.md) |
+| Change the code | [Contributing](CONTRIBUTING.md) |
+| See what changed | [Changes](CHANGELOG.md) |
+
+All the design documents are listed in [`docs/`](docs/README.md).
+
+## Credits
+
+The Microsoft and Google marks on the sign-in buttons are drawn to their published rules and are placeholders: swap in their own assets before a public launch. Printer and document pictures are drawn for this project.
 
 ## Author
 

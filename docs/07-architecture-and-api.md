@@ -4,6 +4,10 @@ How the pieces fit, what the server decides, and every route with an example.
 
 ## The pieces
 
+![A person sends a document, the server holds it, they sign in at the printer and press Print, the server checks their pages and sends it to the printer](images/how-it-fits.svg)
+
+In detail:
+
 ```
 Visitor's browser or phone
    │

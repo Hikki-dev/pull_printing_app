@@ -25,6 +25,8 @@ flutter analyze --no-fatal-infos
 flutter test
 ```
 
+There are 64 app tests and 112 backend tests.
+
 - **Add a test with every behaviour change.** Server rules go in `backend.Tests`; screens and the API client go in `test/`.
 - **Check large text.** `test/widget_test.dart` runs the phone screens at 1.5 and 2 times text size and fails on any overflow. New screens should be added there.
 - **Keep the server in charge.** The app only shows things; any rule about who may do what belongs in the backend, with a test.
@@ -37,6 +39,7 @@ flutter test
 - One change per pull request, with a description that says what changed, why, and how you checked it.
 - Say what you did **not** check.
 - Update the docs in `docs/` and `CHANGELOG.md` when behaviour changes.
+- If a screen changed, take its pictures again: [`tools/screenshots`](tools/screenshots/README.md) explains how. Pictures come from the running app, never from a mock-up.
 
 ## Reporting problems
 

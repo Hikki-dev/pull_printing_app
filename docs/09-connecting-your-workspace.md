@@ -4,9 +4,13 @@ How to make Pull Print use your organisation's own accounts, so people sign in w
 
 Pick the one you use. It takes about ten minutes, and you do it once.
 
-> **Honest status.** The sign-in is built and tested against a **simulated** Microsoft/Google sign-in (the whole round trip, including refusing the wrong organisation). It has **not been run against a real tenant**, because that needs your account. Follow the steps below on a test tenant first. If something does not work, the **Setup** card on the administrator screen says what is missing, and [issue #2](https://github.com/Hikki-dev/pull_printing_app/issues/2) is where to report it.
+> **Honest status.** The sign-in is built and tested against a **simulated** Microsoft/Google sign-in (the whole round trip, including refusing the wrong organisation). It has **not been run against a real tenant**, because that needs your account. Follow the steps below on a test tenant first. If something does not work, see [Fixing problems](11-fixing-problems.md); the **Setup** card on the administrator screen says what is missing, and [issue #2](https://github.com/Hikki-dev/pull_printing_app/issues/2) is where to report it.
 
 ## How it works, in one picture
+
+![Six steps: press Sign in, sent to the provider, sign in there, the server checks, added if new, back in the app](images/sign-in-flow.svg)
+
+In short:
 
 ```
 Person ──▶ "Sign in with Microsoft / Google" ──▶ their normal work sign-in
@@ -104,7 +108,21 @@ Open the printer's **panel link** (`https://<your-host>/?printer=<id>`) on the s
 
 On a phone, the same address without `?printer=` lets the person pick a printer.
 
+## What people and administrators see
+
+The sign-in button changes to match, and says who can use it:
+
+![Google](images/workspace-google-phone.png) ![Microsoft](images/workspace-microsoft-phone.png)
+
+Administrators get a Setup card. It lists what is still to do and shows the exact address to register in step 3 of the guides above:
+
+![Setup card with the sign-in address to register](images/setup-2-register-address.png)
+
+When nothing is left it says **Setup is complete**. Every screen is shown in [Getting started](10-getting-started.md).
+
 ## When someone cannot sign in
+
+![A red box says That account is not allowed here](images/workspace-turned-away.png)
 
 | They see | Why | What to do |
 |---|---|---|

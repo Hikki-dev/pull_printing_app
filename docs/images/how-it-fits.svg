@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 330" role="img" aria-labelledby="t d" font-family="Roboto, Arial, sans-serif">
+  <title id="t">How Pull Print fits together</title>
+  <desc id="d">A person sends a document. The Pull Print server holds it. At the printer the person signs in with their work account, sees only their own documents and presses Print. The server checks their page limit and sends the job to the printer you chose.</desc>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0 0L10 5L0 10z" fill="#0B5CAD"/></marker>
+  </defs>
+  <rect width="960" height="330" fill="#F5F7FA"/>
+  <g fill="#fff" stroke="#C9D3DF" stroke-width="2">
+    <rect x="30" y="100" width="170" height="110" rx="14"/>
+    <rect x="270" y="60" width="230" height="190" rx="14" fill="#0E2A47" stroke="#0E2A47"/>
+    <rect x="570" y="100" width="170" height="110" rx="14"/>
+    <rect x="800" y="100" width="130" height="110" rx="14"/>
+  </g>
+  <g text-anchor="middle" fill="#0E2A47" font-size="18" font-weight="700">
+    <text x="115" y="148">A person</text>
+    <text x="655" y="148">The printer's</text>
+    <text x="865" y="148">The printer</text>
+  </g>
+  <g text-anchor="middle" fill="#4A5868" font-size="14">
+    <text x="115" y="172">sends a document</text>
+    <text x="115" y="192">from anywhere</text>
+    <text x="655" y="172">screen or their phone:</text>
+    <text x="655" y="192">sign in, tick, Print</text>
+    <text x="865" y="172">paper comes out</text>
+    <text x="865" y="192">only now</text>
+  </g>
+  <g text-anchor="middle" fill="#fff">
+    <text x="385" y="100" font-size="20" font-weight="700">Pull Print server</text>
+    <g font-size="14" fill="#C9D8EA">
+      <text x="385" y="132">holds the document (Waiting)</text>
+      <text x="385" y="156">checks who is signed in</text>
+      <text x="385" y="180">shows only their own files</text>
+      <text x="385" y="204">checks their pages this month</text>
+      <text x="385" y="228">keeps printers and page limits</text>
+    </g>
+  </g>
+  <g stroke="#0B5CAD" stroke-width="3" fill="none" marker-end="url(#a)">
+    <path d="M200 140H266"/>
+    <path d="M570 130H504"/>
+    <path d="M504 180H566"/>
+    <path d="M740 155H796"/>
+  </g>
+  <g font-size="13" fill="#0B5CAD" font-weight="700" text-anchor="middle">
+    <text x="233" y="130">1 send</text>
+    <text x="537" y="118">2 sign in</text>
+    <text x="537" y="204">3 Print</text>
+    <text x="768" y="143">4 print</text>
+  </g>
+  <g transform="translate(245 276)">
+    <rect width="280" height="38" rx="19" fill="#fff" stroke="#C9D3DF" stroke-width="2"/>
+    <text x="140" y="24" text-anchor="middle" font-size="14" fill="#0E2A47" font-weight="700">Microsoft 365 or Google Workspace</text>
+  </g>
+  <path d="M385 274V254" stroke="#0B5CAD" stroke-width="3" marker-end="url(#a)" fill="none"/>
+  <text x="545" y="300" font-size="13" fill="#4A5868">proves who the person is</text>
+</svg>

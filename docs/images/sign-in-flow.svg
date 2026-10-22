@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1126 410" role="img" aria-labelledby="t d" font-family="Roboto, Arial, sans-serif">
+<title id="t">What happens when someone signs in with a work account</title>
+<desc id="d">Six steps. The person presses Sign in. The server sends them to Microsoft or Google. They sign in there. The server checks they belong to your organisation. It adds them if they are new, then returns them to the app with a session. The page keeps the session and removes it from the address bar. If the account is not allowed, the person sees the reason and can try again.</desc>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0 0L10 5L0 10z" fill="#0B5CAD"/></marker><marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0 0L10 5L0 10z" fill="#14573A"/></marker><marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0 0L10 5L0 10z" fill="#8A1C1C"/></marker></defs>
+<rect width="1126" height="410" fill="#F5F7FA"/>
+<rect x="24" y="30" width="158" height="170" rx="12" fill="#fff" stroke="#C9D3DF" stroke-width="2"/>
+<circle cx="50" cy="58" r="14" fill="#0B5CAD"/><text x="50" y="63" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">1</text>
+<text x="38" y="104" font-size="16" font-weight="700" fill="#0E2A47">Press Sign in</text>
+<text x="38" y="134" font-size="13" fill="#4A5868">Microsoft or Google,</text>
+<text x="38" y="154" font-size="13" fill="#4A5868">whichever you</text>
+<text x="38" y="174" font-size="13" fill="#4A5868">set up</text>
+<path d="M184 115H205" stroke="#0B5CAD" stroke-width="3" fill="none" marker-end="url(#a)"/>
+<rect x="208" y="30" width="158" height="170" rx="12" fill="#fff" stroke="#C9D3DF" stroke-width="2"/>
+<circle cx="234" cy="58" r="14" fill="#0B5CAD"/><text x="234" y="63" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">2</text>
+<text x="222" y="104" font-size="16" font-weight="700" fill="#0E2A47">Sent to provider</text>
+<text x="222" y="134" font-size="13" fill="#4A5868">The server starts the</text>
+<text x="222" y="154" font-size="13" fill="#4A5868">sign-in. The app</text>
+<text x="222" y="174" font-size="13" fill="#4A5868">holds no secrets</text>
+<path d="M368 115H389" stroke="#0B5CAD" stroke-width="3" fill="none" marker-end="url(#a)"/>
+<rect x="392" y="30" width="158" height="170" rx="12" fill="#fff" stroke="#C9D3DF" stroke-width="2"/>
+<circle cx="418" cy="58" r="14" fill="#0B5CAD"/><text x="418" y="63" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">3</text>
+<text x="406" y="104" font-size="16" font-weight="700" fill="#0E2A47">Sign in there</text>
+<text x="406" y="134" font-size="13" fill="#4A5868">On their own page.</text>
+<text x="406" y="154" font-size="13" fill="#4A5868">Pull Print never</text>
+<text x="406" y="174" font-size="13" fill="#4A5868">sees a password</text>
+<path d="M552 115H573" stroke="#0B5CAD" stroke-width="3" fill="none" marker-end="url(#a)"/>
+<rect x="576" y="30" width="158" height="170" rx="12" fill="#fff" stroke="#C9D3DF" stroke-width="2"/>
+<circle cx="602" cy="58" r="14" fill="#0B5CAD"/><text x="602" y="63" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">4</text>
+<text x="590" y="104" font-size="16" font-weight="700" fill="#0E2A47">Server checks</text>
+<text x="590" y="134" font-size="13" fill="#4A5868">Right organisation?</text>
+<text x="590" y="154" font-size="13" fill="#4A5868">Right domain? Email</text>
+<text x="590" y="174" font-size="13" fill="#4A5868">verified?</text>
+<path d="M736 115H757" stroke="#0B5CAD" stroke-width="3" fill="none" marker-end="url(#a)"/>
+<rect x="760" y="30" width="158" height="170" rx="12" fill="#fff" stroke="#C9D3DF" stroke-width="2"/>
+<circle cx="786" cy="58" r="14" fill="#0B5CAD"/><text x="786" y="63" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">5</text>
+<text x="774" y="104" font-size="16" font-weight="700" fill="#0E2A47">Added if new</text>
+<text x="774" y="134" font-size="13" fill="#4A5868">Gets the default</text>
+<text x="774" y="154" font-size="13" fill="#4A5868">pages a month.</text>
+<text x="774" y="174" font-size="13" fill="#4A5868">Admins: your list</text>
+<path d="M920 115H941" stroke="#0B5CAD" stroke-width="3" fill="none" marker-end="url(#a)"/>
+<rect x="944" y="30" width="158" height="170" rx="12" fill="#fff" stroke="#C9D3DF" stroke-width="2"/>
+<circle cx="970" cy="58" r="14" fill="#0B5CAD"/><text x="970" y="63" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">6</text>
+<text x="958" y="104" font-size="16" font-weight="700" fill="#0E2A47">Back in the app</text>
+<text x="958" y="134" font-size="13" fill="#4A5868">The session is kept,</text>
+<text x="958" y="154" font-size="13" fill="#4A5868">then removed from</text>
+<text x="958" y="174" font-size="13" fill="#4A5868">the address bar</text>
+<rect x="24" y="262" width="500" height="112" rx="12" fill="#E6F4EC" stroke="#A9D4BC" stroke-width="2"/>
+<text x="44" y="294" font-size="16" font-weight="700" fill="#14573A">Signed in</text>
+<text x="44" y="322" font-size="13" fill="#14573A">They see only their own documents, and only the printers you added.</text>
+<text x="44" y="344" font-size="13" fill="#14573A">The session lasts 8 hours. A printer screen signs out after 60 seconds idle.</text>
+<rect x="556" y="262" width="500" height="112" rx="12" fill="#FDECEC" stroke="#E7B4B4" stroke-width="2"/>
+<text x="576" y="294" font-size="16" font-weight="700" fill="#8A1C1C">Turned away?</text>
+<text x="576" y="322" font-size="13" fill="#8A1C1C">Wrong organisation, a personal account, or an unverified email.</text>
+<text x="576" y="344" font-size="13" fill="#8A1C1C">The person sees the reason in a red box and can try again.</text>
+<path d="M1023 200V232H274 V258" stroke="#14573A" stroke-width="3" fill="none" marker-end="url(#g)"/>
+<path d="M655 200V258" stroke="#8A1C1C" stroke-width="3" fill="none" stroke-dasharray="6 5" marker-end="url(#r)"/>
+</svg>
