@@ -9,65 +9,117 @@
 <x-dc>
 <helmet>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 body{margin:0;font-family:'Inter',system-ui,sans-serif}
 a{text-decoration:none}
+.pp-btn{transition:transform .12s ease,box-shadow .12s ease}
+.pp-btn:hover{box-shadow:0 4px 14px rgba(14,42,71,.25)}
+.pp-btn:active{transform:scale(.98)}
+.pp-card{transition:border-color .15s ease,box-shadow .15s ease,transform .1s ease;cursor:pointer}
+.pp-card:active{transform:scale(.985)}
 </style>
 </helmet>
-<div style="width:1024px;height:600px;box-sizing:border-box;background:#F4F6F8;color:#16212C;display:flex;flex-direction:column">
+<div style="width:1024px;height:600px;box-sizing:border-box;background:#F4F6F8;color:#16212C;display:flex;flex-direction:column;overflow:hidden">
 
-  <div style="height:64px;box-sizing:border-box;padding:0 32px;display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid #D5DBE1">
-    <div style="display:flex;align-items:baseline;gap:16px">
-      <span style="font-size:20px;font-weight:700">Alice Tan</span>
-      <span style="font-size:16px;color:#4A5866">38 pages left this month</span>
+  <div style="height:72px;flex:none;box-sizing:border-box;padding:0 32px;display:flex;align-items:center;justify-content:space-between;background:#0E2A47;color:#fff">
+    <div style="display:flex;align-items:center;gap:16px">
+      <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><rect width="36" height="36" rx="9" fill="#0B5CAD"/><path d="M11 8h10l5 5v14a1 1 0 0 1-1 1H11a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" fill="#fff"/><path d="M21 8v5h5" fill="#B9D6F2"/><rect x="13" y="17" width="10" height="1.8" rx=".9" fill="#0B5CAD"/><rect x="13" y="21" width="10" height="1.8" rx=".9" fill="#0B5CAD"/><rect x="13" y="25" width="6" height="1.8" rx=".9" fill="#0B5CAD"/></svg>
+      <span style="font-size:22px;font-weight:800">Alice Tan</span>
+      <span style="font-size:16px;color:#B9CCE0">{{leftNow}} pages left this month</span>
     </div>
-    <a href="Kiosk-SignIn.dc.html" style="display:flex;align-items:center;justify-content:center;height:44px;padding:0 20px;border-radius:10px;border:1px solid #16212C;color:#16212C;font-size:16px;font-weight:600">Sign out</a>
+    <a href="Kiosk-SignIn.dc.html" style="display:flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 20px;border-radius:12px;background:#183B63;color:#fff;font-size:16px;font-weight:600">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4"/><path d="M16 8l4 4-4 4"/><path d="M20 12H9"/></svg>
+      Sign out
+    </a>
   </div>
 
-  <div style="padding:20px 32px 8px;display:flex;align-items:baseline;justify-content:space-between">
-    <h1 style="margin:0;font-size:28px;font-weight:700">Your documents</h1>
-    <span style="font-size:16px;color:#4A5866">Untick any you do not want to print now</span>
+  <div style="padding:20px 32px 12px;display:flex;align-items:baseline;justify-content:space-between">
+    <h1 style="margin:0;font-size:28px;font-weight:800;letter-spacing:-0.01em">Your documents</h1>
+    <span style="font-size:16px;color:#4A5866">Tap a document to include or leave it out</span>
   </div>
 
-  <div style="flex-grow:1;padding:0 32px;display:flex;flex-direction:column;gap:8px;overflow:hidden">
-    <label style="display:flex;align-items:center;gap:20px;min-height:64px;padding:0 20px;background:#fff;border:2px solid #0B5CAD;border-radius:12px">
-      <input type="checkbox" checked style="width:28px;height:28px;accent-color:#0B5CAD;margin:0">
-      <span style="flex-grow:1;font-size:20px;font-weight:600">Q3 budget review.pdf</span>
-      <span style="font-size:18px;color:#4A5866">12 pages</span>
-      <span style="width:110px;text-align:right;font-size:16px;color:#4A5866">Today 9:02</span>
-    </label>
-    <label style="display:flex;align-items:center;gap:20px;min-height:64px;padding:0 20px;background:#fff;border:2px solid #0B5CAD;border-radius:12px">
-      <input type="checkbox" checked style="width:28px;height:28px;accent-color:#0B5CAD;margin:0">
-      <span style="flex-grow:1;font-size:20px;font-weight:600">Site visit notes.docx</span>
-      <span style="font-size:18px;color:#4A5866">3 pages</span>
-      <span style="width:110px;text-align:right;font-size:16px;color:#4A5866">Today 8:47</span>
-    </label>
-    <label style="display:flex;align-items:center;gap:20px;min-height:64px;padding:0 20px;background:#fff;border:2px solid #D5DBE1;border-radius:12px">
-      <input type="checkbox" style="width:28px;height:28px;accent-color:#0B5CAD;margin:0">
-      <span style="flex-grow:1;font-size:20px;font-weight:600">Contract draft v4.pdf</span>
-      <span style="font-size:18px;color:#4A5866">28 pages</span>
-      <span style="width:110px;text-align:right;font-size:16px;color:#4A5866">Yesterday</span>
-    </label>
-    <label style="display:flex;align-items:center;gap:20px;min-height:64px;padding:0 20px;background:#fff;border:2px solid #D5DBE1;border-radius:12px">
-      <input type="checkbox" style="width:28px;height:28px;accent-color:#0B5CAD;margin:0">
-      <span style="flex-grow:1;font-size:20px;font-weight:600">Floor plan.png</span>
-      <span style="font-size:18px;color:#4A5866">1 page</span>
-      <span style="width:110px;text-align:right;font-size:16px;color:#4A5866">Yesterday</span>
-    </label>
+  <div style="flex-grow:1;padding:0 32px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;align-content:start">
+    <sc-for list="{{jobs}}" as="job" hint-placeholder-count="4">
+      <label class="pp-card" style="position:relative;display:flex;flex-direction:column;background:#fff;border:3px solid {{job.border}};border-radius:16px;overflow:hidden;box-shadow:{{job.shadow}}">
+        <span style="height:176px;background:#EAF0F6;display:flex;align-items:center;justify-content:center">
+          <span style="width:120px;height:156px;background:#fff;border-radius:4px;box-shadow:0 3px 10px rgba(14,42,71,.2);position:relative;overflow:hidden;display:block">
+            <sc-if value="{{job.isText}}" hint-placeholder-val="{{ true }}">
+              <span style="position:absolute;left:14px;top:18px;width:58px;height:10px;border-radius:3px;background:{{job.accent}}"></span>
+              <span style="position:absolute;left:14px;top:42px;right:14px;height:6px;border-radius:3px;background:#DCE3EA"></span>
+              <span style="position:absolute;left:14px;top:56px;right:22px;height:6px;border-radius:3px;background:#DCE3EA"></span>
+              <span style="position:absolute;left:14px;top:70px;right:14px;height:6px;border-radius:3px;background:#DCE3EA"></span>
+              <span style="position:absolute;left:14px;top:84px;right:30px;height:6px;border-radius:3px;background:#DCE3EA"></span>
+              <span style="position:absolute;left:14px;top:98px;right:14px;height:6px;border-radius:3px;background:#DCE3EA"></span>
+            </sc-if>
+            <sc-if value="{{job.isPlan}}" hint-placeholder-val="{{ false }}">
+              <span style="position:absolute;left:14px;top:18px;right:14px;bottom:44px;border:3px solid #4A5866;border-radius:1px"></span>
+              <span style="position:absolute;left:58px;top:18px;width:3px;height:48px;background:#4A5866"></span>
+              <span style="position:absolute;left:14px;top:62px;width:44px;height:3px;background:#4A5866"></span>
+            </sc-if>
+            <span style="position:absolute;left:0;right:0;bottom:0;height:26px;background:{{job.accent}};color:#fff;font-size:12px;font-weight:700;letter-spacing:.08em;display:flex;align-items:center;justify-content:center">{{job.ext}}</span>
+          </span>
+        </span>
+        <span style="padding:12px 16px 14px;display:block">
+          <span style="display:block;font-size:17px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{job.name}}</span>
+          <span style="display:block;font-size:15px;color:#4A5866;margin-top:2px">{{job.meta}}</span>
+        </span>
+        <input type="checkbox" aria-label="Include {{job.name}}" checked="{{job.checked}}" onChange="{{job.toggle}}" style="position:absolute;right:12px;top:12px;width:32px;height:32px;margin:0;accent-color:#0B5CAD">
+      </label>
+    </sc-for>
   </div>
 
-  <div style="height:104px;box-sizing:border-box;padding:0 32px;display:flex;align-items:center;gap:24px;background:#fff;border-top:1px solid #D5DBE1">
+  <div style="height:104px;flex:none;box-sizing:border-box;padding:0 32px;display:flex;align-items:center;gap:24px;background:#fff;border-top:1px solid #D5DBE1;box-shadow:0 -6px 18px rgba(14,42,71,.06)">
     <div style="flex-grow:1">
-      <div style="font-size:20px;font-weight:700">2 documents · 15 pages</div>
-      <div style="font-size:16px;color:#4A5866;margin-top:2px">23 pages left after printing</div>
+      <div style="font-size:22px;font-weight:800">{{summary}}</div>
+      <div style="font-size:16px;color:#4A5866;margin-top:2px">{{afterText}}</div>
     </div>
-    <a href="Kiosk-Done.dc.html" style="display:flex;align-items:center;justify-content:center;height:72px;width:300px;border-radius:12px;background:#0B5CAD;color:#fff;font-size:24px;font-weight:700">Print</a>
+    <sc-if value="{{canPrint}}" hint-placeholder-val="{{ true }}">
+      <a class="pp-btn" href="Kiosk-Done.dc.html" style="display:flex;align-items:center;justify-content:center;gap:12px;height:72px;width:320px;border-radius:16px;background:#0B5CAD;color:#fff;font-size:26px;font-weight:800">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v6H7z"/></svg>
+        Print
+      </a>
+    </sc-if>
+    <sc-if value="{{cannotPrint}}" hint-placeholder-val="{{ false }}">
+      <button disabled style="height:72px;width:320px;border-radius:16px;background:#E3E8ED;color:#4A5866;font:inherit;font-size:20px;font-weight:700;border:0">{{blockText}}</button>
+    </sc-if>
   </div>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1024,"height":600}}'>
 class Component extends DCLogic {
-  renderVals() { return {}; }
+  state = { sel: { a: true, b: true, c: false, d: false } };
+  renderVals() {
+    const left = 38;
+    const sel = this.state.sel;
+    const base = [
+      { id: 'a', name: 'Q3 budget review.pdf', pages: 12, when: 'Today 9:02', ext: 'PDF', accent: '#B3261E', kind: 'text' },
+      { id: 'b', name: 'Site visit notes.docx', pages: 3, when: 'Today 8:47', ext: 'DOCX', accent: '#1F4E9C', kind: 'text' },
+      { id: 'c', name: 'Contract draft v4.pdf', pages: 28, when: 'Yesterday', ext: 'PDF', accent: '#B3261E', kind: 'text' },
+      { id: 'd', name: 'Floor plan.png', pages: 1, when: 'Yesterday', ext: 'PNG', accent: '#0F6B63', kind: 'plan' },
+    ];
+    const jobs = base.map((j) => ({
+      ...j,
+      meta: j.pages + (j.pages === 1 ? ' page' : ' pages') + ' · ' + j.when,
+      checked: !!sel[j.id],
+      border: sel[j.id] ? '#0B5CAD' : '#E3E8ED',
+      shadow: sel[j.id] ? '0 6px 18px rgba(11,92,173,.18)' : 'none',
+      isText: j.kind === 'text',
+      isPlan: j.kind === 'plan',
+      toggle: () => this.setState({ sel: { ...sel, [j.id]: !sel[j.id] } }),
+    }));
+    const chosen = base.filter((j) => sel[j.id]);
+    const pages = chosen.reduce((n, j) => n + j.pages, 0);
+    const over = pages > left;
+    return {
+      jobs,
+      leftNow: left,
+      summary: chosen.length + (chosen.length === 1 ? ' document' : ' documents') + ' · ' + pages + ' pages',
+      afterText: over ? (pages - left) + ' pages over your limit' : (left - pages) + ' pages left after printing',
+      canPrint: chosen.length > 0 && !over,
+      cannotPrint: chosen.length === 0 || over,
+      blockText: chosen.length === 0 ? 'Select a document' : 'Over your limit',
+    };
+  }
 }
 </script>
 </body>

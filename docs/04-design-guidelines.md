@@ -2,16 +2,23 @@
 
 The visual style is deliberately plain: a utility people use in ten seconds and forget.
 
-## What we will not use
+## Imagery and logos
 
-- AI-generated images, illustrations or mascots.
-- Decorative icons, emoji, gradient backgrounds, glow or glass effects.
-- Stock photos of people or offices.
-- Vendor logos in buttons (the sign-in button is text).
+**Not used:** AI-generated images or mascots, stock photos, emoji, gradient washes, glow or glass effects.
 
-Where guidance images are needed, use real screenshots of the real app and of the real printer panel, taken once the screens are built, and add numbered callouts in a plain tool. Until then the mockups in [`design/screens/`](design/screens/) serve as the guide images.
+**Used:**
 
-Icons are allowed only where text cannot do the job: sign out, tick. They are simple outline shapes drawn in the same stroke weight, always with a text or accessible label.
+| Item | Source | Notes |
+|---|---|---|
+| Microsoft logo on the sign-in button | Microsoft's published four-square mark and sign-in button rules | Required for "Sign in with Microsoft". Colours `#F25022 #7FBA00 #00A4EF #FFB900`, white button, grey border, grey text. Replace the drawn copy with the asset from Microsoft's branding page before release. |
+| Pull Print mark | Our own, a document with text lines on the primary blue | Placeholder until the organisation supplies its own logo. |
+| Printer illustration | Our own flat vector, two blues, one animated sheet | Used on sign-in and confirmation screens. Replace with a photo of the real printer once available. |
+| Document thumbnails | Drawn from the file type: page with title bar and text lines, a file-type strip (PDF, DOCX, PNG) | In the build, replace with a real first-page preview from the server. |
+| Avatars | Initials on a flat colour | Replace with the Microsoft profile photo if available. |
+
+Only outline icons where text cannot do the job (sign out, printer, status). Each has a text or accessible label.
+
+Guide images: the mockups in [`design/screens/`](design/screens/) for now. After build, use real screenshots with numbered callouts and a photo of the actual printer panel.
 
 ## Colour
 
@@ -22,7 +29,8 @@ Icons are allowed only where text cannot do the job: sign out, tick. They are si
 | Text | `#16212C` | Body and headings |
 | Muted text | `#4A5866` | Secondary text (7:1 on white) |
 | Border | `#D5DBE1` | Card and field outlines |
-| Primary | `#0B5CAD` | Print button, selection, progress |
+| Primary | `#0B5CAD` | Print button, selection |
+| Hero navy | `#0E2A47` | Headers, sign-in and confirmation backgrounds |
 | Waiting | text on `#FFF0D1`, text `#6B4200` | Status label |
 | Failed | text on `#FBE3E3`, text `#7A1F1F` | Status label |
 

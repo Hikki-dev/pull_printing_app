@@ -20,7 +20,8 @@ Seven screens. Images are the mockups in [`design/screens/`](design/screens/).
 
 **Purpose:** get the person signed in, and tell a first-time user what the product does in three lines.
 
-- One button: **Sign in with Microsoft**. Plain text, no vendor logo.
+- Dark hero with the printer illustration (a sheet feeds out of it, animated). White sheet below holds the heading and three step cards.
+- One button: **Sign in with Microsoft**, using Microsoft's official mark and button style.
 - "How it works" is three numbered steps. This is the in-app guide for new users.
 - No registration, no password field. Identity comes from the work account.
 
@@ -31,7 +32,8 @@ Seven screens. Images are the mockups in [`design/screens/`](design/screens/).
 **Purpose:** see own waiting documents and print the ones wanted.
 
 - Pages-left bar at the top.
-- Each job is a whole row that toggles a checkbox (72 px tall). Shows file name, page count, when it was sent.
+- Dark header with greeting and a ring showing pages left.
+- Each job is a whole row that toggles a checkbox. Shows a document thumbnail with file-type strip, file name, page count, when it was sent. Selecting updates the button and totals live; over quota disables the button and says by how many pages.
 - Selected rows have a thick blue border and a tick, so selection is not shown by colour alone.
 - Bottom bar: chosen printer and one button that states what it will do, "Print 2 jobs · 15 pages".
 - Sign-out is an icon button with an accessible label.
@@ -51,7 +53,7 @@ Seven screens. Images are the mockups in [`design/screens/`](design/screens/).
 
 **Purpose:** identify the person at the printer. Screen is 1024 × 600, touch.
 
-- Left: heading and one reassurance line ("You will only see your own documents").
+- Left: dark panel with logo, heading, reassurance line and the printer illustration.
 - Right, primary: sign in with phone. A short code is shown large; the person enters it at `microsoft.com/devicelogin` on their own phone, then taps **I have entered the code**. This is the standard Microsoft device-code sign-in, so no keyboard is needed on the panel.
 - Right, secondary: tap staff card, marked "Coming later". This becomes the fast path once readers exist.
 - Header shows the printer name and status so people know which printer they are at.
@@ -63,7 +65,7 @@ Seven screens. Images are the mockups in [`design/screens/`](design/screens/).
 **Purpose:** print everything with one tap. The most important screen.
 
 - Header: name, pages left, **Sign out** (always visible).
-- Rows are 64 px, whole row toggles. Documents the person sent most recently are ticked by default.
+- Documents are cards with large thumbnails, 4 across; the whole card toggles. Documents sent today are ticked by default.
 - Footer: running total ("2 documents · 15 pages"), pages left after printing, and the **Print** button (300 × 72 px, largest element).
 - If the selection is over quota, the footer says by how many pages and Print is disabled.
 
