@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone held jobs</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+body{margin:0;font-family:'Inter',system-ui,sans-serif}
+a{text-decoration:none}
+.pp-btn{transition:transform .12s ease,box-shadow .12s ease}
+.pp-btn:hover{box-shadow:0 4px 14px rgba(14,42,71,.22)}
+.pp-btn:active{transform:scale(.98)}
+.pp-row{transition:border-color .15s ease,box-shadow .15s ease,transform .1s ease;cursor:pointer}
+.pp-row:active{transform:scale(.99)}
+.pp-ring{transition:stroke-dasharray .35s ease}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#F4F6F8;color:#16212C;display:flex;flex-direction:column;overflow:hidden">
+
+  <div style="background:#0E2A47;color:#fff;padding:24px 20px 44px;position:relative">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px">
+        <svg width="28" height="28" viewBox="0 0 36 36" aria-hidden="true"><rect width="36" height="36" rx="9" fill="#0B5CAD"/><path d="M11 8h10l5 5v14a1 1 0 0 1-1 1H11a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" fill="#fff"/><path d="M21 8v5h5" fill="#B9D6F2"/><rect x="13" y="17" width="10" height="1.8" rx=".9" fill="#0B5CAD"/><rect x="13" y="21" width="10" height="1.8" rx=".9" fill="#0B5CAD"/><rect x="13" y="25" width="6" height="1.8" rx=".9" fill="#0B5CAD"/></svg>
+        <span style="font-size:16px;font-weight:700">Pull Print</span>
+      </div>
+      <a href="Main.dc.html" aria-label="Sign out" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:#183B63;color:#fff">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4"/><path d="M16 8l4 4-4 4"/><path d="M20 12H9"/></svg>
+      </a>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px">
+      <div>
+        <div style="font-size:14px;color:#B9CCE0">Good morning</div>
+        <div style="font-size:26px;font-weight:800;letter-spacing:-0.02em">Alice Tan</div>
+        <div style="font-size:14px;color:#B9CCE0;margin-top:2px">{{waitingText}}</div>
+      </div>
+      <div style="position:relative;width:84px;height:84px">
+        <svg width="84" height="84" viewBox="0 0 84 84" role="img" aria-label="{{leftNow}} of 50 pages left">
+          <circle cx="42" cy="42" r="34" fill="none" stroke="#2A5282" stroke-width="8"/>
+          <circle class="pp-ring" cx="42" cy="42" r="34" fill="none" stroke="#6CB4F5" stroke-width="8" stroke-linecap="round" stroke-dasharray="{{ringDash}}" transform="rotate(-90 42 42)"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1">
+          <span style="font-size:22px;font-weight:800">{{leftNow}}</span>
+          <span style="font-size:10px;color:#B9CCE0;margin-top:2px">pages left</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="position:relative;flex-grow:1;margin-top:-24px;background:#F4F6F8;border-radius:24px 24px 0 0;display:flex;flex-direction:column;min-height:0">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 10px">
+      <h1 style="margin:0;font-size:18px;font-weight:700">Waiting to print</h1>
+      <span style="font-size:14px;color:#4A5866">Tap to select</span>
+    </div>
+
+    <div style="flex-grow:1;overflow:hidden;padding:0 20px;display:flex;flex-direction:column;gap:10px">
+      <sc-for list="{{jobs}}" as="job" hint-placeholder-count="4">
+        <label class="pp-row" style="display:flex;align-items:center;gap:14px;padding:10px 14px 10px 10px;background:#fff;border:2px solid {{job.border}};border-radius:14px;box-shadow:{{job.shadow}}">
+          <span style="width:52px;height:68px;flex:none;background:#fff;border:1px solid #D5DBE1;border-radius:4px;box-shadow:0 1px 3px rgba(14,42,71,.14);position:relative;overflow:hidden;box-sizing:border-box">
+            <sc-if value="{{job.isText}}" hint-placeholder-val="{{ true }}">
+              <span style="position:absolute;left:6px;top:8px;width:26px;height:5px;border-radius:2px;background:{{job.accent}}"></span>
+              <span style="position:absolute;left:6px;top:19px;right:6px;height:3px;border-radius:2px;background:#DCE3EA"></span>
+              <span style="position:absolute;left:6px;top:26px;right:10px;height:3px;border-radius:2px;background:#DCE3EA"></span>
+              <span style="position:absolute;left:6px;top:33px;right:6px;height:3px;border-radius:2px;background:#DCE3EA"></span>
+              <span style="position:absolute;left:6px;top:40px;right:14px;height:3px;border-radius:2px;background:#DCE3EA"></span>
+            </sc-if>
+            <sc-if value="{{job.isPlan}}" hint-placeholder-val="{{ false }}">
+              <span style="position:absolute;left:6px;top:8px;right:6px;bottom:20px;border:2px solid #4A5866;border-radius:1px"></span>
+              <span style="position:absolute;left:25px;top:8px;width:2px;height:22px;background:#4A5866"></span>
+              <span style="position:absolute;left:6px;top:28px;width:19px;height:2px;background:#4A5866"></span>
+            </sc-if>
+            <span style="position:absolute;left:0;right:0;bottom:0;height:14px;background:{{job.accent}};color:#fff;font-size:8px;font-weight:700;letter-spacing:.06em;display:flex;align-items:center;justify-content:center">{{job.ext}}</span>
+          </span>
+          <span style="flex-grow:1;min-width:0">
+            <span style="display:block;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{job.name}}</span>
+            <span style="display:block;font-size:13px;color:#4A5866;margin-top:3px">{{job.meta}}</span>
+          </span>
+          <input type="checkbox" aria-label="Select {{job.name}}" checked="{{job.checked}}" onChange="{{job.toggle}}" style="width:26px;height:26px;accent-color:#0B5CAD;margin:0;flex:none">
+        </label>
+      </sc-for>
+    </div>
+
+    <div style="padding:14px 20px 22px;background:#fff;border-top:1px solid #D5DBE1;display:flex;flex-direction:column;gap:12px;box-shadow:0 -6px 18px rgba(14,42,71,.06)">
+      <div style="display:flex;align-items:center;justify-content:space-between;font-size:14px">
+        <span style="display:flex;align-items:center;gap:8px;color:#4A5866">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v6H7z"/></svg>
+          Printer
+        </span>
+        <span style="font-weight:600">Level 3 East</span>
+      </div>
+      <sc-if value="{{canPrint}}" hint-placeholder-val="{{ true }}">
+        <a class="pp-btn" href="Phone-Done.dc.html" style="display:flex;align-items:center;justify-content:center;height:56px;border-radius:12px;background:#0B5CAD;color:#fff;font-size:17px;font-weight:700">{{buttonText}}</a>
+      </sc-if>
+      <sc-if value="{{cannotPrint}}" hint-placeholder-val="{{ false }}">
+        <button disabled style="display:flex;align-items:center;justify-content:center;height:56px;border-radius:12px;background:#E3E8ED;color:#4A5866;font:inherit;font-size:16px;font-weight:600;border:0;width:100%">{{blockText}}</button>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { sel: { a: true, b: true, c: false, d: false } };
+  renderVals() {
+    const left = 38;
+    const sel = this.state.sel;
+    const base = [
+      { id: 'a', name: 'Q3 budget review.pdf', pages: 12, when: 'Today 9:02', ext: 'PDF', accent: '#B3261E', kind: 'text' },
+      { id: 'b', name: 'Site visit notes.docx', pages: 3, when: 'Today 8:47', ext: 'DOCX', accent: '#1F4E9C', kind: 'text' },
+      { id: 'c', name: 'Contract draft v4.pdf', pages: 28, when: 'Yesterday', ext: 'PDF', accent: '#B3261E', kind: 'text' },
+      { id: 'd', name: 'Floor plan.png', pages: 1, when: 'Yesterday', ext: 'PNG', accent: '#0F6B63', kind: 'plan' },
+    ];
+    const jobs = base.map((j) => ({
+      ...j,
+      meta: j.pages + (j.pages === 1 ? ' page' : ' pages') + ' · ' + j.when,
+      checked: !!sel[j.id],
+      border: sel[j.id] ? '#0B5CAD' : '#E3E8ED',
+      shadow: sel[j.id] ? '0 4px 14px rgba(11,92,173,.14)' : 'none',
+      isText: j.kind === 'text',
+      isPlan: j.kind === 'plan',
+      toggle: () => this.setState({ sel: { ...sel, [j.id]: !sel[j.id] } }),
+    }));
+    const chosen = base.filter((j) => sel[j.id]);
+    const pages = chosen.reduce((n, j) => n + j.pages, 0);
+    const over = pages > left;
+    const C = 2 * Math.PI * 34;
+    const afterLeft = Math.max(left - pages, 0);
+    return {
+      jobs,
+      leftNow: left,
+      waitingText: base.length + ' documents waiting',
+      ringDash: ((left / 50) * C).toFixed(1) + ' ' + C.toFixed(1),
+      canPrint: chosen.length > 0 && !over,
+      cannotPrint: chosen.length === 0 || over,
+      buttonText: 'Print ' + chosen.length + (chosen.length === 1 ? ' document' : ' documents') + ' · ' + pages + ' pages',
+      blockText: chosen.length === 0 ? 'Select a document to print' : 'Over your limit by ' + (pages - left) + ' pages. Untick one.',
+    };
+  }
+}
+</script>
+</body>
+</html>

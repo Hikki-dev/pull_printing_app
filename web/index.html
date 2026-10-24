@@ -1,38 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
+  <!-- Replaced with the value of `--base-href` when the app is built. -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Try pull printing: send a document, walk up to a printer, sign in and print it. A demo with sample data, so nothing is really printed.">
+  <meta name="theme-color" content="#0E2A47">
+  <meta name="color-scheme" content="light">
+
+  <!-- Link previews -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Pull Print">
+  <meta property="og:title" content="Pull Print demo">
+  <meta property="og:description" content="Documents wait on a server until you are at the printer and tap Print. Try it with sample data.">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="pull_printing_app">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pull Print">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>pull_printing_app</title>
+  <link rel="icon" type="image/png" href="favicon.png">
   <link rel="manifest" href="manifest.json">
+
+  <title>Pull Print demo</title>
+
+  <style>
+    html, body { margin: 0; height: 100%; background: #0E2A47; }
+    /* Shown while the app downloads, so visitors never see a blank page. */
+    #splash {
+      position: fixed; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 20px;
+      background: #0E2A47; color: #fff;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    }
+    #splash .brand { display: flex; align-items: center; gap: 12px; font-size: 24px; font-weight: 700; }
+    #splash .hint { font-size: 15px; line-height: 1.4; color: #B9CCE0; max-width: 300px; padding: 0 24px; text-align: center; }
+    #splash .spinner {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 3px solid #2A5282; border-top-color: #6CB4F5;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { #splash .spinner { animation: none; border-top-color: #2A5282; } }
+  </style>
 </head>
 <body>
+  <div id="splash" role="status" aria-live="polite">
+    <div class="brand">
+      <svg width="40" height="40" viewBox="0 0 36 36" aria-hidden="true"><rect width="36" height="36" rx="9" fill="#0B5CAD"/><path d="M11 8h10l5 5v14a1 1 0 0 1-1 1H11a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" fill="#fff"/><path d="M21 8v5h5" fill="#B9D6F2"/><rect x="13" y="17" width="10" height="1.8" rx=".9" fill="#0B5CAD"/><rect x="13" y="21" width="10" height="1.8" rx=".9" fill="#0B5CAD"/><rect x="13" y="25" width="6" height="1.8" rx=".9" fill="#0B5CAD"/></svg>
+      Pull Print
+    </div>
+    <div class="spinner" aria-hidden="true"></div>
+    <div class="hint">Loading the demo. This can take a few seconds the first time.</div>
+    <noscript><div class="hint">This demo needs JavaScript to run.</div></noscript>
+  </div>
+  <script>
+    // Remove the loading screen as soon as the app has drawn its first frame.
+    window.addEventListener('flutter-first-frame', function () {
+      var el = document.getElementById('splash');
+      if (el) el.remove();
+    });
+  </script>
+  <script>
+    // Signing in with a work account comes back to this page as "#token=..." or "#error=...".
+    // Keep it for the app and take it out of the address bar and the history straight away.
+    (function () {
+      var h = location.hash.slice(1);
+      if (/^(token|error)=/.test(h)) {
+        window.pullPrintHash = h;
+        history.replaceState(null, '', location.pathname + location.search);
+      }
+    })();
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 name: pull_printing_app
-description: A Flutter frontend for pull printing with Azure AD authentication and job release.
+description: "Pull printing - send a document, sign in at any printer with your work account, and tap Print."
 publish_to: 'none' # Since this is internal to your company
 
 version: 1.0.0+1
@@ -10,14 +10,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
 
   # Networking & state management
   http: ^1.2.0
   dio: ^5.1.1
   provider: ^6.1.2
-
-  # Azure AD authentication
-  msal_flutter: ^2.0.1
 
   # Data & storage
   json_annotation: ^4.9.0

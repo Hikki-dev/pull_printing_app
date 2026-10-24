@@ -1,0 +1,33 @@
+name: Bug report
+description: Something does not work, looks wrong, or is confusing
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what you saw instead.
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where
+      options:
+        - Phone layout
+        - Printer panel layout
+        - Administrator screen
+        - Sign-in
+        - Server or API
+        - Hosting
+    validations:
+      required: true
+  - type: input
+    id: setup
+    attributes:
+      label: Device, browser and text size
+      placeholder: "Phone, Chrome, text size larger than normal"
+  - type: textarea
+    id: shot
+    attributes:
+      label: Screenshot or message shown

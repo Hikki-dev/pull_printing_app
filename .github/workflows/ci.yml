@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet test backend.Tests
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+      - run: flutter analyze --no-fatal-infos
+      - run: flutter test
+
+  docker:
+    # Builds the image the way a host would, then starts it and checks it answers.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t pull-print-demo .
+      - name: Start the image and check it
+        run: |
+          docker run -d --name pp -p 8080:8080 pull-print-demo
+          for i in $(seq 1 30); do curl -fs http://localhost:8080/healthz && break; sleep 2; done
+          curl -fs http://localhost:8080/healthz
+          curl -fs http://localhost:8080/ | grep -q "Pull Print demo"
+          curl -fs -X POST -H 'content-type: application/json' -d '{"admin":false}' \
+            http://localhost:8080/api/auth/demo-login | grep -q '"token"'
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/jobs/held)" = "401"
+      - if: failure()
+        run: docker logs pp
