@@ -3,14 +3,15 @@
 [![CI](https://github.com/Hikki-dev/pull_printing_app/actions/workflows/ci.yml/badge.svg)](https://github.com/Hikki-dev/pull_printing_app/actions/workflows/ci.yml)
 ![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)
 ![.NET](https://img.shields.io/badge/.NET-8-512BD4?logo=dotnet&logoColor=white)
-[![Live demo](https://img.shields.io/badge/live-demo-0B5CAD)](https://pull-print-demo-hikki-devs-projects.vercel.app)
+[![Live demo](https://img.shields.io/badge/live-demo-0B5CAD)](https://pull-print-demo.vercel.app)
 ![Status](https://img.shields.io/badge/status-working%20demo-orange)
+[![Licence: MIT](https://img.shields.io/github/license/Hikki-dev/pull_printing_app)](LICENSE)
 
 Send a document to print. It waits safely on a server. It only prints when you walk up to a printer, sign in with your work account and press **Print**. Printers and every person's page limit are managed from one screen.
 
 <p align="center"><img src="docs/images/demo.gif" alt="A short walk through on a phone: sign in, two documents are ticked, the third would go over the page limit, then Print and the confirmation" width="300"></p>
 
-<p align="center"><sub>A short walk through on a phone. <b><a href="https://pull-print-demo-hikki-devs-projects.vercel.app">Try it yourself</a></b>. It runs on sample data, so nothing is really printed and no account is needed.</sub></p>
+<p align="center"><sub>A short walk through on a phone. <b><a href="https://pull-print-demo.vercel.app">Try it yourself</a></b>. It runs on sample data, so nothing is really printed and no account is needed.</sub></p>
 
 You do not need to know how any of it works. Every screen says in plain words what to do next.
 
@@ -50,11 +51,11 @@ Send once, walk up, sign in, press Print. The server holds the document until th
 
 <p align="center"><a href="docs/images/how-it-fits.svg"><img src="docs/images/how-it-fits.svg" alt="Diagram: a person sends a document, the Pull Print server holds it, at the printer's screen the person signs in and presses Print, the server checks their pages and sends it to the printer. Microsoft 365 or Google Workspace proves who the person is" width="100%"></a></p>
 
-The whole story, including who decides what, is in [Architecture and API](docs/07-architecture-and-api.md).
+The whole story, including who decides what, is in [How it works](docs/How%20it%20works.md).
 
 ## Try it first
 
-**Live demo: <https://pull-print-demo-hikki-devs-projects.vercel.app>** (runs entirely in your browser on built-in sample data).
+**Live demo: <https://pull-print-demo.vercel.app>** (runs entirely in your browser on built-in sample data).
 
 * Press **Sign in with Microsoft**. In the demo that signs you in to a private sandbox as "Alice Tan". No account is needed.
 * You start with four sample documents and 38 of 50 pages left.
@@ -72,7 +73,7 @@ Run the server with your Microsoft 365 or Google Workspace details and people si
 
 ## The screens, step by step
 
-Every picture below was taken from the running app. Click one to see it full size. [Getting started](docs/10-getting-started.md) walks through the same screens with more detail, and [how the pictures are made](tools/screenshots/README.md) is explained if you want to refresh them.
+Every picture below was taken from the running app. Click one to see it full size. [Getting started](docs/Getting%20started.md) walks through the same screens with more detail, and [how the pictures are made](tools/screenshots/README.md) is explained if you want to refresh them.
 
 ### 1. Sign in
 
@@ -280,11 +281,12 @@ This is a demo, so on purpose:
 
 | If you want to | Read |
 |---|---|
-| Follow every screen with pictures | [Getting started](docs/10-getting-started.md) |
+| Follow every screen with pictures | [Getting started](docs/Getting%20started.md) |
 | Use Microsoft 365 or Google Workspace | [Connecting your workspace](docs/09-connecting-your-workspace.md) |
-| Find a quick answer or fix a problem | [Fixing problems](docs/11-fixing-problems.md) |
+| Find a quick answer | [Questions and answers](docs/FAQ.md) |
+| Fix a problem | [Fixing problems](docs/Fixing%20problems.md) |
 | Put the demo online for free | [Hosting the demo](docs/06-demo-hosting.md) |
-| Understand how the pieces fit, every route and setting | [Architecture and API](docs/07-architecture-and-api.md) |
+| Understand how the pieces fit, every route and setting | [How it works](docs/How%20it%20works.md) |
 | See what went wrong from each user's point of view, and the fixes | [Review and fixes](docs/08-review-and-fixes.md) |
 | See the screens as designed, with exact wording | [Screen specs](docs/03-screen-specs.md) |
 | Answer the questions that change the design | [Open decisions](docs/05-open-decisions.md) |
@@ -293,6 +295,11 @@ This is a demo, so on purpose:
 | See what changed | [Changes](CHANGELOG.md) |
 
 All the design documents are listed in [`docs/`](docs/README.md).
+
+## Legal and responsibility
+
+* Pull Print is a portfolio and learning project, and a demo. It is not a finished print product, and nothing in the live demo prints on paper.
+* The code is released under the [MIT licence](LICENSE), as it is, with no promises.
 
 ## Credits
 

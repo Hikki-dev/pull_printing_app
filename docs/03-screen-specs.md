@@ -2,7 +2,7 @@
 
 Seven screens. Images are the mockups in [`design/screens/`](design/screens/).
 
-> The pictures below are the **mockups** the app was built from. For pictures of the screens as built, see [Getting started](10-getting-started.md).
+> The pictures below are the **mockups** the app was built from. For pictures of the screens as built, see [Getting started](Getting%20started.md).
 
 ## Wording
 
