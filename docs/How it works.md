@@ -1,4 +1,4 @@
-# 07 Architecture and API
+# How it works
 
 How the pieces fit, what the server decides, and every route with an example.
 

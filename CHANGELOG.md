@@ -9,7 +9,7 @@ All notable changes. Newest first.
 - **Printers and quotas managed on the server.** Administrators add, switch off and remove printers, set pages a month for new people, for everyone or for one person, and see a setup check that names anything still to do. Pages start again each month.
 - A printer picker on the phone, and printer panels fixed to one printer by their address (`?printer=`).
 - `docs/09-connecting-your-workspace.md`: the ten-minute setup for Microsoft and Google.
-- A new README and guides with pictures of every screen taken from the running app (`docs/10-getting-started.md`, `docs/11-fixing-problems.md`), two diagrams, a short demo GIF, and `tools/screenshots/` to make them again.
+- A new README and guides with pictures of every screen taken from the running app (`docs/Getting%20started.md`, `docs/Fixing%20problems.md`), two diagrams, a short demo GIF, and `tools/screenshots/` to make them again.
 - Phone and printer-panel screens: sign in, choose documents, print, confirmation, administrator view.
 - A working .NET 8 backend with protected routes, quota checks on the server, and private demo sandboxes.
 - Demo banner and "What is this?" dialog on every screen, sample documents on demand, and **Start over**.

@@ -4,7 +4,7 @@ How to make Pull Print use your organisation's own accounts, so people sign in w
 
 Pick the one you use. It takes about ten minutes, and you do it once.
 
-> **Honest status.** The sign-in is built and tested against a **simulated** Microsoft/Google sign-in (the whole round trip, including refusing the wrong organisation). It has **not been run against a real tenant**, because that needs your account. Follow the steps below on a test tenant first. If something does not work, see [Fixing problems](11-fixing-problems.md); the **Setup** card on the administrator screen says what is missing, and [issue #2](https://github.com/Hikki-dev/pull_printing_app/issues/2) is where to report it.
+> **Honest status.** The sign-in is built and tested against a **simulated** Microsoft/Google sign-in (the whole round trip, including refusing the wrong organisation). It has **not been run against a real tenant**, because that needs your account. Follow the steps below on a test tenant first. If something does not work, see [Fixing problems](Fixing%20problems.md); the **Setup** card on the administrator screen says what is missing, and [issue #2](https://github.com/Hikki-dev/pull_printing_app/issues/2) is where to report it.
 
 ## How it works, in one picture
 
@@ -118,7 +118,7 @@ Administrators get a Setup card. It lists what is still to do and shows the exac
 
 ![Setup card with the sign-in address to register](images/setup-2-register-address.png)
 
-When nothing is left it says **Setup is complete**. Every screen is shown in [Getting started](10-getting-started.md).
+When nothing is left it says **Setup is complete**. Every screen is shown in [Getting started](Getting%20started.md).
 
 ## When someone cannot sign in
 

@@ -1,4 +1,4 @@
-# 10 Getting started
+# Getting started
 
 This page walks through Pull Print one screen at a time, for the three kinds of people who use it: someone printing, someone at a printer's own screen, and an administrator. Every picture was taken from the running app.
 
@@ -6,7 +6,7 @@ Click any picture on GitHub to open it full size.
 
 ## Before you start
 
-You can try everything with nothing installed: open the [live demo](https://pull-print-demo-hikki-devs-projects.vercel.app). It runs on sample data, so nothing is really printed and no account is needed.
+You can try everything with nothing installed: open the [live demo](https://pull-print-demo.vercel.app). It runs on sample data, so nothing is really printed and no account is needed.
 
 To run your own copy, see the [README](../README.md#run-it-yourself). To use your organisation's accounts, see [Connecting your workspace](09-connecting-your-workspace.md).
 
@@ -131,6 +131,6 @@ If the demo is still on, a **Try the demo instead** link is shown too. Turn the 
 
 ## What next
 
-* Something not working? See [Fixing problems](11-fixing-problems.md).
+* Something not working? See [Fixing problems](Fixing%20problems.md).
 * Connect your own accounts: [Connecting your workspace](09-connecting-your-workspace.md).
-* How the pieces fit and every route: [Architecture and API](07-architecture-and-api.md).
+* How the pieces fit and every route: [How it works](How%20it%20works.md).

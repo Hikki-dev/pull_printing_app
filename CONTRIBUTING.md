@@ -13,7 +13,7 @@ flutter run -t frontend/lib/main.dart        # the app on built-in sample data
 dotnet run --project backend                 # the API (ASPNETCORE_ENVIRONMENT=Development turns demo sign-in on)
 ```
 
-The README has the full list of ways to run it, and [`docs/07-architecture-and-api.md`](docs/07-architecture-and-api.md) explains how the pieces fit.
+The README has the full list of ways to run it, and [`docs/How%20it%20works.md`](docs/How%20it%20works.md) explains how the pieces fit.
 
 ## Before you open a pull request
 
