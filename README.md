@@ -22,9 +22,7 @@ You do not need to know how any of it works. Every screen says in plain words wh
 * [Try it first](#try-it-first): the live demo, no account needed
 * [Use it with your own accounts](#use-it-with-your-own-accounts): Microsoft 365 or Google Workspace
 * [The screens, step by step](#the-screens-step-by-step)
-  * [1. Sign in](#1-sign-in)
-  * [2. Choose what to print](#2-choose-what-to-print)
-  * [3. Print](#3-print)
+  * [On a phone: steps 1 to 5](#on-a-phone-steps-1-to-5)
   * [At the printer's own screen](#at-the-printers-own-screen)
   * [For administrators](#for-administrators)
   * [Signing in with a work account](#signing-in-with-a-work-account)
@@ -75,33 +73,36 @@ Run the server with your Microsoft 365 or Google Workspace details and people si
 
 Every picture below was taken from the running app. Click one to see it full size. [Getting started](docs/Getting%20started.md) walks through the same screens with more detail, and [how the pictures are made](tools/screenshots/README.md) is explained if you want to refresh them.
 
-### 1. Sign in
+### On a phone: steps 1 to 5
 
-<p align="center"><a href="docs/images/phone-1-sign-in.png"><img src="docs/images/phone-1-sign-in.png" alt="Phone sign-in screen: a printer picture, the heading Print now, collect at any printer, three steps and a Sign in with Microsoft button" width="300"></a></p>
+The whole phone journey, left to right. Click a picture to see it full size. Each step is explained under the pictures.
 
-One button. There is no registration and no password field: the person signs in with their work account. In the demo the same button opens a private sandbox, and the banner at the top says so.
+<table>
+<tr>
+<td width="20%" valign="top"><a href="docs/images/phone-1-sign-in.png"><img src="docs/images/phone-1-sign-in.png" alt="Phone sign-in screen: a printer picture, the heading Print now, collect at any printer, three steps and a Sign in with Microsoft button" width="100%"></a></td>
+<td width="20%" valign="top"><a href="docs/images/phone-2-documents.png"><img src="docs/images/phone-2-documents.png" alt="The person's waiting documents with the first two ticked, a ring showing 38 pages left, and a Print 2 documents, 15 pages button" width="100%"></a></td>
+<td width="20%" valign="top"><a href="docs/images/phone-3-over-limit.png"><img src="docs/images/phone-3-over-limit.png" alt="Three documents ticked, 43 pages. The button is grey and says Over your limit by 5 pages. Untick one." width="100%"></a></td>
+<td width="20%" valign="top"><a href="docs/images/phone-4-pick-printer.png"><img src="docs/images/phone-4-pick-printer.png" alt="A list of three printers with their places, Level 3 East ticked" width="100%"></a></td>
+<td width="20%" valign="top"><a href="docs/images/phone-5-printed.png"><img src="docs/images/phone-5-printed.png" alt="Confirmation: Printing at Reception, the two documents with their pages, and 23 of 50 pages left this month" width="100%"></a></td>
+</tr>
+<tr>
+<td align="center"><b>1</b><br><sub>Sign in</sub></td>
+<td align="center"><b>2</b><br><sub>Choose what to print</sub></td>
+<td align="center"><b>3</b><br><sub>Over the limit</sub></td>
+<td align="center"><b>4</b><br><sub>Pick a printer</sub></td>
+<td align="center"><b>5</b><br><sub>Printed</sub></td>
+</tr>
+</table>
 
-<p align="center"><a href="docs/images/phone-1b-about-demo.png"><img src="docs/images/phone-1b-about-demo.png" alt="The About this demo dialog explaining that nothing is really printed" width="300"></a></p>
+**1. Sign in.** One button. There is no registration and no password field: the person signs in with their work account. In the demo the same button opens a private sandbox, and the banner at the top says so. **What is this?** in the banner explains the demo in plain words ([the dialog](#signing-in-with-a-work-account) is shown below).
 
-### 2. Choose what to print
+**2. Choose what to print.** Only the person's own documents are listed, newest first. The newest ones are ticked for them, stopping before anything would go over their limit. The ring shows the pages left this month.
 
-<p align="center"><a href="docs/images/phone-2-documents.png"><img src="docs/images/phone-2-documents.png" alt="The person's waiting documents with the first two ticked, a ring showing 38 pages left, and a Print 2 documents, 15 pages button" width="300"></a></p>
+**3. Over the limit.** Tick a document that is too big, and Print switches off and says by how many pages, so the person knows to untick one.
 
-Only the person's own documents are listed, newest first. The newest ones are ticked for them, stopping before anything would go over their limit. The ring shows the pages left this month.
+**4. Pick a printer.** If more than one printer is set up, tap the printer name at the bottom to choose where to print.
 
-Tick a document that is too big, and Print switches off and says what to do:
-
-<p align="center"><a href="docs/images/phone-3-over-limit.png"><img src="docs/images/phone-3-over-limit.png" alt="Three documents ticked, 43 pages. The button is grey and says Over your limit by 5 pages. Untick one." width="300"></a></p>
-
-If more than one printer is set up, tap the printer name at the bottom to choose where to print:
-
-<p align="center"><a href="docs/images/phone-4-pick-printer.png"><img src="docs/images/phone-4-pick-printer.png" alt="A list of three printers with their places, Level 3 East ticked" width="300"></a></p>
-
-### 3. Print
-
-<p align="center"><a href="docs/images/phone-5-printed.png"><img src="docs/images/phone-5-printed.png" alt="Confirmation: Printing at Reception, the two documents with their pages, and 23 of 50 pages left this month" width="300"></a></p>
-
-The confirmation names the printer, lists what printed, and shows the pages left. If the printer rejects some documents, they are named and stay on the list. Nothing is charged for a document that did not print.
+**5. Print.** The confirmation names the printer, lists what printed, and shows the pages left. If the printer rejects some documents, they are named and stay on the list. Nothing is charged for a document that did not print.
 
 ### At the printer's own screen
 
@@ -149,11 +150,12 @@ When the server is set up for Microsoft 365 or Google Workspace, the sign-in but
 
 <table>
 <tr>
-<td width="33%"><a href="docs/images/workspace-google-phone.png"><img src="docs/images/workspace-google-phone.png" alt="Phone sign-in with a Sign in with Google button and the line Use your @example.com account" width="100%"></a></td>
-<td width="33%"><a href="docs/images/workspace-microsoft-phone.png"><img src="docs/images/workspace-microsoft-phone.png" alt="Phone sign-in with a Sign in with Microsoft button and the line Use your work account" width="100%"></a></td>
-<td width="33%"><a href="docs/images/workspace-with-demo.png"><img src="docs/images/workspace-with-demo.png" alt="Phone sign-in with a Google button and a Try the demo instead link" width="100%"></a></td>
+<td width="25%" valign="top"><a href="docs/images/phone-1b-about-demo.png"><img src="docs/images/phone-1b-about-demo.png" alt="The About this demo dialog explaining that nothing is really printed" width="100%"></a></td>
+<td width="25%"><a href="docs/images/workspace-google-phone.png"><img src="docs/images/workspace-google-phone.png" alt="Phone sign-in with a Sign in with Google button and the line Use your @example.com account" width="100%"></a></td>
+<td width="25%"><a href="docs/images/workspace-microsoft-phone.png"><img src="docs/images/workspace-microsoft-phone.png" alt="Phone sign-in with a Sign in with Microsoft button and the line Use your work account" width="100%"></a></td>
+<td width="25%"><a href="docs/images/workspace-with-demo.png"><img src="docs/images/workspace-with-demo.png" alt="Phone sign-in with a Google button and a Try the demo instead link" width="100%"></a></td>
 </tr>
-<tr><td align="center"><sub>Google Workspace</sub></td><td align="center"><sub>Microsoft 365</sub></td><td align="center"><sub>With the demo still on</sub></td></tr>
+<tr><td align="center"><sub>The About this demo dialog</sub></td><td align="center"><sub>Google Workspace</sub></td><td align="center"><sub>Microsoft 365</sub></td><td align="center"><sub>With the demo still on</sub></td></tr>
 </table>
 
 Someone who is not allowed in sees the reason, and can try again:
