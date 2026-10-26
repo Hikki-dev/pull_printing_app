@@ -77,12 +77,12 @@ Every picture below was taken from the running app. Click one to see it full siz
 
 The whole phone journey, left to right. Click a picture to see it full size. Each step is explained under the pictures.
 
-<table>
+<table align="center">
 <tr>
-<td valign="top" width="25%"><a href="docs/images/phone-1-sign-in.png"><img src="docs/images/phone-1-sign-in.png" alt="Phone sign-in screen: a printer picture, the heading Print now, collect at any printer, three steps and a Sign in with Microsoft button" width="185"></a></td>
-<td valign="top" width="25%"><a href="docs/images/phone-2-documents.png"><img src="docs/images/phone-2-documents.png" alt="The person's waiting documents with the first two ticked, a ring showing 38 pages left, and a Print 2 documents, 15 pages button" width="185"></a></td>
-<td valign="top" width="25%"><a href="docs/images/phone-3-over-limit.png"><img src="docs/images/phone-3-over-limit.png" alt="Three documents ticked, 43 pages. The button is grey and says Over your limit by 5 pages. Untick one." width="185"></a></td>
-<td valign="top" width="25%"><a href="docs/images/phone-4-pick-printer.png"><img src="docs/images/phone-4-pick-printer.png" alt="A list of three printers with their places, Level 3 East ticked" width="185"></a></td>
+<td valign="top"><a href="docs/images/phone-1-sign-in.png"><img src="docs/images/phone-1-sign-in.png" alt="Phone sign-in screen: a printer picture, the heading Print now, collect at any printer, three steps and a Sign in with Microsoft button" width="185"></a></td>
+<td valign="top"><a href="docs/images/phone-2-documents.png"><img src="docs/images/phone-2-documents.png" alt="The person's waiting documents with the first two ticked, a ring showing 38 pages left, and a Print 2 documents, 15 pages button" width="185"></a></td>
+<td valign="top"><a href="docs/images/phone-3-over-limit.png"><img src="docs/images/phone-3-over-limit.png" alt="Three documents ticked, 43 pages. The button is grey and says Over your limit by 5 pages. Untick one." width="185"></a></td>
+<td valign="top"><a href="docs/images/phone-4-pick-printer.png"><img src="docs/images/phone-4-pick-printer.png" alt="A list of three printers with their places, Level 3 East ticked" width="185"></a></td>
 </tr>
 <tr>
 <td align="center" valign="top"><b>1</b><br><sub>Sign in</sub></td>
@@ -92,18 +92,12 @@ The whole phone journey, left to right. Click a picture to see it full size. Eac
 </tr>
 </table>
 
-<table>
+<table align="center">
 <tr>
-<td valign="top" width="25%"><a href="docs/images/phone-5-printed.png"><img src="docs/images/phone-5-printed.png" alt="Confirmation: Printing at Reception, the two documents with their pages, and 23 of 50 pages left this month" width="185"></a></td>
-<td></td>
-<td></td>
-<td></td>
+<td valign="top"><a href="docs/images/phone-5-printed.png"><img src="docs/images/phone-5-printed.png" alt="Confirmation: Printing at Reception, the two documents with their pages, and 23 of 50 pages left this month" width="185"></a></td>
 </tr>
 <tr>
 <td align="center" valign="top"><b>5</b><br><sub>Printed</sub></td>
-<td></td>
-<td></td>
-<td></td>
 </tr>
 </table>
 
@@ -161,12 +155,12 @@ Everything an administrator needs is on one screen, in the order they need it.
 
 When the server is set up for Microsoft 365 or Google Workspace, the sign-in button changes to match, and says who can use it.
 
-<table>
+<table align="center">
 <tr>
-<td valign="top" width="25%"><a href="docs/images/phone-1b-about-demo.png"><img src="docs/images/phone-1b-about-demo.png" alt="The About this demo dialog explaining that nothing is really printed" width="185"></a></td>
-<td valign="top" width="25%"><a href="docs/images/workspace-google-phone.png"><img src="docs/images/workspace-google-phone.png" alt="Phone sign-in with a Sign in with Google button and the line Use your @example.com account" width="185"></a></td>
-<td valign="top" width="25%"><a href="docs/images/workspace-microsoft-phone.png"><img src="docs/images/workspace-microsoft-phone.png" alt="Phone sign-in with a Sign in with Microsoft button and the line Use your work account" width="185"></a></td>
-<td valign="top" width="25%"><a href="docs/images/workspace-with-demo.png"><img src="docs/images/workspace-with-demo.png" alt="Phone sign-in with a Google button and a Try the demo instead link" width="185"></a></td>
+<td valign="top"><a href="docs/images/phone-1b-about-demo.png"><img src="docs/images/phone-1b-about-demo.png" alt="The About this demo dialog explaining that nothing is really printed" width="185"></a></td>
+<td valign="top"><a href="docs/images/workspace-google-phone.png"><img src="docs/images/workspace-google-phone.png" alt="Phone sign-in with a Sign in with Google button and the line Use your @example.com account" width="185"></a></td>
+<td valign="top"><a href="docs/images/workspace-microsoft-phone.png"><img src="docs/images/workspace-microsoft-phone.png" alt="Phone sign-in with a Sign in with Microsoft button and the line Use your work account" width="185"></a></td>
+<td valign="top"><a href="docs/images/workspace-with-demo.png"><img src="docs/images/workspace-with-demo.png" alt="Phone sign-in with a Google button and a Try the demo instead link" width="185"></a></td>
 </tr>
 <tr>
 <td align="center" valign="top"><b>1</b><br><sub>The About this demo dialog</sub></td>
