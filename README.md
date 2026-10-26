@@ -17,7 +17,7 @@ You do not need to know how any of it works. Every screen says in plain words wh
 
 ## On this page
 
-* [What you get](#what-you-get)
+* [What you get](#what-you-get): the parts, and what it is built with
 * [How everything fits together](#how-everything-fits-together): one document, from sending to paper
 * [Try it first](#try-it-first): the live demo, no account needed
 * [Use it with your own accounts](#use-it-with-your-own-accounts): Microsoft 365 or Google Workspace
@@ -42,6 +42,16 @@ You do not need to know how any of it works. Every screen says in plain words wh
 | **One place to manage everything** | Add printers, set pages a month for one person or everyone, see what is still to set up | [Administrators](#for-administrators) |
 | **Printer screens fixed to one printer** | Open a printer's link on its own screen and it prints there | [Printer's own screen](#at-the-printers-own-screen) |
 | **A free demo** | Every visitor gets private sample documents | [Try it first](#try-it-first) |
+
+### What it is built with
+
+<table>
+<tr><td width="64"><img src="docs/images/icons/flutter.png" alt="Flutter logo" width="48"></td><td width="170"><b>Flutter</b></td><td>The phone, printer-screen and admin screens, and the browser demo</td></tr>
+<tr><td><img src="docs/images/icons/dart.png" alt="Dart logo" width="48"></td><td><b>Dart</b></td><td>The language Flutter is written in</td></tr>
+<tr><td><img src="docs/images/icons/dotnet.png" alt="ASP.NET Core logo" width="48"></td><td><b>ASP.NET Core</b></td><td>The server: holds the documents, checks page limits and handles sign-in</td></tr>
+<tr><td><img src="docs/images/icons/vercel.png" alt="Vercel logo" width="48"></td><td><b>Vercel</b></td><td>Hosts the free demo</td></tr>
+<tr><td><img src="docs/images/icons/githubactions.png" alt="GitHub Actions logo" width="48"></td><td><b>GitHub Actions</b></td><td>Runs the checks on every change</td></tr>
+</table>
 
 ## How everything fits together
 
