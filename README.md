@@ -82,22 +82,28 @@ The whole phone journey, left to right. Click a picture to see it full size. Eac
 <td valign="top" width="25%"><a href="docs/images/phone-1-sign-in.png"><img src="docs/images/phone-1-sign-in.png" alt="Phone sign-in screen: a printer picture, the heading Print now, collect at any printer, three steps and a Sign in with Microsoft button" width="185"></a></td>
 <td valign="top" width="25%"><a href="docs/images/phone-2-documents.png"><img src="docs/images/phone-2-documents.png" alt="The person's waiting documents with the first two ticked, a ring showing 38 pages left, and a Print 2 documents, 15 pages button" width="185"></a></td>
 <td valign="top" width="25%"><a href="docs/images/phone-3-over-limit.png"><img src="docs/images/phone-3-over-limit.png" alt="Three documents ticked, 43 pages. The button is grey and says Over your limit by 5 pages. Untick one." width="185"></a></td>
+<td valign="top" width="25%"><a href="docs/images/phone-4-pick-printer.png"><img src="docs/images/phone-4-pick-printer.png" alt="A list of three printers with their places, Level 3 East ticked" width="185"></a></td>
 </tr>
 <tr>
 <td align="center" valign="top"><b>1</b><br><sub>Sign in</sub></td>
 <td align="center" valign="top"><b>2</b><br><sub>Choose what to print</sub></td>
 <td align="center" valign="top"><b>3</b><br><sub>Over the limit</sub></td>
+<td align="center" valign="top"><b>4</b><br><sub>Pick a printer</sub></td>
 </tr>
 </table>
 
 <table>
 <tr>
-<td valign="top" width="25%"><a href="docs/images/phone-4-pick-printer.png"><img src="docs/images/phone-4-pick-printer.png" alt="A list of three printers with their places, Level 3 East ticked" width="185"></a></td>
 <td valign="top" width="25%"><a href="docs/images/phone-5-printed.png"><img src="docs/images/phone-5-printed.png" alt="Confirmation: Printing at Reception, the two documents with their pages, and 23 of 50 pages left this month" width="185"></a></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr>
-<td align="center" valign="top"><b>4</b><br><sub>Pick a printer</sub></td>
 <td align="center" valign="top"><b>5</b><br><sub>Printed</sub></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </table>
 
