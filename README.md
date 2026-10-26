@@ -87,20 +87,27 @@ Every picture below was taken from the running app. Click one to see it full siz
 
 The whole phone journey, left to right. Click a picture to see it full size. Each step is explained under the pictures.
 
-<table>
+<table align="center">
 <tr>
-<td width="20%" valign="top"><a href="docs/images/phone-1-sign-in.png"><img src="docs/images/phone-1-sign-in.png" alt="Phone sign-in screen: a printer picture, the heading Print now, collect at any printer, three steps and a Sign in with Microsoft button" width="100%"></a></td>
-<td width="20%" valign="top"><a href="docs/images/phone-2-documents.png"><img src="docs/images/phone-2-documents.png" alt="The person's waiting documents with the first two ticked, a ring showing 38 pages left, and a Print 2 documents, 15 pages button" width="100%"></a></td>
-<td width="20%" valign="top"><a href="docs/images/phone-3-over-limit.png"><img src="docs/images/phone-3-over-limit.png" alt="Three documents ticked, 43 pages. The button is grey and says Over your limit by 5 pages. Untick one." width="100%"></a></td>
-<td width="20%" valign="top"><a href="docs/images/phone-4-pick-printer.png"><img src="docs/images/phone-4-pick-printer.png" alt="A list of three printers with their places, Level 3 East ticked" width="100%"></a></td>
-<td width="20%" valign="top"><a href="docs/images/phone-5-printed.png"><img src="docs/images/phone-5-printed.png" alt="Confirmation: Printing at Reception, the two documents with their pages, and 23 of 50 pages left this month" width="100%"></a></td>
+<td valign="top"><a href="docs/images/phone-1-sign-in.png"><img src="docs/images/phone-1-sign-in.png" alt="Phone sign-in screen: a printer picture, the heading Print now, collect at any printer, three steps and a Sign in with Microsoft button" height="400"></a></td>
+<td valign="top"><a href="docs/images/phone-2-documents.png"><img src="docs/images/phone-2-documents.png" alt="The person's waiting documents with the first two ticked, a ring showing 38 pages left, and a Print 2 documents, 15 pages button" height="400"></a></td>
+<td valign="top"><a href="docs/images/phone-3-over-limit.png"><img src="docs/images/phone-3-over-limit.png" alt="Three documents ticked, 43 pages. The button is grey and says Over your limit by 5 pages. Untick one." height="400"></a></td>
+<td valign="top"><a href="docs/images/phone-4-pick-printer.png"><img src="docs/images/phone-4-pick-printer.png" alt="A list of three printers with their places, Level 3 East ticked" height="400"></a></td>
 </tr>
 <tr>
-<td align="center"><b>1</b><br><sub>Sign in</sub></td>
-<td align="center"><b>2</b><br><sub>Choose what to print</sub></td>
-<td align="center"><b>3</b><br><sub>Over the limit</sub></td>
-<td align="center"><b>4</b><br><sub>Pick a printer</sub></td>
-<td align="center"><b>5</b><br><sub>Printed</sub></td>
+<td align="center" valign="top"><b>1</b><br><sub>Sign in</sub></td>
+<td align="center" valign="top"><b>2</b><br><sub>Choose what to print</sub></td>
+<td align="center" valign="top"><b>3</b><br><sub>Over the limit</sub></td>
+<td align="center" valign="top"><b>4</b><br><sub>Pick a printer</sub></td>
+</tr>
+</table>
+
+<table align="center">
+<tr>
+<td valign="top"><a href="docs/images/phone-5-printed.png"><img src="docs/images/phone-5-printed.png" alt="Confirmation: Printing at Reception, the two documents with their pages, and 23 of 50 pages left this month" height="400"></a></td>
+</tr>
+<tr>
+<td align="center" valign="top"><b>5</b><br><sub>Printed</sub></td>
 </tr>
 </table>
 
@@ -158,14 +165,19 @@ Everything an administrator needs is on one screen, in the order they need it.
 
 When the server is set up for Microsoft 365 or Google Workspace, the sign-in button changes to match, and says who can use it.
 
-<table>
+<table align="center">
 <tr>
-<td width="25%" valign="top"><a href="docs/images/phone-1b-about-demo.png"><img src="docs/images/phone-1b-about-demo.png" alt="The About this demo dialog explaining that nothing is really printed" width="100%"></a></td>
-<td width="25%"><a href="docs/images/workspace-google-phone.png"><img src="docs/images/workspace-google-phone.png" alt="Phone sign-in with a Sign in with Google button and the line Use your @example.com account" width="100%"></a></td>
-<td width="25%"><a href="docs/images/workspace-microsoft-phone.png"><img src="docs/images/workspace-microsoft-phone.png" alt="Phone sign-in with a Sign in with Microsoft button and the line Use your work account" width="100%"></a></td>
-<td width="25%"><a href="docs/images/workspace-with-demo.png"><img src="docs/images/workspace-with-demo.png" alt="Phone sign-in with a Google button and a Try the demo instead link" width="100%"></a></td>
+<td valign="top"><a href="docs/images/phone-1b-about-demo.png"><img src="docs/images/phone-1b-about-demo.png" alt="The About this demo dialog explaining that nothing is really printed" height="400"></a></td>
+<td valign="top"><a href="docs/images/workspace-google-phone.png"><img src="docs/images/workspace-google-phone.png" alt="Phone sign-in with a Sign in with Google button and the line Use your @example.com account" height="400"></a></td>
+<td valign="top"><a href="docs/images/workspace-microsoft-phone.png"><img src="docs/images/workspace-microsoft-phone.png" alt="Phone sign-in with a Sign in with Microsoft button and the line Use your work account" height="400"></a></td>
+<td valign="top"><a href="docs/images/workspace-with-demo.png"><img src="docs/images/workspace-with-demo.png" alt="Phone sign-in with a Google button and a Try the demo instead link" height="400"></a></td>
 </tr>
-<tr><td align="center"><sub>The About this demo dialog</sub></td><td align="center"><sub>Google Workspace</sub></td><td align="center"><sub>Microsoft 365</sub></td><td align="center"><sub>With the demo still on</sub></td></tr>
+<tr>
+<td align="center" valign="top"><b>1</b><br><sub>The About this demo dialog</sub></td>
+<td align="center" valign="top"><b>2</b><br><sub>Google Workspace</sub></td>
+<td align="center" valign="top"><b>3</b><br><sub>Microsoft 365</sub></td>
+<td align="center" valign="top"><b>4</b><br><sub>With the demo still on</sub></td>
+</tr>
 </table>
 
 Someone who is not allowed in sees the reason, and can try again:
